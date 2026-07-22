@@ -183,7 +183,7 @@ async function startServer() {
   // Advance Workflow Stage
   app.post('/api/applications/:id/advance', (req, res) => {
     const { id } = req.params;
-    const { nextStage, reason, userName, userRole } = req.body;
+    const { nextStage, reason, note, userName, userRole } = req.body;
 
     const project = applicationsStore.find((a) => a.id === id);
     if (!project) {
@@ -200,43 +200,69 @@ async function startServer() {
     const prevStage = project.stage;
     project.stage = nextStage;
 
+    // Save note to message thread if provided
+    const noteText = note || reason;
+    if (noteText && noteText.trim()) {
+      if (!clarificationMessagesStore[id]) {
+        clarificationMessagesStore[id] = [];
+      }
+      clarificationMessagesStore[id].push({
+        id: `MSG-${Date.now().toString().slice(-4)}`,
+        projectId: id,
+        senderRole: userRole || 'scholar',
+        senderName: userName || `Official (${userRole || 'Scholar Board'})`,
+        timestamp: new Date().toISOString(),
+        message: noteText.trim(),
+        isCustomerRead: false
+      });
+    }
+
     if (nextStage === 'published_registry') {
-      // Create Certificate in Public Registry
-      const newCert: PublicCertifiedProject = {
-        id: `HC-2026-${Math.floor(100 + Math.random() * 900)}`,
-        name: project.companyName,
-        symbol: project.companyName.substring(0, 4).toUpperCase(),
-        logoUrl: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=120&auto=format&fit=crop&q=80',
-        blockchain: project.blockchain,
-        category: 'Web3 Ecosystem',
-        certificateStatus: 'valid',
-        certificateType: 'Sharia Compliance Certificate',
-        certificateNumber: `HC-CERT-2026-${Math.floor(8800 + Math.random() * 1000)}`,
-        issueDate: new Date().toISOString().split('T')[0],
-        expiryDate: new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
-        riskRating: 'Compliant',
-        websiteUrl: project.websiteUrl,
-        whitepaperUrl: project.whitepaperUrl,
-        contractAddress: project.contractAddress,
-        shariaSummaryEn: `Certified Sharia compliant by HalalChain Sharia Board after comprehensive technical bytecode analysis and business model audit under HalalChain Standard v2.1.`,
-        shariaSummaryAr: `معتمد ومعان بالامتثال الشرعي من قبل المجلس الشرعي لحلال تشين بعد تحليل البرمجيات الشامل وتدقيق نموذج العمل.`,
-        scholarSignatures: ['Sheikh Dr. Ali Al-Quradaghi', 'Dr. Nizam Yaquby'],
-        verificationHash: `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`
-      };
-      certifiedProjectsStore.unshift(newCert);
+      const existingCert = certifiedProjectsStore.find((p) => p.name.toLowerCase() === project.companyName.toLowerCase());
+      if (!existingCert) {
+        const newCert: PublicCertifiedProject = {
+          id: `HC-2026-${Math.floor(100 + Math.random() * 900)}`,
+          name: project.companyName,
+          symbol: project.companyName.substring(0, 4).toUpperCase(),
+          logoUrl: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=120&auto=format&fit=crop&q=80',
+          blockchain: project.blockchain,
+          category: 'Web3 Ecosystem',
+          certificateStatus: 'valid',
+          certificateType: 'Sharia Compliance Certificate',
+          certificateNumber: `HC-CERT-2026-${Math.floor(8800 + Math.random() * 1000)}`,
+          issueDate: new Date().toISOString().split('T')[0],
+          expiryDate: new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
+          riskRating: 'Compliant',
+          websiteUrl: project.websiteUrl,
+          whitepaperUrl: project.whitepaperUrl,
+          contractAddress: project.contractAddress,
+          shariaSummaryEn: `Certified Sharia compliant by HalalChain Sharia Board after comprehensive technical bytecode analysis and business model audit under HalalChain Standard v2.1.`,
+          shariaSummaryAr: `معتمد ومعان بالامتثال الشرعي من قبل المجلس الشرعي لحلال تشين بعد تحليل البرمجيات الشامل وتدقيق نموذج العمل.`,
+          scholarSignatures: ['Sheikh Dr. Ali Al-Quradaghi', 'Dr. Nizam Yaquby'],
+          verificationHash: `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`
+        };
+        certifiedProjectsStore.unshift(newCert);
+      }
     }
 
     // Record Audit Log
+    const actionLabel =
+      nextStage === 'rejected'
+        ? 'Application Rejected / Certificate Denied'
+        : nextStage === 'clarification_requested' || nextStage === 'waiting_customer_response'
+        ? 'Clarification Requested from Applicant'
+        : 'Workflow Stage Changed';
+
     auditLogsStore.unshift({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: userName || 'Operations Employee',
       userRole: userRole || 'pm',
       projectId: project.id,
-      action: 'Workflow Stage Changed',
+      action: actionLabel,
       previousValue: prevStage,
       newValue: nextStage,
-      reason: reason || 'Stage transition',
+      reason: noteText || 'Stage transition decision',
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
     });

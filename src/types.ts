@@ -48,7 +48,9 @@ export type WorkflowStage =
   | 'certificate_generation'
   | 'published_registry'
   | 'completed'
-  | 'waiting_customer_response';
+  | 'waiting_customer_response'
+  | 'rejected'
+  | 'clarification_requested';
 
 export type CertificateStatus =
   | 'valid'

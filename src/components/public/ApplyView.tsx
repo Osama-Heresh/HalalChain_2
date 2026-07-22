@@ -12,13 +12,13 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
   selectedPackage = 'Professional',
   onApplicationCreated
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [submitting, setSubmitting] = useState(false);
   const [successApp, setSuccessApp] = useState<CertificationApplication | null>(null);
 
   const [formData, setFormData] = useState({
     companyName: '',
-    legalCountry: 'United Arab Emirates',
+    legalCountry: lang === 'ar' ? 'الإمارات العربية المتحدة' : 'United Arab Emirates',
     representativeName: '',
     officialEmail: '',
     phone: '',
@@ -63,32 +63,41 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           <CheckCircle2 className="w-10 h-10" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold font-serif text-slate-900">Application Submitted Successfully!</h2>
-          <p className="text-xs text-slate-600 font-mono">Application Reference Number: <span className="text-amber-700 font-bold">{successApp.applicationNumber}</span></p>
+          <h2 className="text-2xl font-bold font-serif text-slate-900">
+            {lang === 'ar' ? 'تم تقديم الطلب بنجاح!' : 'Application Submitted Successfully!'}
+          </h2>
+          <p className="text-xs text-slate-600 font-mono">
+            {lang === 'ar' ? 'رقم مرجع الطلب:' : 'Application Reference Number:'}{' '}
+            <span className="text-amber-700 font-bold">{successApp.applicationNumber}</span>
+          </p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 text-left space-y-3 text-xs font-mono">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 text-left rtl:text-right space-y-3 text-xs font-mono">
           <div className="flex justify-between border-b pb-2">
-            <span className="text-slate-500">Project Name:</span>
+            <span className="text-slate-500">{lang === 'ar' ? 'اسم المشروع:' : 'Project Name:'}</span>
             <span className="font-bold text-slate-900">{successApp.companyName}</span>
           </div>
           <div className="flex justify-between border-b pb-2">
-            <span className="text-slate-500">Package Tier:</span>
+            <span className="text-slate-500">{lang === 'ar' ? 'الباقة المحددة:' : 'Package Tier:'}</span>
             <span className="font-bold text-amber-700">{successApp.packageType}</span>
           </div>
           <div className="flex justify-between border-b pb-2">
-            <span className="text-slate-500">Initial Deposit Due:</span>
+            <span className="text-slate-500">{lang === 'ar' ? 'العربون المستحق:' : 'Initial Deposit Due:'}</span>
             <span className="font-bold text-emerald-700">${successApp.depositAmount.toLocaleString()} USD</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-500">Target Completion Date:</span>
+            <span className="text-slate-500">{lang === 'ar' ? 'التاريخ المتوقع للإنجاز:' : 'Target Completion Date:'}</span>
             <span className="font-bold text-slate-900">{successApp.targetCompletionDate}</span>
           </div>
         </div>
 
-        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs text-amber-900 text-left leading-relaxed">
-          <span className="font-semibold block mb-1">Next Step in Workflow:</span>
-          Please switch to the <span className="font-bold text-amber-800">Customer Portal</span> tab in the top header bar to complete your initial deposit payment and track the real-time AI Information Extraction progress.
+        <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs text-amber-900 text-left rtl:text-right leading-relaxed">
+          <span className="font-semibold block mb-1">
+            {lang === 'ar' ? 'الخطوة التالية في مسار العمل:' : 'Next Step in Workflow:'}
+          </span>
+          {lang === 'ar'
+            ? 'يرجى الانتقال إلى تبويب بوابة العملاء في الشريط العلوي لإتمام دفع العربون ومتابعة تقدم استخراج البيانات بالذكاء الاصطناعي في الوقت الفعلي.'
+            : 'Please switch to the Customer Portal tab in the top header bar to complete your initial deposit payment and track the real-time AI Information Extraction progress.'}
         </div>
       </div>
     );
@@ -100,17 +109,25 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 text-xs font-mono font-medium border border-amber-500/20">
           <ShieldCheck className="w-4 h-4 text-amber-600" />
-          <span>HalalChain Online Application</span>
+          <span>{lang === 'ar' ? 'طلب الاعتماد الإلكتروني - حلال تشين' : 'HalalChain Online Application'}</span>
         </div>
-        <h1 className="text-3xl font-bold font-serif text-slate-900">Apply for Sharia Certification</h1>
-        <p className="text-sm text-slate-600">Submit your project details to initiate the automated AI collection and Sharia audit workflow.</p>
+        <h1 className="text-3xl font-bold font-serif text-slate-900">
+          {lang === 'ar' ? 'التقدم بطلب للحصول على الاعتماد الشرعي' : 'Apply for Sharia Certification'}
+        </h1>
+        <p className="text-sm text-slate-600">
+          {lang === 'ar'
+            ? 'أدخل تفاصيل مشروعك للبدء في جمع البيانات الآلي بالذكاء الاصطناعي ومسار التدقيق الشرعي.'
+            : 'Submit your project details to initiate the automated AI collection and Sharia audit workflow.'}
+        </p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-lg space-y-6">
         {/* Package Selector */}
         <div className="space-y-2">
-          <label className="text-xs font-mono font-bold text-slate-700 uppercase">Select Package Tier</label>
+          <label className="text-xs font-mono font-bold text-slate-700 uppercase">
+            {lang === 'ar' ? 'اختر باقة الاعتماد' : 'Select Package Tier'}
+          </label>
           <div className="grid grid-cols-3 gap-3">
             {['Starter', 'Professional', 'Enterprise'].map((pkg) => (
               <button
@@ -123,7 +140,11 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                {pkg} Tier
+                {pkg === 'Starter'
+                  ? (lang === 'ar' ? 'باقة المبتدئين' : 'Starter Tier')
+                  : pkg === 'Professional'
+                  ? (lang === 'ar' ? 'الباقة الاحترافية' : 'Professional Tier')
+                  : (lang === 'ar' ? 'باقة المؤسسات' : 'Enterprise Tier')}
               </button>
             ))}
           </div>
@@ -132,11 +153,13 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
         {/* Company & Representative */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Company / Project Name *</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'اسم الشركة / المشروع *' : 'Company / Project Name *'}
+            </label>
             <input
               type="text"
               required
-              placeholder="e.g. Sovereign Sukuk Chain"
+              placeholder={lang === 'ar' ? 'مثال: سلسلة صكوك السيادة' : 'e.g. Sovereign Sukuk Chain'}
               value={formData.companyName}
               onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-amber-500"
@@ -144,10 +167,12 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Legal Country / Jurisdiction</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'الدولة / النطاق القانوني' : 'Legal Country / Jurisdiction'}
+            </label>
             <input
               type="text"
-              placeholder="e.g. United Arab Emirates"
+              placeholder={lang === 'ar' ? 'مثال: الإمارات العربية المتحدة' : 'e.g. United Arab Emirates'}
               value={formData.legalCountry}
               onChange={(e) => setFormData({ ...formData, legalCountry: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-amber-500"
@@ -155,11 +180,13 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Representative Name *</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'اسم الممثل الرسمي *' : 'Representative Name *'}
+            </label>
             <input
               type="text"
               required
-              placeholder="e.g. Ahmad Razak"
+              placeholder={lang === 'ar' ? 'مثال: أحمد الرزاق' : 'e.g. Ahmad Razak'}
               value={formData.representativeName}
               onChange={(e) => setFormData({ ...formData, representativeName: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-amber-500"
@@ -167,7 +194,9 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Official Email Address *</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'البريد الإلكتروني الرسمي *' : 'Official Email Address *'}
+            </label>
             <input
               type="email"
               required
@@ -182,7 +211,9 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
         {/* URLs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Official Website URL *</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'رابط الموقع الرسمي *' : 'Official Website URL *'}
+            </label>
             <input
               type="url"
               required
@@ -194,7 +225,9 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Whitepaper URL *</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'رابط الورقة البيضاء *' : 'Whitepaper URL *'}
+            </label>
             <input
               type="url"
               required
@@ -206,7 +239,9 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Smart Contract Address</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'عنوان العقد الذكي' : 'Smart Contract Address'}
+            </label>
             <input
               type="text"
               placeholder="0x0000000000000000000000000000000000000000"
@@ -217,7 +252,9 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-mono text-slate-700 font-semibold">Blockchain Network</label>
+            <label className="text-xs font-mono text-slate-700 font-semibold">
+              {lang === 'ar' ? 'شبكة البلوكشين' : 'Blockchain Network'}
+            </label>
             <select
               value={formData.blockchain}
               onChange={(e) => setFormData({ ...formData, blockchain: e.target.value })}
@@ -235,10 +272,12 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
 
         {/* Project Description */}
         <div className="space-y-1">
-          <label className="text-xs font-mono text-slate-700 font-semibold">Project Overview & Business Model Summary</label>
+          <label className="text-xs font-mono text-slate-700 font-semibold">
+            {lang === 'ar' ? 'ملخص المشروع ونموذج الأعمال' : 'Project Overview & Business Model Summary'}
+          </label>
           <textarea
             rows={3}
-            placeholder="Describe the utility, revenue sources, and tokenomics model..."
+            placeholder={lang === 'ar' ? 'اشرح منفعة الرمز، مصادر الإيرادات، ونموذج اقتصاد الرمز...' : 'Describe the utility, revenue sources, and tokenomics model...'}
             value={formData.projectDescription}
             onChange={(e) => setFormData({ ...formData, projectDescription: e.target.value })}
             className="w-full p-3.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-amber-500"
@@ -255,7 +294,9 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
             className="mt-0.5 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
           />
           <label htmlFor="terms" className="text-xs text-slate-600 leading-relaxed">
-            I confirm that I am an authorized representative of the project and agree to the HalalChain Assessment Terms & Conditions. Certificates will only be released following Finance confirmation of full payment.
+            {lang === 'ar'
+              ? 'أؤكد أنني ممثل مخول للمشروع وأوافق على شروط وأحكام تقييم حلال تشين. لن يتم إصدار الشهادات إلا بعد تأكيد القسم المالي لدفع المبالغ المستحقة.'
+              : 'I confirm that I am an authorized representative of the project and agree to the HalalChain Assessment Terms & Conditions. Certificates will only be released following Finance confirmation of full payment.'}
           </label>
         </div>
 
@@ -264,8 +305,10 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           disabled={submitting || !formData.termsAccepted}
           className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-xs hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
-          {submitting ? 'Submitting Application...' : 'Submit Certification Application'}
-          <ArrowRight className="w-4 h-4" />
+          {submitting
+            ? (lang === 'ar' ? 'جاري تقديم الطلب...' : 'Submitting Application...')
+            : (lang === 'ar' ? 'تقديم طلب الاعتماد' : 'Submit Certification Application')}
+          <ArrowRight className="w-4 h-4 rtl:rotate-180" />
         </button>
       </form>
     </div>

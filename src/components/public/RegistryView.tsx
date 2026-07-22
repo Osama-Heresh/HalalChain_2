@@ -12,12 +12,21 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
   certifiedProjects,
   onSelectVerify
 }) => {
-  const { t, dir } = useLanguage();
+  const { t, dir, lang } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  const categories = ['All', 'L1 Blockchain Ecosystem', 'Real World Assets (RWA Gold)', 'DeFi / Mudarabah Liquidity', 'Payments & Settlement', 'Philanthropy & Endowment'];
+  const categoriesEn = ['All', 'L1 Blockchain Ecosystem', 'Real World Assets (RWA Gold)', 'DeFi / Mudarabah Liquidity', 'Payments & Settlement', 'Philanthropy & Endowment'];
+  const categoriesAr = [
+    { label: 'جميع التصنيفات', value: 'All' },
+    { label: 'منظومة بلوكشين الطبقة 1', value: 'L1 Blockchain Ecosystem' },
+    { label: 'الأصول الحقيقية (الذهب الرقمي)', value: 'Real World Assets (RWA Gold)' },
+    { label: 'التمويل اللامركزي / سيولة المضاربة', value: 'DeFi / Mudarabah Liquidity' },
+    { label: 'المدفوعات والتسويات', value: 'Payments & Settlement' },
+    { label: 'الأوقاف والعمل الخيري', value: 'Philanthropy & Endowment' }
+  ];
+
   const statuses = ['All', 'valid', 'under_review', 'suspended', 'revoked'];
 
   const filteredProjects = certifiedProjects.filter((p) => {
@@ -39,7 +48,7 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
       <div className="space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 text-xs font-mono font-medium border border-emerald-500/20">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          <span>Public Halal Web3 Registry</span>
+          <span>{lang === 'ar' ? 'السجل العام للمشاريع المعتمدة شرعياً' : 'Public Halal Web3 Registry'}</span>
         </div>
         <h1 className="text-3xl font-bold font-serif text-slate-900">{t('registry.title')}</h1>
         <p className="text-sm text-slate-600">{t('registry.subtitle')}</p>
@@ -64,9 +73,13 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
             onChange={(e) => setCategoryFilter(e.target.value)}
             className="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-mono bg-white"
           >
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            {lang === 'ar'
+              ? categoriesAr.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))
+              : categoriesEn.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
           </select>
         </div>
 
@@ -77,7 +90,15 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
             className="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-mono bg-white"
           >
             {statuses.map((s) => (
-              <option key={s} value={s}>{s === 'All' ? 'All Statuses' : s.toUpperCase()}</option>
+              <option key={s} value={s}>
+                {s === 'All'
+                  ? (lang === 'ar' ? 'جميع الحالات' : 'All Statuses')
+                  : s === 'valid'
+                  ? (lang === 'ar' ? 'صالحة ومفعلة' : 'VALID')
+                  : s === 'under_review'
+                  ? (lang === 'ar' ? 'قيد المراجعة' : 'UNDER REVIEW')
+                  : s.toUpperCase()}
+              </option>
             ))}
           </select>
         </div>
@@ -89,20 +110,20 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
           <table className="w-full text-left rtl:text-right border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-mono uppercase text-slate-500">
-                <th className="p-4">Project</th>
-                <th className="p-4">Blockchain</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">Certificate Type</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Risk Rating</th>
-                <th className="p-4 text-right rtl:text-left">Actions</th>
+                <th className="p-4">{lang === 'ar' ? 'المشروع' : 'Project'}</th>
+                <th className="p-4">{lang === 'ar' ? 'البلوكشين' : 'Blockchain'}</th>
+                <th className="p-4">{lang === 'ar' ? 'التصنيف' : 'Category'}</th>
+                <th className="p-4">{lang === 'ar' ? 'نوع الشهادة' : 'Certificate Type'}</th>
+                <th className="p-4">{lang === 'ar' ? 'الحالة' : 'Status'}</th>
+                <th className="p-4">{lang === 'ar' ? 'درجة المخاطر' : 'Risk Rating'}</th>
+                <th className="p-4 text-right rtl:text-left">{lang === 'ar' ? 'الإجراءات' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {filteredProjects.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-slate-400 font-mono">
-                    No certified projects match your search criteria.
+                    {lang === 'ar' ? 'لا توجد مشاريع معتمدة تطابق معايير البحث الحالية.' : 'No certified projects match your search criteria.'}
                   </td>
                 </tr>
               ) : (
@@ -133,7 +154,7 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
                         }`}
                       >
                         <CheckCircle2 className="w-3 h-3" />
-                        {project.certificateStatus}
+                        {project.certificateStatus === 'valid' && lang === 'ar' ? 'صالحة' : project.certificateStatus}
                       </span>
                     </td>
                     <td className="p-4 font-mono font-semibold text-amber-700">{project.riskRating}</td>
@@ -143,7 +164,7 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
                         className="px-3 py-1.5 rounded-lg bg-[#0B132B] text-amber-300 font-semibold text-xs hover:bg-[#1C2541] transition-all cursor-pointer inline-flex items-center gap-1"
                       >
                         <Lock className="w-3 h-3 text-emerald-400" />
-                        <span>Verify Hash</span>
+                        <span>{lang === 'ar' ? 'تحقق من التوقيع' : 'Verify Hash'}</span>
                       </button>
                     </td>
                   </tr>

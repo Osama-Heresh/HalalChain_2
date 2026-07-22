@@ -3,9 +3,9 @@ import { useLanguage } from '../../context/LanguageContext';
 import { FileText, BookOpen, Download, ExternalLink, ShieldCheck, Scale } from 'lucide-react';
 
 export const ResourcesView: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
-  const articles = [
+  const articlesEn = [
     {
       title: 'Sharia Screening Criteria for Crypto Assets & Tokens (Standard v2.1)',
       date: 'July 2026',
@@ -29,13 +29,43 @@ export const ResourcesView: React.FC = () => {
     }
   ];
 
+  const articlesAr = [
+    {
+      title: 'معايير الفحص الشرعي للأصول الرقمية والرموز (معيار v2.1)',
+      date: 'يوليو 2026',
+      author: 'مجلس أبحاث حلال تشين',
+      category: 'المعايير والحوكمة',
+      summary: 'شرح تفصيلي لمعيار حلال تشين v2.1 الذي يحكم مصادر الإيرادات، والتحصيص الخالي من الربا، وهياكل المضاربة في مجمعات السيولة، وتقييم مخاطر الصلاحيات الإدارية.'
+    },
+    {
+      title: 'ترميز الأصول الحقيقية (RWA) وقواعد الصرف الشرعي',
+      date: 'يونيو 2026',
+      author: 'الشيخ د. علي القرة داغي',
+      category: 'ورقة بحثية',
+      summary: 'تحليل التغطية بالخزائن الفعلية، وأور Cheap التقاط الأدلة، وشروط القبض الفوري في ترميز الذهب والصكوك.'
+    },
+    {
+      title: 'مجمعات سيولة التمويل اللامركزي: استبدال فائدة الربا بالمضاربة والمشاركة',
+      date: 'مايو 2026',
+      author: 'د. نظام يعقوبي',
+      category: 'دراسة فقهية شرعية',
+      summary: 'تقييم صانعي السوق الآليين لاستبعاد مرابحات القروض الفورية وضمان ديناميكيات مشاركة الأرباح والمخاطر.'
+    }
+  ];
+
+  const articles = lang === 'ar' ? articlesAr : articlesEn;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-8">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
-        <h1 className="text-3xl font-bold font-serif text-slate-900">Research Center & Sharia Frameworks</h1>
+        <h1 className="text-3xl font-bold font-serif text-slate-900">
+          {lang === 'ar' ? 'مركز الأبحاث والأطر الشرعية' : 'Research Center & Sharia Frameworks'}
+        </h1>
         <p className="text-sm text-slate-600">
-          Official publications, AAOIFI-aligned Sharia standards, whitepapers, and scholarly research on Web3 compliance.
+          {lang === 'ar'
+            ? 'الإصدارات الرسمية، المعايير الشرعية المتوافقة مع أيوفي، الأوراق البيضاء، والأبحاث العلمية في امتثال الويب 3.'
+            : 'Official publications, AAOIFI-aligned Sharia standards, whitepapers, and scholarly research on Web3 compliance.'}
         </p>
       </div>
 
@@ -55,7 +85,7 @@ export const ResourcesView: React.FC = () => {
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
               <span className="text-[11px] font-mono text-slate-500">{art.author}</span>
               <button className="text-amber-700 font-semibold hover:underline flex items-center gap-1 cursor-pointer">
-                <span>Download PDF</span>
+                <span>{lang === 'ar' ? 'تحميل PDF' : 'Download PDF'}</span>
                 <Download className="w-3.5 h-3.5" />
               </button>
             </div>

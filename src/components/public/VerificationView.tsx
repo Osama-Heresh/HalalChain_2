@@ -8,7 +8,7 @@ interface VerificationViewProps {
 }
 
 export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery = '' }) => {
-  const { t, dir } = useLanguage();
+  const { t, dir, lang } = useLanguage();
   const [query, setQuery] = useState(initialQuery);
   const [loading, setLoading] = useState(false);
   const [verifiedProject, setVerifiedProject] = useState<PublicCertifiedProject | null>(null);
@@ -32,10 +32,12 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
       if (res.ok && data.verified) {
         setVerifiedProject(data.project);
       } else {
-        setErrorMsg(data.message || 'Certificate not found in HalalChain registry.');
+        setErrorMsg(
+          data.message || (lang === 'ar' ? 'الشهادة غير موجودة في سجل حلال تشين.' : 'Certificate not found in HalalChain registry.')
+        );
       }
     } catch (err) {
-      setErrorMsg('Failed to connect to verification ledger.');
+      setErrorMsg(lang === 'ar' ? 'تعذر الاتصال بدفتر سجل التحقق.' : 'Failed to connect to verification ledger.');
     } finally {
       setLoading(false);
     }
@@ -47,7 +49,7 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 text-xs font-mono font-medium border border-amber-500/20">
           <Lock className="w-4 h-4 text-amber-600" />
-          <span>Cryptographic Certificate Verification</span>
+          <span>{lang === 'ar' ? 'التحقق المشفر من صحة الشهادات' : 'Cryptographic Certificate Verification'}</span>
         </div>
         <h1 className="text-3xl font-bold font-serif text-slate-900">{t('verify.title')}</h1>
         <p className="text-sm text-slate-600 max-w-xl mx-auto">{t('verify.subtitle')}</p>
@@ -71,12 +73,13 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
             disabled={loading}
             className="px-8 py-3.5 rounded-2xl bg-[#0B132B] text-amber-400 font-bold text-xs hover:bg-[#1C2541] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md whitespace-nowrap"
           >
-            {loading ? 'Verifying Ledger...' : t('verify.button')}
+            {loading ? (lang === 'ar' ? 'جاري فحص السجل...' : 'Verifying Ledger...') : t('verify.button')}
           </button>
         </div>
 
         <div className="text-[11px] font-mono text-slate-400 text-center">
-          Sample Test Certs: <span className="text-amber-700 font-semibold cursor-pointer underline hover:text-amber-800" onClick={() => { setQuery('HC-CERT-2026-8801'); handleVerify('HC-CERT-2026-8801'); }}>HC-CERT-2026-8801</span>, <span className="text-amber-700 font-semibold cursor-pointer underline hover:text-amber-800" onClick={() => { setQuery('HC-CERT-2026-8802'); handleVerify('HC-CERT-2026-8802'); }}>HC-CERT-2026-8802</span>
+          {lang === 'ar' ? 'شهادات تجريبية للاختبار:' : 'Sample Test Certs:'}{' '}
+          <span className="text-amber-700 font-semibold cursor-pointer underline hover:text-amber-800" onClick={() => { setQuery('HC-CERT-2026-8801'); handleVerify('HC-CERT-2026-8801'); }}>HC-CERT-2026-8801</span>, <span className="text-amber-700 font-semibold cursor-pointer underline hover:text-amber-800" onClick={() => { setQuery('HC-CERT-2026-8802'); handleVerify('HC-CERT-2026-8802'); }}>HC-CERT-2026-8802</span>
         </div>
       </div>
 
@@ -111,25 +114,25 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
 
             <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-xl border border-emerald-500/40 text-xs font-mono font-bold">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>OFFICIALLY VERIFIED</span>
+              <span>{lang === 'ar' ? 'معتمدة وموثقة رسمياً' : 'OFFICIALLY VERIFIED'}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono bg-[#1C2541] p-6 rounded-2xl border border-amber-500/20">
             <div className="space-y-2">
-              <div className="text-slate-400 uppercase text-[10px]">Certificate Number</div>
+              <div className="text-slate-400 uppercase text-[10px]">{lang === 'ar' ? 'رقم الشهادة' : 'Certificate Number'}</div>
               <div className="text-amber-400 font-bold text-sm">{verifiedProject.certificateNumber}</div>
             </div>
             <div className="space-y-2">
-              <div className="text-slate-400 uppercase text-[10px]">Certificate Type</div>
+              <div className="text-slate-400 uppercase text-[10px]">{lang === 'ar' ? 'نوع الشهادة' : 'Certificate Type'}</div>
               <div className="text-white font-semibold">{verifiedProject.certificateType}</div>
             </div>
             <div className="space-y-2">
-              <div className="text-slate-400 uppercase text-[10px]">Issue / Expiry Date</div>
+              <div className="text-slate-400 uppercase text-[10px]">{lang === 'ar' ? 'تاريخ الإصدار / الانتهاء' : 'Issue / Expiry Date'}</div>
               <div className="text-white">{verifiedProject.issueDate} — {verifiedProject.expiryDate}</div>
             </div>
             <div className="space-y-2">
-              <div className="text-slate-400 uppercase text-[10px]">Risk Assessment Rating</div>
+              <div className="text-slate-400 uppercase text-[10px]">{lang === 'ar' ? 'تقييم درجة المخاطر' : 'Risk Assessment Rating'}</div>
               <div className="text-emerald-400 font-bold">{verifiedProject.riskRating}</div>
             </div>
           </div>
@@ -137,7 +140,7 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
           {/* Sharia Statement Summary */}
           <div className="space-y-2">
             <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider block">
-              Official Sharia Board Assessment Summary
+              {lang === 'ar' ? 'ملخص تقييم الهيئة الشرعية الرسمية' : 'Official Sharia Board Assessment Summary'}
             </span>
             <div className="text-xs text-slate-200 bg-[#1C2541]/80 p-4 rounded-xl border border-white/10 leading-relaxed">
               {dir === 'rtl' ? verifiedProject.shariaSummaryAr : verifiedProject.shariaSummaryEn}
@@ -147,7 +150,7 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
           {/* Scholar Signatures */}
           <div className="space-y-2">
             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              Authorized Sharia Scholar Signatures
+              {lang === 'ar' ? 'توقيعات العلماء الشرعيين المعتمدين' : 'Authorized Sharia Scholar Signatures'}
             </span>
             <div className="flex flex-wrap gap-2">
               {verifiedProject.scholarSignatures.map((sig, idx) => (
@@ -163,7 +166,9 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
 
           {/* Cryptographic Ledger Hash */}
           <div className="bg-slate-950 p-4 rounded-xl border border-amber-500/20 text-[10px] font-mono text-slate-400 space-y-1">
-            <div className="text-amber-400 font-bold uppercase">Ledger SHA-256 Verification Hash:</div>
+            <div className="text-amber-400 font-bold uppercase">
+              {lang === 'ar' ? 'التوقيع المشفر SHA-256 للتحقق في السجل:' : 'Ledger SHA-256 Verification Hash:'}
+            </div>
             <div className="break-all text-slate-300 font-semibold">{verifiedProject.verificationHash}</div>
           </div>
         </div>

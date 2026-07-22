@@ -7,9 +7,9 @@ interface ServicesViewProps {
 }
 
 export const ServicesView: React.FC<ServicesViewProps> = ({ onApplyService }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
-  const services = [
+  const servicesEn = [
     {
       id: 'sharia_cert',
       title: 'Sharia Compliance Certificate',
@@ -72,6 +72,71 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ onApplyService }) =>
     }
   ];
 
+  const servicesAr = [
+    {
+      id: 'sharia_cert',
+      title: 'شهادة الامتثال الشرعي',
+      icon: ShieldCheck,
+      purpose: 'فحص شرعي متكامل وشامل لشبكات البلوكشين، العملات المشفرة، ورموز المنافع.',
+      scope: ['مراجعة الورقة البيضاء واقتصاد الرمز', 'فحص نموذج الإيرادات والعائدات', 'تحليل الشفرة البرمجية للعقود الذكية', 'اعتماد مجلس المستشارين الشرعيين'],
+      deliverables: ['شهادة شرعية رقمية', 'تقرير التقييم التنفيذي', 'الإدراج في سجل حلال العام'],
+      timeline: '10-14 يوم عمل',
+      price: 'من 4,500 $ USD'
+    },
+    {
+      id: 'sharia_gov',
+      title: 'شهادة الحوكمة الشرعية',
+      icon: Eye,
+      purpose: 'إطار إشراف شرعي مستمر للمنظمات اللامركزية (DAOs)، الخزائن اللامركزية، ومجمعات التمويل.',
+      scope: ['قواعد التصويت وحوكمة DAO', 'تدقيق تخصيصات الخزينة', 'مراجعات الامتثال الربع سنوية', 'بروتوكولات قاطع الدائرة للطوارئ'],
+      deliverables: ['شارات الحوكمة الشرعية', 'تقارير استشارية ربع سنوية', 'محاضر اجتماعات الهيئة'],
+      timeline: 'اشتراك سنوي',
+      price: 'من 9,800 $ USD/سنة'
+    },
+    {
+      id: 'smart_contract',
+      title: 'التدقيق الفني للعقود الذكية',
+      icon: Code,
+      purpose: 'فحص عميق للشفرة البرمجية والكود المصدري لعقود إيثريوم، سولانا، كوزموس، وعقود MOVE.',
+      scope: ['مصفوفة مخاطر صلاحيات المالك', 'فحص عمليات السك والحرق والإيقاف', 'فحص مخاطر الاعتماد على القروض الفورية', 'تدقيق منطق البرمجة وإعادة الدخول'],
+      deliverables: ['تقرير الأمان الفني', 'التوقيع المشفر للشفرة البرمجية', 'دليل معالجة الثغرات'],
+      timeline: '5-7 أيام عمل',
+      price: 'من 3,500 $ USD'
+    },
+    {
+      id: 'tokenomics',
+      title: 'تقييم استدامة اقتصاد الرمز',
+      icon: Coins,
+      purpose: 'تقييم اقتصادي لتوزيع الرموز، جداول الاستحقاق، عائدات التحصيص، ومخاطر التضخم.',
+      scope: ['ديناميكيات التضخم والانكماش', 'آليات عائد التحصيص', 'تحليل عمق مجمعات السيولة', 'مؤشر درجة المخاطر المضاربية'],
+      deliverables: ['تصنيف استدامة اقتصاد الرمز', 'تدقيق النموذج المالي', 'مصفوفة مخاطر العائد'],
+      timeline: '5 أيام عمل',
+      price: 'من 2,800 $ USD'
+    },
+    {
+      id: 'annual_monitoring',
+      title: 'المراقبة والرقابة السنوية',
+      icon: RefreshCw,
+      purpose: 'مراقبة مستمرة لتحديثات العقود الذكية، تعديلات الورقة البيضاء، وتغييرات الحوكمة.',
+      scope: ['تنبيهات تحديث العقود في الوقت الفعلي', 'إعادة تدقيق نصف سنوية', 'تجديد تلقائي للسجل', 'استشارات شرعية ذات أولوية'],
+      deliverables: ['شهادة التجديد السنوي', 'لوحة التحكم بالمراقبة المستمرة', 'سجل تاريخ التنبيهات'],
+      timeline: 'مستمر (12 شهراً)',
+      price: 'من 1,500 $ USD/سنة'
+    },
+    {
+      id: 'script_assessment',
+      title: 'تقييم برمجيات وسكريبتات الويب 3',
+      icon: Terminal,
+      purpose: 'مراجعة سريعة لروبوتات التداول الآلي، واجهات التطبيقات اللامركزية، وسكريبتات ربط العقود.',
+      scope: ['سلامة التكامل مع الواجهات', 'فحص مسارات التداول الآلي', 'تصفية الأنشطة المحظورة شرعياً', 'فحص أمان واجهات API'],
+      deliverables: ['ختم اعتماد السكريبت', 'شهادة التكامل الفني', 'مفتاح الوصول لمكتبة API'],
+      timeline: '3 أيام عمل',
+      price: 'من 1,800 $ USD'
+    }
+  ];
+
+  const services = lang === 'ar' ? servicesAr : servicesEn;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-8">
       {/* Header */}
@@ -106,7 +171,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ onApplyService }) =>
                 {/* Scope */}
                 <div className="space-y-2">
                   <span className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
-                    Scope of Work
+                    {lang === 'ar' ? 'نطاق العمل:' : 'Scope of Work'}
                   </span>
                   <ul className="space-y-1.5 text-xs text-slate-700">
                     {service.scope.map((item, idx) => (
@@ -121,11 +186,11 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ onApplyService }) =>
                 {/* Meta details */}
                 <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs font-mono">
                   <div>
-                    <span className="text-slate-400 block text-[10px]">TIMELINE</span>
+                    <span className="text-slate-400 block text-[10px]">{lang === 'ar' ? 'مدة الإنجاز' : 'TIMELINE'}</span>
                     <span className="font-semibold text-slate-800">{service.timeline}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px]">ESTIMATED FEE</span>
+                    <span className="text-slate-400 block text-[10px]">{lang === 'ar' ? 'الرسوم المقدرة' : 'ESTIMATED FEE'}</span>
                     <span className="font-semibold text-amber-700">{service.price}</span>
                   </div>
                 </div>
@@ -135,8 +200,8 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ onApplyService }) =>
                 onClick={() => onApplyService(service.title)}
                 className="w-full py-2.5 rounded-xl bg-[#0B132B] text-amber-400 font-semibold text-xs hover:bg-[#1C2541] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Request Assessment</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>{lang === 'ar' ? 'طلب تقييم الخدمة' : 'Request Assessment'}</span>
+                <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
               </button>
             </div>
           );

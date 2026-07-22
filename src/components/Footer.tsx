@@ -3,8 +3,19 @@ import { useLanguage } from '../context/LanguageContext';
 import { ShieldCheck, Lock, Award, FileText, Globe } from 'lucide-react';
 import { GoldFiligreeLine } from './IslamicPatternBg';
 
-export const Footer: React.FC = () => {
-  const { t } = useLanguage();
+interface FooterProps {
+  setPublicSubView?: (subView: any) => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
+  const { t, lang } = useLanguage();
+
+  const handleNav = (sub: string) => {
+    if (setPublicSubView) {
+      setPublicSubView(sub);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   return (
     <footer className="bg-[#0B132B] text-slate-300 border-t border-amber-500/20 pt-12 pb-8 relative overflow-hidden">

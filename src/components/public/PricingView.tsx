@@ -7,10 +7,11 @@ interface PricingViewProps {
 }
 
 export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
-  const packages = [
+  const packagesEn = [
     {
+      id: 'Starter',
       name: 'Starter',
       badge: 'Utility Tokens / dApps',
       price: '$4,500',
@@ -19,6 +20,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
       completion: '10 Business Days SLA',
       icon: Zap,
       featured: false,
+      btnText: 'Select Starter Package',
       features: [
         'Sharia Compliance Screening Certificate',
         'Centralized AI Whitepaper Extraction',
@@ -30,6 +32,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
       ]
     },
     {
+      id: 'Professional',
       name: 'Professional',
       badge: 'DeFi / L1 & L2 Ecosystems',
       price: '$9,800',
@@ -38,6 +41,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
       completion: '7 Business Days Express SLA',
       icon: ShieldCheck,
       featured: true,
+      btnText: 'Select Professional Package',
       features: [
         'Sharia Compliance + Governance Certificate',
         'Deep Bytecode & Privileged Function Audit',
@@ -50,6 +54,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
       ]
     },
     {
+      id: 'Enterprise',
       name: 'Enterprise',
       badge: 'RWA / Sukuk / Institutional',
       price: '$19,500',
@@ -58,6 +63,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
       completion: '5 Business Days Priority SLA',
       icon: Crown,
       featured: false,
+      btnText: 'Select Enterprise Package',
       features: [
         'Full Institutional Sharia Certification Package',
         'Custom Smart Contract Bytecode & Proxy Audit',
@@ -71,15 +77,87 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
     }
   ];
 
+  const packagesAr = [
+    {
+      id: 'Starter',
+      name: 'باقة المبتدئين',
+      badge: 'رموز المنافع / التطبيقات اللامركزية',
+      price: '4,500 $',
+      period: 'دولار أمريكي لكل تقييم',
+      renewal: 'التجديد السنوي: 1,200$/سنة',
+      completion: 'إنجاز خلال 10 أيام عمل',
+      icon: Zap,
+      featured: false,
+      btnText: 'اختيار باقة المبتدئين',
+      features: [
+        'شهادة فحص الامتثال الشرعي',
+        'استخراج البيانات الآلي بالذكاء الاصطناعي للورقة البيضاء',
+        'فحص الشفرة البرمجية الأساسية للعقد الذكي',
+        'تدقيق إيرادات وتطبيقات المشروع التجارية',
+        'الإدراج في سجل حلال تشين العام',
+        'شهادة رقمية قابلة للتحميل (PDF)',
+        'دورة استيضاح واحدة متضمنة'
+      ]
+    },
+    {
+      id: 'Professional',
+      name: 'الباقة الاحترافية',
+      badge: 'التمويل اللامركزي / شبكات الطبقة 1 و 2',
+      price: '9,800 $',
+      period: 'دولار أمريكي لكل تقييم',
+      renewal: 'التجديد السنوي: 2,500$/سنة',
+      completion: 'إنجاز سريع خلال 7 أيام عمل',
+      icon: ShieldCheck,
+      featured: true,
+      btnText: 'اختيار الباقة الاحترافية',
+      features: [
+        'شهادة الامتثال الشرعي + الحوكمة',
+        'تدقيق عميق للشفرة البرمجية والدوال ذات الصلاحيات',
+        'تحليل استدامة اقتصاد الرمز وعائدات الاستثمار',
+        'تقييم من هيئة المستشارين الشرعيين',
+        'الامتثال لمعايير أيوفي ومعيار حلال تشين v2.1',
+        'توجيهات معالجة الملاحظات الفنية بأولوية',
+        '3 دورات استيضاح متضمنة',
+        'رمز QR والتوقيع المشفر للتحقق عبر البلوكشين'
+      ]
+    },
+    {
+      id: 'Enterprise',
+      name: 'باقة المؤسسات',
+      badge: 'الأصول الحقيقية / الصكوك / المؤسسات',
+      price: '19,500 $',
+      period: 'دولار أمريكي لكل تقييم',
+      renewal: 'التجديد السنوي: 4,500$/سنة',
+      completion: 'أولوية إنجاز خلال 5 أيام عمل',
+      icon: Crown,
+      featured: false,
+      btnText: 'اختيار باقة المؤسسات',
+      features: [
+        'حزمة الاعتماد الشرعي المؤسسي الكاملة',
+        'تدقيق مخصص للشفرة البرمجية والعقود بالوكالة',
+        'مراجعة وتدقيق الخزائن والاحتياطيات الفعلية للأصول',
+        'جلسات استشارية مباشرة مع كبار العلماء',
+        'مراقبة مستمرة وفي الوقت الفعلي لتحديثات العقود',
+        'طلبات استيضاح غير محدودة',
+        'وصول مخصص لمكتبة API للتحقق',
+        'مدير مشروع عمليات مخصص على مدار 24/7'
+      ]
+    }
+  ];
+
+  const packages = lang === 'ar' ? packagesAr : packagesEn;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 py-8">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900">
-          Transparent Corporate Certification Pricing
+          {lang === 'ar' ? 'أسعار اعتماد المؤسسات الشفافة' : 'Transparent Corporate Certification Pricing'}
         </h1>
         <p className="text-sm text-slate-600 leading-relaxed">
-          Standardized pricing tiers with transparent deliverables, renewal fees, and SLA guarantees for crypto projects worldwide.
+          {lang === 'ar'
+            ? 'باقات أسعار موحدة ومخرجات شفافة ورسوم تجديد مع ضمانات اتفاقية مستوى الخدمة لمشاريع العملات الرقمية حول العالم.'
+            : 'Standardized pricing tiers with transparent deliverables, renewal fees, and SLA guarantees for crypto projects worldwide.'}
         </p>
       </div>
 
@@ -89,7 +167,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
           const IconComponent = pkg.icon;
           return (
             <div
-              key={pkg.name}
+              key={pkg.id}
               className={`rounded-3xl p-8 transition-all flex flex-col justify-between relative ${
                 pkg.featured
                   ? 'bg-[#0B132B] text-white border-2 border-amber-500 shadow-2xl scale-105'
@@ -97,8 +175,8 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
               }`}
             >
               {pkg.featured && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 font-bold text-[10px] uppercase font-mono px-4 py-1 rounded-full shadow-md">
-                  Most Popular for Web3 Projects
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 font-bold text-[10px] uppercase font-mono px-4 py-1 rounded-full shadow-md whitespace-nowrap">
+                  {lang === 'ar' ? 'الأكثر طلباً لمشاريع الويب 3' : 'Most Popular for Web3 Projects'}
                 </div>
               )}
 
@@ -127,7 +205,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
 
                 <div className="space-y-3 pt-4 border-t border-slate-200/20">
                   <span className={`text-xs font-mono font-bold uppercase ${pkg.featured ? 'text-amber-300' : 'text-slate-500'}`}>
-                    Included Scope:
+                    {lang === 'ar' ? 'نطاق العمل المشمل:' : 'Included Scope:'}
                   </span>
                   <ul className="space-y-2.5 text-xs">
                     {pkg.features.map((feat, i) => (
@@ -148,15 +226,15 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
 
               <div className="pt-8">
                 <button
-                  onClick={() => onApplyPackage(pkg.name)}
+                  onClick={() => onApplyPackage(pkg.id)}
                   className={`w-full py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     pkg.featured
                       ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:from-amber-400 hover:to-amber-500 shadow-xl shadow-amber-500/20'
                       : 'bg-[#0B132B] text-amber-400 hover:bg-[#1C2541]'
                   }`}
                 >
-                  <span>Select {pkg.name} Package</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>{pkg.btnText}</span>
+                  <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                 </button>
               </div>
             </div>
