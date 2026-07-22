@@ -1,0 +1,433 @@
+import {
+  PublicCertifiedProject,
+  Lead,
+  CertificationApplication,
+  AiServiceLog,
+  AiConfig,
+  RemoteEmployee,
+  QuestionLibraryItem,
+  AuditLogEntry,
+  TaskItem,
+  ClarificationMessage
+} from '../types';
+
+export const INITIAL_CERTIFIED_PROJECTS: PublicCertifiedProject[] = [
+  {
+    id: 'HC-2026-001',
+    name: 'HAQQ Network (Islamic Coin)',
+    symbol: 'ISLM',
+    logoUrl: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=120&auto=format&fit=crop&q=80',
+    blockchain: 'Cosmos / HAQQ Chain',
+    category: 'L1 Blockchain Ecosystem',
+    certificateStatus: 'valid',
+    certificateType: 'Sharia Compliance Certificate',
+    certificateNumber: 'HC-CERT-2026-8801',
+    issueDate: '2026-01-15',
+    expiryDate: '2027-01-14',
+    riskRating: 'Compliant',
+    websiteUrl: 'https://islamiccoin.net',
+    whitepaperUrl: 'https://islamiccoin.net/whitepaper.pdf',
+    contractAddress: '0x0000000000000000000000000000000000000000',
+    shariaSummaryEn: 'The HAQQ network and ISLM token operate on an ethical proof-of-stake consensus mechanism with a dedicated Evergreen DAO receiving 10% of issuance for charitable and Islamic community initiatives. Verified non-usurious tokenomics.',
+    shariaSummaryAr: 'شبكة حق وحق كوين تعتمدان على آلية إثبات الحصة الأخلاقية مع تخصيص 10% من الإصدار لمنظمة Evergreen DAO للمشاريع الخيرية والاجتماعية الإسلامية. مع تمحيص كامل لخلو الاقتصاد الرقمي من الربا.',
+    scholarSignatures: ['Sheikh Dr. Ali Al-Quradaghi', 'Dr. Nizam Yaquby', 'Dr. Mohamed Elgari'],
+    verificationHash: '0x8f4c2e91a021b33d4e7f9a228c12e84192d348a23091f855321f00921477aa21'
+  },
+  {
+    id: 'HC-2026-002',
+    name: 'GoldPact Digital Bullion',
+    symbol: 'PACTG',
+    logoUrl: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=120&auto=format&fit=crop&q=80',
+    blockchain: 'Ethereum Mainnet',
+    category: 'Real World Assets (RWA Gold)',
+    certificateStatus: 'valid',
+    certificateType: 'Sharia Compliance Certificate',
+    certificateNumber: 'HC-CERT-2026-8802',
+    issueDate: '2026-02-10',
+    expiryDate: '2027-02-09',
+    riskRating: 'Compliant',
+    websiteUrl: 'https://goldpact.io',
+    whitepaperUrl: 'https://goldpact.io/whitepaper',
+    contractAddress: '0x45239a0182c19d12a831e77f001193309104fa21',
+    shariaSummaryEn: '100% physically backed by Allocated Gold bars in Dubai Multi Commodities Centre (DMCC) vaults with real-time proof-of-reserve oracle integration. Passes Sharia Sarf currency exchange rules.',
+    shariaSummaryAr: 'مغطى بنسبة 100% بسبائك ذهب حقيقية في خزاين مركز دبي للسلع المتعددة مع ربط أوراكل لإثبات الاحتياطي المباشر. متوافق مع أحكام الصرف الشرعية.',
+    scholarSignatures: ['Dr. Hussein Hassan', 'Sheikh Imran Hosein', 'Dr. Mohamed Elgari'],
+    verificationHash: '0x1a89b33100293ee09a12c84288102394c81093121049208a00293b211029e002'
+  },
+  {
+    id: 'HC-2026-003',
+    name: 'Crescent Liquidity Protocol',
+    symbol: 'CRES',
+    logoUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&auto=format&fit=crop&q=80',
+    blockchain: 'Arbitrum One',
+    category: 'DeFi / Mudarabah Liquidity',
+    certificateStatus: 'valid',
+    certificateType: 'Sharia Governance Certificate',
+    certificateNumber: 'HC-CERT-2026-8803',
+    issueDate: '2026-03-01',
+    expiryDate: '2027-02-28',
+    riskRating: 'Low Risk',
+    websiteUrl: 'https://crescentdefi.org',
+    whitepaperUrl: 'https://crescentdefi.org/docs',
+    contractAddress: '0x9923812f8832a0018a127f88a910398d7120309e',
+    shariaSummaryEn: 'Automated profit-loss sharing liquidity protocol replacing traditional interest-rate lending with Mudarabah and Murabaha pools audited for zero interest leverage.',
+    shariaSummaryAr: 'بروتوكول سيولة قائم على المشاركة في الأرباح والخسائر مستبدلاً الفائدة التقليدية بأحواض المضاربة والمرابحة مع تدقيق عدم وجود رافعة مالية ربوية.',
+    scholarSignatures: ['Dr. Nizam Yaquby', 'Sheikh Dr. Ali Al-Quradaghi'],
+    verificationHash: '0x902341298a0029e1208d19283e102938e120398d2910839a829a812e9821a89d'
+  },
+  {
+    id: 'HC-2026-004',
+    name: 'HalalPay Global Gateway',
+    symbol: 'HPAY',
+    logoUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=120&auto=format&fit=crop&q=80',
+    blockchain: 'Polygon POS',
+    category: 'Payments & Settlement',
+    certificateStatus: 'valid',
+    certificateType: 'Smart Contract Technical Assessment',
+    certificateNumber: 'HC-CERT-2026-8804',
+    issueDate: '2026-04-18',
+    expiryDate: '2027-04-17',
+    riskRating: 'Compliant',
+    websiteUrl: 'https://halalpay.global',
+    whitepaperUrl: 'https://halalpay.global/paper',
+    contractAddress: '0x1234a991823901823a9182d39218290182390182',
+    shariaSummaryEn: 'Cross-border instant crypto-fiat settlement layer enforcing merchant industry filtering (blocking gaming, alcohol, interest banking transactions automatically at smart contract level).',
+    shariaSummaryAr: 'طبقة تسوية فورية للعملات الرقمية تنفذ فلترة القطاعات التجارية المحظورة (حظر القمار، الخمور، والمعاملات الربوية تلقائياً على مستوى العقد الذكي).',
+    scholarSignatures: ['Dr. Mohamed Elgari', 'Sheikh Imran Hosein'],
+    verificationHash: '0x3301a29381e00293e8a129031829301829301823910823901823901823901823'
+  },
+  {
+    id: 'HC-2026-005',
+    name: 'Web3 Zakat & Waqf Foundation',
+    symbol: 'WAQF',
+    logoUrl: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=120&auto=format&fit=crop&q=80',
+    blockchain: 'Base L2',
+    category: 'Philanthropy & Endowment',
+    certificateStatus: 'valid',
+    certificateType: 'Sharia Compliance Certificate',
+    certificateNumber: 'HC-CERT-2026-8805',
+    issueDate: '2026-05-02',
+    expiryDate: '2027-05-01',
+    riskRating: 'Compliant',
+    websiteUrl: 'https://web3waqf.org',
+    whitepaperUrl: 'https://web3waqf.org/docs',
+    contractAddress: '0x7723901823901239018239018239018239018239',
+    shariaSummaryEn: 'Immutable perpetual charity endowment smart contract distributing automated yield to verified global humanitarian beneficiaries based on AAOIFI Sharia Zakat Standard #35.',
+    shariaSummaryAr: 'عقد وقف ذكي دائم يوزع عائدات الأوقاف تلقائياً على المستحقين حول العالم وفق معيار الزكاة الشرعي رقم 35 الصادر عن أيوفي.',
+    scholarSignatures: ['Sheikh Dr. Ali Al-Quradaghi', 'Dr. Nizam Yaquby'],
+    verificationHash: '0x551a0293e8102931829031829301829301823901823910823901823901823901'
+  },
+  {
+    id: 'HC-2026-006',
+    name: 'Aetheria Yield Vaults',
+    symbol: 'AETH',
+    logoUrl: 'https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?w=120&auto=format&fit=crop&q=80',
+    blockchain: 'Avalanche C-Chain',
+    category: 'Yield Aggregator',
+    certificateStatus: 'under_review',
+    certificateType: 'Smart Contract Technical Assessment',
+    certificateNumber: 'HC-PENDING-9001',
+    issueDate: '2026-06-20',
+    expiryDate: '2026-12-20',
+    riskRating: 'Medium Risk',
+    websiteUrl: 'https://aetheria.finance',
+    whitepaperUrl: 'https://aetheria.finance/whitepaper',
+    contractAddress: '0xbb12391029380129380129380129380129380129',
+    shariaSummaryEn: 'Under active technical review for flash loan dependency and potential indirect interest revenue streams in secondary liquidity pools.',
+    shariaSummaryAr: 'قيد المراجعة الفنية النشطة للتحقق من الاعتماد على القروض الفورية والإيرادات الربوية غير المباشرة في أحواض السيولة الثانوية.',
+    scholarSignatures: ['HalalChain Technical Board'],
+    verificationHash: '0x7781290381029381029381029381029381029381029381029381029381029381'
+  }
+];
+
+export const INITIAL_LEADS: Lead[] = [
+  {
+    id: 'LEAD-101',
+    companyName: 'Mirage Carbon Exchange',
+    projectSymbol: 'MCX',
+    country: 'United Arab Emirates',
+    website: 'https://miragecarbon.io',
+    contactEmail: 'bd@miragecarbon.io',
+    telegram: '@mirage_ceo',
+    source: 'CoinMarketCap',
+    status: 'Proposal Sent',
+    assignedSalesperson: 'Tariq Al-Mansoor',
+    probability: 80,
+    estimatedValue: 9800,
+    notes: 'Tokenized voluntary carbon credits seeking Sharia RWA compliance certification.',
+    createdDate: '2026-07-01'
+  },
+  {
+    id: 'LEAD-102',
+    companyName: 'Nile Pay Protocol',
+    projectSymbol: 'NILE',
+    country: 'Egypt',
+    website: 'https://nilepay.finance',
+    contactEmail: 'contact@nilepay.finance',
+    source: 'Website Discovery',
+    status: 'Qualified',
+    assignedSalesperson: 'Fatima Al-Zahra',
+    probability: 60,
+    estimatedValue: 19500,
+    notes: 'Sub-Saharan remittance solution using zero-knowledge proofs for instant settlement.',
+    createdDate: '2026-07-05'
+  },
+  {
+    id: 'LEAD-103',
+    companyName: 'Qubits AI Token',
+    projectSymbol: 'QBT',
+    country: 'Singapore',
+    website: 'https://qubits.ai',
+    contactEmail: 'info@qubits.ai',
+    source: 'CoinGecko',
+    status: 'New',
+    assignedSalesperson: 'Tariq Al-Mansoor',
+    probability: 30,
+    estimatedValue: 4500,
+    notes: 'AI compute rental marketplace on Solana.',
+    createdDate: '2026-07-12'
+  }
+];
+
+export const INITIAL_APPLICATIONS: CertificationApplication[] = [
+  {
+    id: 'APP-2026-801',
+    applicationNumber: 'HC-APP-2026-0801',
+    companyName: 'Sovereign Sukuk Chain',
+    legalCountry: 'Malaysia',
+    representativeName: 'Ahmad Razak',
+    officialEmail: 'razak@sovereignsukuk.my',
+    phone: '+60 3 2180 9900',
+    telegram: '@ahmad_sukuk',
+    websiteUrl: 'https://sovereignsukuk.my',
+    whitepaperUrl: 'https://sovereignsukuk.my/whitepaper.pdf',
+    contractAddress: '0x8829018230918239018239018239018239018239',
+    blockchain: 'Ethereum Mainnet',
+    projectDescription: 'On-chain sovereign & corporate Islamic Sukuk issuing platform with automated dividend payouts.',
+    packageType: 'Enterprise',
+    stage: 'scholar_review',
+    submittedAt: '2026-07-10',
+    targetCompletionDate: '2026-07-28',
+    depositPaid: true,
+    finalPaid: false,
+    totalFee: 19500,
+    depositAmount: 9750,
+    remainingAmount: 9750
+  },
+  {
+    id: 'APP-2026-802',
+    applicationNumber: 'HC-APP-2026-0802',
+    companyName: 'Baraka DEX Engine',
+    legalCountry: 'Kingdom of Saudi Arabia',
+    representativeName: 'Faisal Al-Otaibi',
+    officialEmail: 'faisal@barakadex.sa',
+    phone: '+966 50 123 4567',
+    telegram: '@faisal_baraka',
+    websiteUrl: 'https://barakadex.sa',
+    whitepaperUrl: 'https://barakadex.sa/docs',
+    contractAddress: '0x3349018239018239018239018239018239018239',
+    blockchain: 'HAQQ Chain',
+    projectDescription: 'Decentralized exchange featuring automated slippage protection and Sharia compliance filtering.',
+    packageType: 'Professional',
+    stage: 'ai_assessment',
+    submittedAt: '2026-07-18',
+    targetCompletionDate: '2026-08-05',
+    depositPaid: true,
+    finalPaid: false,
+    totalFee: 9800,
+    depositAmount: 4900,
+    remainingAmount: 4900
+  },
+  {
+    id: 'APP-2026-803',
+    applicationNumber: 'HC-APP-2026-0803',
+    companyName: 'Zayd Micro-Takaful',
+    legalCountry: 'Indonesia',
+    representativeName: 'Siti Nurhaliza',
+    officialEmail: 'siti@zaydtakaful.id',
+    phone: '+62 812 3456 7890',
+    websiteUrl: 'https://zaydtakaful.id',
+    whitepaperUrl: 'https://zaydtakaful.id/whitepaper',
+    contractAddress: '0x1129038102938102938102938102938102938102',
+    blockchain: 'Polygon POS',
+    projectDescription: 'Peer-to-peer Islamic micro-insurance pool smart contract for agriculture worker risk sharing.',
+    packageType: 'Starter',
+    stage: 'waiting_deposit',
+    submittedAt: '2026-07-21',
+    targetCompletionDate: '2026-08-10',
+    depositPaid: false,
+    finalPaid: false,
+    totalFee: 4500,
+    depositAmount: 2250,
+    remainingAmount: 2250
+  }
+];
+
+export const INITIAL_AI_CONFIG: AiConfig = {
+  activeProvider: 'Google Gemini',
+  defaultModel: 'gemini-3.6-flash',
+  taskModelMapping: {
+    whitepaper_analysis: 'gemini-3.6-flash',
+    smart_contract_audit: 'gemini-3.1-pro-preview',
+    sharia_screening: 'gemini-3.6-flash',
+    executive_summary: 'gemini-3.6-flash'
+  },
+  maxTokenLimit: 500000,
+  autoAssessEnabled: true
+};
+
+export const INITIAL_AI_LOGS: AiServiceLog[] = [
+  {
+    id: 'AILOG-901',
+    timestamp: '2026-07-22T12:05:10Z',
+    project: 'Sovereign Sukuk Chain',
+    customer: 'Sovereign Sukuk Chain',
+    feature: 'Whitepaper Sharia Extraction',
+    aiProvider: 'Google Gemini',
+    aiModel: 'gemini-3.6-flash',
+    requestTimeMs: 1240,
+    tokenUsage: { promptTokens: 3420, completionTokens: 680, totalTokens: 4100 },
+    estimatedCostUsd: 0.0032,
+    status: 'Success'
+  },
+  {
+    id: 'AILOG-902',
+    timestamp: '2026-07-22T13:12:44Z',
+    project: 'Baraka DEX Engine',
+    customer: 'Baraka DEX Engine',
+    feature: 'Smart Contract Privilege Audit',
+    aiProvider: 'Google Gemini',
+    aiModel: 'gemini-3.1-pro-preview',
+    requestTimeMs: 2850,
+    tokenUsage: { promptTokens: 8900, completionTokens: 1450, totalTokens: 10350 },
+    estimatedCostUsd: 0.0155,
+    status: 'Success'
+  }
+];
+
+export const INITIAL_REMOTE_EMPLOYEES: RemoteEmployee[] = [
+  {
+    id: 'EMP-001',
+    name: 'Sheikh Dr. Ali Al-Quradaghi',
+    role: 'scholar',
+    country: 'Qatar',
+    timeZone: 'GMT+3',
+    skills: ['AAOIFI Standards', 'Sukuk Structuring', 'DeFi Fiqh'],
+    currentWorkload: 65,
+    hourlyCostUsd: 250,
+    qualityScore: 99,
+    completedProjects: 142,
+    status: 'Available'
+  },
+  {
+    id: 'EMP-002',
+    name: 'Youssef Benali',
+    role: 'tech_auditor',
+    country: 'United Kingdom',
+    timeZone: 'GMT+1',
+    skills: ['Solidity Security', 'Cosmos SDK', 'Zero-Knowledge Proofs', 'Bytecode Analysis'],
+    currentWorkload: 80,
+    hourlyCostUsd: 180,
+    qualityScore: 96,
+    completedProjects: 88,
+    status: 'Busy'
+  },
+  {
+    id: 'EMP-003',
+    name: 'Amina Al-Mansouri',
+    role: 'business_analyst',
+    country: 'United Arab Emirates',
+    timeZone: 'GMT+4',
+    skills: ['Tokenomics Sustainability', 'RWA Valuation', 'Financial Modeling'],
+    currentWorkload: 50,
+    hourlyCostUsd: 140,
+    qualityScore: 95,
+    completedProjects: 74,
+    status: 'Available'
+  },
+  {
+    id: 'EMP-004',
+    name: 'Omar Khayyam',
+    role: 'pm',
+    country: 'Malaysia',
+    timeZone: 'GMT+8',
+    skills: ['Agile Project Management', 'Customer Relations', 'SLA Oversight'],
+    currentWorkload: 70,
+    hourlyCostUsd: 120,
+    qualityScore: 98,
+    completedProjects: 110,
+    status: 'Available'
+  },
+  {
+    id: 'EMP-005',
+    name: 'Zainab Ibrahim',
+    role: 'qa',
+    country: 'Saudi Arabia',
+    timeZone: 'GMT+3',
+    skills: ['Audit Verification', 'ISO Compliance', 'Document Integrity'],
+    currentWorkload: 40,
+    hourlyCostUsd: 130,
+    qualityScore: 97,
+    completedProjects: 92,
+    status: 'Available'
+  }
+];
+
+export const INITIAL_QUESTIONS_LIBRARY: QuestionLibraryItem[] = [
+  {
+    id: 'Q-001',
+    category: 'Revenue Sources',
+    questionEn: 'Does the protocol generate any direct or indirect revenue from interest-bearing loans or liquidity pools containing usurious pairs?',
+    questionAr: 'هل يحقق البروتوكول أي إيرادات مباشرة أو غير مباشرة من القروض الفائدة أو أحواض السيولة التي تحتوي على أزواج ربوية؟',
+    evidenceRequired: 'Smart Contract Fee Distributor Bytecode & Yield Vault Contracts',
+    reviewerRole: 'tech_auditor',
+    applicableMethodology: 'HalalChain Sharia Standard v2.1',
+    status: 'Active'
+  },
+  {
+    id: 'Q-002',
+    category: 'Token Utility',
+    questionEn: 'Does the utility token grant genuine functional rights (governance, fee payment, service access) or is it a purely speculative derivative?',
+    questionAr: 'هل يمنح الرمز حقوقاً وظيفية حقيقية (حكامة، دفع رسوم، وصول للخدمة) أم أنه مشتق مضاربي بحت؟',
+    evidenceRequired: 'Whitepaper Section 4 & Tokenomics Allocation Breakdown',
+    reviewerRole: 'business_analyst',
+    applicableMethodology: 'HalalChain Sharia Standard v2.1',
+    status: 'Active'
+  },
+  {
+    id: 'Q-003',
+    category: 'Administrative Privileges',
+    questionEn: 'Can the contract owner or multi-sig arbitrarily mint new tokens, pause user withdrawals without timelock, or modify fee structures to non-compliant ratios?',
+    questionAr: 'هل يمكن لمالك العقد أو التوقيع المتعدد صك رموز جديدة تعسفياً، أو إيقاف السحوبات بدون قفل زمني، أو تعديل نسب الرسوم لقيم غير متوافقة؟',
+    evidenceRequired: 'Verified Solidity Source Code Access Control Logic',
+    reviewerRole: 'tech_auditor',
+    applicableMethodology: 'HalalChain Sharia Standard v2.1',
+    status: 'Active'
+  }
+];
+
+export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
+  {
+    id: 'AUDIT-001',
+    timestamp: '2026-07-22T10:15:00Z',
+    userName: 'System Administrator',
+    userRole: 'admin',
+    action: 'Methodology Framework Updated',
+    newValue: 'HalalChain Standard v2.1 active',
+    digitalSignature: 'SIG-SHA256-0a91f8231e',
+    ipAddress: '185.220.101.5'
+  },
+  {
+    id: 'AUDIT-002',
+    timestamp: '2026-07-22T11:30:22Z',
+    userName: 'Ahmad Finance Officer',
+    userRole: 'finance',
+    projectId: 'APP-2026-801',
+    action: 'Deposit Payment Confirmed',
+    previousValue: 'Unpaid',
+    newValue: 'Deposit Paid ($9,750 USD)',
+    reason: 'Bank Wire Confirmation #WR-99201',
+    digitalSignature: 'SIG-SHA256-4b8812a10e',
+    ipAddress: '194.31.200.12'
+  }
+];
