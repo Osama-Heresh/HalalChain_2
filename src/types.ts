@@ -15,7 +15,8 @@ export type PublicSubView =
   | 'registry'
   | 'verify'
   | 'resources'
-  | 'apply';
+  | 'apply'
+  | 'join_team';
 
 export type PlatformTab = 'public' | 'customer' | 'ops' | 'exec';
 
@@ -263,6 +264,117 @@ export interface RemoteEmployee {
   qualityScore: number; // 0-100
   completedProjects: number;
   status: 'Available' | 'Busy' | 'On Leave';
+  isRecruitedRemote?: boolean;
+  cvSummary?: string;
+  email?: string;
+  phone?: string;
+  whatsappNumber?: string;
+  bio?: string;
+  education?: string;
+  experienceDetails?: string;
+  cvAttachmentUrl?: string;
+  cvFileName?: string;
+  cvFileSize?: string;
+}
+
+export interface TalentApplication {
+  id: string;
+  fullName: string;
+  email: string;
+  role: UserRole;
+  country: string;
+  timeZone: string;
+  expectedHourlyRateUsd: number;
+  skills: string[];
+  experienceYears: number;
+  cvSummary: string;
+  portfolioUrl?: string;
+  githubUrl?: string;
+  status: 'Pending Review' | 'Approved' | 'Rejected';
+  appliedDate: string;
+  notes?: string;
+  phone?: string;
+  whatsappNumber?: string;
+  bio?: string;
+  education?: string;
+  experienceDetails?: string;
+  cvAttachmentUrl?: string;
+  cvFileName?: string;
+  cvFileSize?: string;
+}
+
+export interface ReassignmentHistoryItem {
+  date: string;
+  role: UserRole;
+  previousMemberName: string;
+  newMemberName: string;
+  reason: string;
+}
+
+export interface ProjectTeamAssignment {
+  projectId: string;
+  leadTechAuditorId: string;
+  leadTechAuditorName: string;
+  shariaScholarId: string;
+  shariaScholarName: string;
+  businessAnalystId: string;
+  businessAnalystName: string;
+  qaOfficerId: string;
+  qaOfficerName: string;
+  lastUpdated: string;
+  reassignmentHistory: ReassignmentHistoryItem[];
+}
+
+export interface SystemAutoMetrics {
+  slaAdherenceScore: number; // 0-100
+  auditAccuracyScore: number; // 0-100
+  reportCompleteness: number; // 0-100
+  communicationResponsiveness: number; // 0-100
+  complianceQuality: number; // 0-100
+  overallAutoScore: number; // 0-100
+}
+
+export interface PmManualAssessment {
+  leadershipScore: number; // 1-5 or 0-100
+  analyticalDepth: number; // 0-100
+  teamCollaboration: number; // 0-100
+  technicalRigour: number; // 0-100
+  deliverablePunctuality: number; // 0-100
+  overallPmScore: number; // 0-100
+  evaluatorNotes: string;
+  evaluatedDate: string;
+  evaluatorName: string;
+}
+
+export interface MemberEvaluation {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  role: UserRole;
+  projectId: string;
+  projectName: string;
+  currentTask: string;
+  assignedDate: string;
+  systemAutoMetrics: SystemAutoMetrics;
+  pmManualAssessment: PmManualAssessment;
+  finalCombinedScore: number;
+  ratingCategory: 'Exceptional (A+)' | 'Strong (A)' | 'Satisfactory (B)' | 'Needs Improvement (C)';
+}
+
+export interface WorkLogEntry {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  role: UserRole;
+  projectId: string;
+  projectName: string;
+  hoursWorked: number;
+  hourlyRateUsd: number;
+  totalPayUsd: number;
+  dateLogged: string;
+  taskDescription: string;
+  performanceScore: number; // 0-100
+  paymentStatus: 'Pending Approval' | 'Approved for Release' | 'Paid';
 }
 
 export interface QuestionLibraryItem {

@@ -8,7 +8,11 @@ import {
   QuestionLibraryItem,
   AuditLogEntry,
   TaskItem,
-  ClarificationMessage
+  ClarificationMessage,
+  TalentApplication,
+  ProjectTeamAssignment,
+  WorkLogEntry,
+  MemberEvaluation
 } from '../types';
 
 export const INITIAL_CERTIFIED_PROJECTS: PublicCertifiedProject[] = [
@@ -386,7 +390,15 @@ export const INITIAL_REMOTE_EMPLOYEES: RemoteEmployee[] = [
     hourlyCostUsd: 250,
     qualityScore: 99,
     completedProjects: 142,
-    status: 'Available'
+    status: 'Available',
+    email: 'ali.quradaghi@halalchain.org',
+    phone: '+974 55 123 990',
+    whatsappNumber: '+97455123990',
+    bio: 'Secretary-General of International Union of Muslim Scholars & Senior AAOIFI Sharia Governance Board Member. Authored over 35 authoritative books on Islamic jurisprudence and modern Web3 monetary systems.',
+    education: '• Ph.D. in Islamic Jurisprudence & Financial Contracts - Al-Azhar University (First Class Honors)\n• M.A. in Comparative Fiqh Al-Muamalat - Baghdad University\n• Certified Sharia Advisor & Auditor (CSAA) - AAOIFI',
+    experienceDetails: '• 25+ Years Senior Sharia Advisor to Qatar International Islamic Bank & Al Rayan Investment\n• Led 140+ Sharia Compliance Assessments for Global Sovereign Sukuk and Web3 Digital Assets\n• Member of HalalChain Founding Scholar Board',
+    cvFileName: 'CV_Sheikh_Dr_Ali_Al_Quradaghi_Sharia_Board.pdf',
+    cvFileSize: '3.1 MB'
   },
   {
     id: 'EMP-002',
@@ -399,7 +411,15 @@ export const INITIAL_REMOTE_EMPLOYEES: RemoteEmployee[] = [
     hourlyCostUsd: 180,
     qualityScore: 96,
     completedProjects: 88,
-    status: 'Busy'
+    status: 'Busy',
+    email: 'youssef.benali@halalchain.org',
+    phone: '+44 7700 900123',
+    whatsappNumber: '+447700900123',
+    bio: 'Principal Blockchain Security Auditor specializing in EVM smart contract disassembly, re-entrancy prevention, and zero-knowledge proof circuit verification for decentralized Islamic finance.',
+    education: '• M.Sc. in Cybersecurity & Cryptographic Protocol Engineering - Imperial College London\n• B.Sc. in Computer Science - University of Edinburgh\n• Offensive Security Certified Professional (OSCP) & Certified Smart Contract Auditor',
+    experienceDetails: '• 8+ Years Senior Auditor at ConsenSys Diligence & Trail of Bits\n• Conducted technical audits for HAQQ Chain, GoldPact Bullion, and Crescent Liquidity Protocol\n• Discovered and remediated 34 high-severity smart contract vulnerabilities',
+    cvFileName: 'CV_Youssef_Benali_Lead_Security_Auditor.pdf',
+    cvFileSize: '2.8 MB'
   },
   {
     id: 'EMP-003',
@@ -412,7 +432,15 @@ export const INITIAL_REMOTE_EMPLOYEES: RemoteEmployee[] = [
     hourlyCostUsd: 140,
     qualityScore: 95,
     completedProjects: 74,
-    status: 'Available'
+    status: 'Available',
+    email: 'amina.mansouri@halalchain.org',
+    phone: '+971 50 882 1100',
+    whatsappNumber: '+971508821100',
+    bio: 'Tokenomics Specialist & Real-World Asset (RWA) Valuation Analyst with extensive background in DMCC gold vault audits and Mudarabah profit-sharing yield sustainability.',
+    education: '• M.Sc. in Financial Engineering & Quantitative Economics - INSEAD Abu Dhabi\n• B.Sc. in Economics & Finance - American University of Sharjah\n• Chartered Financial Analyst (CFA Level III)',
+    experienceDetails: '• 7+ Years Vice President of Tokenomics & Risk at Dubai Financial Market (DFM)\n• Audited 70+ token issuance whitepapers for sustainable yield mechanisms and non-usurious liquidity',
+    cvFileName: 'CV_Amina_Al_Mansouri_Tokenomics_Lead.pdf',
+    cvFileSize: '2.1 MB'
   },
   {
     id: 'EMP-004',
@@ -425,7 +453,15 @@ export const INITIAL_REMOTE_EMPLOYEES: RemoteEmployee[] = [
     hourlyCostUsd: 120,
     qualityScore: 98,
     completedProjects: 110,
-    status: 'Available'
+    status: 'Available',
+    email: 'omar.khayyam@halalchain.org',
+    phone: '+60 12 399 4820',
+    whatsappNumber: '+60123994820',
+    bio: 'Senior Operations & Remote Workforce Project Manager overseeing HalalChain client certification lifecycles, SLA timelines, expert reassignment workflows, and audit delivery QA.',
+    education: '• Master of Business Administration (MBA in Tech Governance) - Universiti Malaya\n• Project Management Professional (PMP) & Certified ScrumMaster (CSM)',
+    experienceDetails: '• 10+ Years PM Lead at Securities Commission Malaysia FinTech Innovation Hub\n• Managed 100+ global remote audits with 99.2% SLA adherence and 24-hour turnaround',
+    cvFileName: 'CV_Omar_Khayyam_Operations_PM.pdf',
+    cvFileSize: '1.9 MB'
   },
   {
     id: 'EMP-005',
@@ -438,7 +474,15 @@ export const INITIAL_REMOTE_EMPLOYEES: RemoteEmployee[] = [
     hourlyCostUsd: 130,
     qualityScore: 97,
     completedProjects: 92,
-    status: 'Available'
+    status: 'Available',
+    email: 'zainab.ibrahim@halalchain.org',
+    phone: '+966 54 221 8833',
+    whatsappNumber: '+966542218833',
+    bio: 'Quality Assurance & Certificate Ledger Officer responsible for verifying immutable QR certificate hashes, audit log signatures, and AAOIFI compliance documentation completeness.',
+    education: '• M.Sc. in Software Quality & Information Systems - King Saud University\n• ISO 27001 Lead Auditor & Certified Information Systems Auditor (CISA)',
+    experienceDetails: '• 6+ Years Quality Assurance Lead at Saudi Central Bank (SAMA) Sandbox\n• Verified over 90+ immutable blockchain certificates and ledger hash proofs',
+    cvFileName: 'CV_Zainab_Ibrahim_QA_Lead.pdf',
+    cvFileSize: '2.3 MB'
   }
 ];
 
@@ -500,3 +544,297 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     ipAddress: '194.31.200.12'
   }
 ];
+
+export const INITIAL_TALENT_APPLICATIONS: TalentApplication[] = [
+  {
+    id: 'TAL-2026-101',
+    fullName: 'Dr. Tariq Al-Hashimi',
+    email: 'tariq.hashimi@sharia-audit.org',
+    phone: '+962 7 9123 4567',
+    whatsappNumber: '+962791234567',
+    role: 'scholar',
+    country: 'Jordan',
+    timeZone: 'GMT+3',
+    expectedHourlyRateUsd: 220,
+    skills: ['Islamic Banking Fiqh', 'Sukuk Tokenomics', 'AAOIFI Sharia Auditor'],
+    experienceYears: 14,
+    bio: 'Renowned Sharia scholar specializing in Web3 decentralized yield pools and RWA gold tokenization. Regular speaker at AAOIFI conferences and senior advisor to Jordan Islamic Bank.',
+    education: '• Ph.D. in Islamic Economics & Fiqh Al-Muamalat - Yarmouk University\n• Master in Islamic Commercial Law - University of Jordan\n• Certified Sharia Advisor & Auditor (CSAA) - AAOIFI',
+    experienceDetails: '• 14+ Years Senior Sharia Auditor for Arab Islamic Banking Federation\n• Published 12 peer-reviewed research papers on crypto-asset liquidity pools and Mudarabah mechanics\n• Conducted Sharia screening for 25+ tokenized asset whitepapers',
+    cvSummary: 'PhD in Islamic Economics & Fiqh Al-Muamalat from Yarmouk University. Ex-Sharia Advisor at Jordan Islamic Bank with 12 published papers on crypto assets and decentralized yield protocols.',
+    portfolioUrl: 'https://sharia-audit.org/tariq',
+    cvFileName: 'CV_Dr_Tariq_Al_Hashimi_Sharia_Scholar.pdf',
+    cvFileSize: '2.6 MB',
+    status: 'Pending Review',
+    appliedDate: '2026-07-20'
+  },
+  {
+    id: 'TAL-2026-102',
+    fullName: 'Elena Rostova',
+    email: 'elena.rostova@sec-audit.io',
+    phone: '+372 512 98321',
+    whatsappNumber: '+37251298321',
+    role: 'tech_auditor',
+    country: 'Estonia',
+    timeZone: 'GMT+2',
+    expectedHourlyRateUsd: 180,
+    skills: ['EVM Bytecode Analysis', 'Solidity Slither Static Analysis', 'ZK-Rollup Audits'],
+    experienceYears: 8,
+    bio: 'Lead Smart Contract Security Auditor & Reverse Engineer. Expert in static analysis, re-entrancy prevention, flash loan vulnerability detection, and ZK circuit audits.',
+    education: '• M.Sc. in Cryptography & Distributed Systems - Tallinn University of Technology\n• Offensive Security Certified Professional (OSCP)\n• Certified Smart Contract Security Professional (CSCSP)',
+    experienceDetails: '• 8+ Years Senior Auditor at CertiK & Trail of Bits\n• Uncovered 22 critical zero-day vulnerabilities in Ethereum L2 & Arbitrum yield protocols\n• Created automated Slither static analysis plugins for Sharia fee distribution verification',
+    cvSummary: 'Senior Blockchain Security Researcher. Uncovered 22 critical vulnerabilities in Ethereum & Arbitrum protocols. Certified OSCP & Certified Smart Contract Security Professional.',
+    githubUrl: 'https://github.com/erostova-sec',
+    cvFileName: 'CV_Elena_Rostova_Blockchain_Security_Auditor.pdf',
+    cvFileSize: '3.4 MB',
+    status: 'Pending Review',
+    appliedDate: '2026-07-21'
+  },
+  {
+    id: 'TAL-2026-103',
+    fullName: 'Bilal Siddiqui',
+    email: 'bilal.s@fintech-qa.com',
+    phone: '+92 300 821 9922',
+    whatsappNumber: '+923008219922',
+    role: 'qa',
+    country: 'Pakistan',
+    timeZone: 'GMT+5',
+    expectedHourlyRateUsd: 130,
+    skills: ['Web3 Automated End-to-End Testing', 'Certificate Hash Ledger QA', 'API Regression'],
+    experienceYears: 6,
+    bio: 'Web3 Quality Assurance Lead specializing in multi-chain smart contract testing, immutable certificate verification, and API SLA regression automation.',
+    education: '• B.Sc. in Software Engineering - National University of Sciences and Technology (NUST)\n• ISTQB Advanced Level Test Manager',
+    experienceDetails: '• 6+ Years Lead QA Engineer for Islamic FinTech & Web3 payment gateways\n• Automated end-to-end test suites for 40+ decentralized protocols and certificate verification APIs',
+    cvSummary: 'Lead QA Engineer for multi-chain DeFi protocols. Expert in Cypress, Playwright, and blockchain transaction verification frameworks.',
+    cvFileName: 'CV_Bilal_Siddiqui_QA_Automation_Engineer.pdf',
+    cvFileSize: '1.8 MB',
+    status: 'Approved',
+    appliedDate: '2026-07-18'
+  }
+];
+
+export const INITIAL_PROJECT_TEAM_ASSIGNMENTS: ProjectTeamAssignment[] = [
+  {
+    projectId: 'APP-2026-801',
+    leadTechAuditorId: 'EMP-002',
+    leadTechAuditorName: 'Youssef Benali',
+    shariaScholarId: 'EMP-001',
+    shariaScholarName: 'Sheikh Dr. Ali Al-Quradaghi',
+    businessAnalystId: 'EMP-003',
+    businessAnalystName: 'Amina Al-Mansouri',
+    qaOfficerId: 'EMP-005',
+    qaOfficerName: 'Zainab Ibrahim',
+    lastUpdated: '2026-07-22',
+    reassignmentHistory: [
+      {
+        date: '2026-07-21',
+        role: 'tech_auditor',
+        previousMemberName: 'Previous External Auditor',
+        newMemberName: 'Youssef Benali',
+        reason: 'Accelerated SLA timeline requirement for Sovereign Sukuk Chain'
+      }
+    ]
+  },
+  {
+    projectId: 'APP-2026-802',
+    leadTechAuditorId: 'EMP-002',
+    leadTechAuditorName: 'Youssef Benali',
+    shariaScholarId: 'EMP-001',
+    shariaScholarName: 'Sheikh Dr. Ali Al-Quradaghi',
+    businessAnalystId: 'EMP-003',
+    businessAnalystName: 'Amina Al-Mansouri',
+    qaOfficerId: 'EMP-005',
+    qaOfficerName: 'Zainab Ibrahim',
+    lastUpdated: '2026-07-20',
+    reassignmentHistory: []
+  },
+  {
+    projectId: 'APP-2026-803',
+    leadTechAuditorId: 'EMP-002',
+    leadTechAuditorName: 'Youssef Benali',
+    shariaScholarId: 'EMP-001',
+    shariaScholarName: 'Sheikh Dr. Ali Al-Quradaghi',
+    businessAnalystId: 'EMP-003',
+    businessAnalystName: 'Amina Al-Mansouri',
+    qaOfficerId: 'EMP-005',
+    qaOfficerName: 'Zainab Ibrahim',
+    lastUpdated: '2026-07-19',
+    reassignmentHistory: []
+  }
+];
+
+export const INITIAL_WORK_LOGS: WorkLogEntry[] = [
+  {
+    id: 'LOG-2026-01',
+    employeeId: 'EMP-001',
+    employeeName: 'Sheikh Dr. Ali Al-Quradaghi',
+    role: 'scholar',
+    projectId: 'APP-2026-801',
+    projectName: 'Sovereign Sukuk Chain',
+    hoursWorked: 18.5,
+    hourlyRateUsd: 250,
+    totalPayUsd: 4625,
+    dateLogged: '2026-07-21',
+    taskDescription: 'Conducted Mudarabah yield pool audit and AAOIFI Standard #35 verification',
+    performanceScore: 99,
+    paymentStatus: 'Approved for Release'
+  },
+  {
+    id: 'LOG-2026-02',
+    employeeId: 'EMP-002',
+    employeeName: 'Youssef Benali',
+    role: 'tech_auditor',
+    projectId: 'APP-2026-801',
+    projectName: 'Sovereign Sukuk Chain',
+    hoursWorked: 24.0,
+    hourlyRateUsd: 180,
+    totalPayUsd: 4320,
+    dateLogged: '2026-07-22',
+    taskDescription: 'Performed bytecode disassembly and timelock privilege inspection on EVM bridge',
+    performanceScore: 96,
+    paymentStatus: 'Pending Approval'
+  },
+  {
+    id: 'LOG-2026-03',
+    employeeId: 'EMP-003',
+    employeeName: 'Amina Al-Mansouri',
+    role: 'business_analyst',
+    projectId: 'APP-2026-802',
+    projectName: 'Baraka DEX Engine',
+    hoursWorked: 12.0,
+    hourlyRateUsd: 140,
+    totalPayUsd: 1680,
+    dateLogged: '2026-07-20',
+    taskDescription: 'Evaluated liquidity pool transaction fee structure and tokenomics sustainability',
+    performanceScore: 95,
+    paymentStatus: 'Paid'
+  }
+];
+
+export const INITIAL_MEMBER_EVALUATIONS: MemberEvaluation[] = [
+  {
+    id: 'EVAL-001',
+    employeeId: 'EMP-001',
+    employeeName: 'Sheikh Dr. Ali Al-Quradaghi',
+    role: 'scholar',
+    projectId: 'APP-2026-801',
+    projectName: 'Sovereign Sukuk Chain',
+    currentTask: 'AAOIFI Standard #35 Sharia Sukuk Fatwa Verification',
+    assignedDate: '2026-07-15',
+    systemAutoMetrics: {
+      slaAdherenceScore: 99,
+      auditAccuracyScore: 100,
+      reportCompleteness: 98,
+      communicationResponsiveness: 97,
+      complianceQuality: 100,
+      overallAutoScore: 99
+    },
+    pmManualAssessment: {
+      leadershipScore: 98,
+      analyticalDepth: 100,
+      teamCollaboration: 96,
+      technicalRigour: 99,
+      deliverablePunctuality: 98,
+      overallPmScore: 98,
+      evaluatorNotes: 'World-renowned scholar authority. Delivers flawless Sharia compliance fatwa verification with zero delay.',
+      evaluatedDate: '2026-07-21',
+      evaluatorName: 'Omar Khayyam (PM Lead)'
+    },
+    finalCombinedScore: 99,
+    ratingCategory: 'Exceptional (A+)'
+  },
+  {
+    id: 'EVAL-002',
+    employeeId: 'EMP-002',
+    employeeName: 'Youssef Benali',
+    role: 'tech_auditor',
+    projectId: 'APP-2026-801',
+    projectName: 'Sovereign Sukuk Chain',
+    currentTask: 'EVM Smart Contract Bytecode Disassembly & Slither Static Analysis',
+    assignedDate: '2026-07-16',
+    systemAutoMetrics: {
+      slaAdherenceScore: 96,
+      auditAccuracyScore: 98,
+      reportCompleteness: 95,
+      communicationResponsiveness: 97,
+      complianceQuality: 98,
+      overallAutoScore: 97
+    },
+    pmManualAssessment: {
+      leadershipScore: 95,
+      analyticalDepth: 98,
+      teamCollaboration: 94,
+      technicalRigour: 99,
+      deliverablePunctuality: 96,
+      overallPmScore: 96,
+      evaluatorNotes: 'Exceptional technical precision in contract disassembly. Discovered non-compliant admin minting logic early.',
+      evaluatedDate: '2026-07-22',
+      evaluatorName: 'Omar Khayyam (PM Lead)'
+    },
+    finalCombinedScore: 97,
+    ratingCategory: 'Exceptional (A+)'
+  },
+  {
+    id: 'EVAL-003',
+    employeeId: 'EMP-003',
+    employeeName: 'Amina Al-Mansouri',
+    role: 'business_analyst',
+    projectId: 'APP-2026-802',
+    projectName: 'Baraka DEX Engine',
+    currentTask: 'Mudarabah Profit-Sharing Yield Protocol & Tokenomics Audit',
+    assignedDate: '2026-07-17',
+    systemAutoMetrics: {
+      slaAdherenceScore: 95,
+      auditAccuracyScore: 94,
+      reportCompleteness: 96,
+      communicationResponsiveness: 95,
+      complianceQuality: 96,
+      overallAutoScore: 95
+    },
+    pmManualAssessment: {
+      leadershipScore: 94,
+      analyticalDepth: 96,
+      teamCollaboration: 95,
+      technicalRigour: 95,
+      deliverablePunctuality: 94,
+      overallPmScore: 95,
+      evaluatorNotes: 'Thorough evaluation of DMCC gold token backing and yield pool mechanics. Clear structured reports.',
+      evaluatedDate: '2026-07-20',
+      evaluatorName: 'Omar Khayyam (PM Lead)'
+    },
+    finalCombinedScore: 95,
+    ratingCategory: 'Exceptional (A+)'
+  },
+  {
+    id: 'EVAL-004',
+    employeeId: 'EMP-005',
+    employeeName: 'Zainab Ibrahim',
+    role: 'qa',
+    projectId: 'APP-2026-801',
+    projectName: 'Sovereign Sukuk Chain',
+    currentTask: 'Certificate Ledger Hash Verification & ISO Quality Audit',
+    assignedDate: '2026-07-18',
+    systemAutoMetrics: {
+      slaAdherenceScore: 98,
+      auditAccuracyScore: 97,
+      reportCompleteness: 98,
+      communicationResponsiveness: 96,
+      complianceQuality: 97,
+      overallAutoScore: 97
+    },
+    pmManualAssessment: {
+      leadershipScore: 96,
+      analyticalDepth: 96,
+      teamCollaboration: 97,
+      technicalRigour: 98,
+      deliverablePunctuality: 97,
+      overallPmScore: 97,
+      evaluatorNotes: 'High accuracy in checking QR certificate signatures and immutable block hashes prior to registry publishing.',
+      evaluatedDate: '2026-07-21',
+      evaluatorName: 'Omar Khayyam (PM Lead)'
+    },
+    finalCombinedScore: 97,
+    ratingCategory: 'Exceptional (A+)'
+  }
+];
+

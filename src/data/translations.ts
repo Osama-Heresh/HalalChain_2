@@ -21,6 +21,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'public.verify': 'Verify Certificate',
     'public.resources': 'Research & Blog',
     'public.apply': 'Apply Now',
+    'public.joinTeam': 'Join Evaluation Team',
 
     // Hero Section
     'hero.badge': 'Global Independent Sharia Certification Authority for Web3',
@@ -110,6 +111,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'public.verify': 'التحقق من الشهادة',
     'public.resources': 'الأبحاث والمدونة',
     'public.apply': 'تقديم طلب',
+    'public.joinTeam': 'انضم لفريق التقييم',
 
     // Hero Section
     'hero.badge': 'الهيئة العالمية المستقلة لشهادات الشريعة للويب 3',

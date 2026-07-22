@@ -236,7 +236,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Reference 1: Whitepaper */}
+              {/* Reference 1: Whitepaper (Visible to all) */}
               <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-amber-900 flex items-center gap-1.5">
@@ -258,36 +258,55 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 </p>
               </div>
 
-              {/* Reference 2: Smart Contract */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <Code className="w-4 h-4 text-slate-700" />
-                    <span>{lang === 'ar' ? 'العقد الذكي على البلوكشين' : 'Smart Contract Address'}</span>
-                  </span>
-                  {application.contractAddress && application.contractAddress !== 'N/A' && (
-                    <a
-                      href={getExplorerUrl(application.contractAddress, application.blockchain)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:underline"
+              {/* Reference 2: Smart Contract OR Sharia Business Model */}
+              {currentUserRole === 'scholar' ? (
+                <div className="p-4 rounded-2xl bg-amber-50/30 border border-amber-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-amber-900 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-amber-700" />
+                      <span>{lang === 'ar' ? 'النموذج المالي والتنفيذي' : 'Sharia & Business Structure'}</span>
+                    </span>
+                    <span className="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded font-bold">
+                      {lang === 'ar' ? 'معتمد' : 'Verified'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-700 space-y-1">
+                    <div>• {lang === 'ar' ? 'نموذج الربح:' : 'Profit Model:'} <span className="font-semibold text-slate-900">مشاركة في الأرباح والخسائر (Mudarabah)</span></div>
+                    <div>• {lang === 'ar' ? 'الربا والغرر:' : 'Riba & Gharar:'} <span className="font-semibold text-emerald-700">خالٍ من الفوائد المضمونة ✓</span></div>
+                    <div>• {lang === 'ar' ? 'الأصل الداعم:' : 'Underlying Asset:'} <span className="font-semibold text-slate-900">{application.blockchain} Infrastructure Token</span></div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                      <Code className="w-4 h-4 text-slate-700" />
+                      <span>{lang === 'ar' ? 'العقد الذكي على البلوكشين' : 'Smart Contract Address'}</span>
+                    </span>
+                    {application.contractAddress && application.contractAddress !== 'N/A' && (
+                      <a
+                        href={getExplorerUrl(application.contractAddress, application.blockchain)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:underline"
+                      >
+                        <span>Etherscan</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between bg-white p-2 rounded-xl border border-slate-200 text-[11px]">
+                    <span className="truncate max-w-[240px] font-mono text-slate-800">{application.contractAddress || '0x0000...0000'}</span>
+                    <button
+                      onClick={() => copyToClipboard(application.contractAddress || '')}
+                      className="text-slate-500 hover:text-amber-700 p-1 cursor-pointer flex items-center gap-1 text-[10px]"
                     >
-                      <span>Etherscan</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
+                      <Copy className="w-3 h-3" />
+                      <span>{copied ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between bg-white p-2 rounded-xl border border-slate-200 text-[11px]">
-                  <span className="truncate max-w-[240px] font-mono text-slate-800">{application.contractAddress || '0x0000...0000'}</span>
-                  <button
-                    onClick={() => copyToClipboard(application.contractAddress || '')}
-                    className="text-slate-500 hover:text-amber-700 p-1 cursor-pointer flex items-center gap-1 text-[10px]"
-                  >
-                    <Copy className="w-3 h-3" />
-                    <span>{copied ? 'Copied' : 'Copy'}</span>
-                  </button>
-                </div>
-              </div>
+              )}
 
               {/* Reference 3: Official Website */}
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
@@ -342,6 +361,117 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     </span>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 1.5: Sharia Compliance Verification Checklist (AAOIFI Standard v2.1) */}
+          <div className="bg-amber-50/40 p-4 rounded-2xl border border-amber-200/80 space-y-3">
+            <div className="flex items-center justify-between border-b border-amber-200/80 pb-2">
+              <h4 className="text-xs font-bold font-serif text-slate-900 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-amber-700" />
+                <span>
+                  {lang === 'ar'
+                    ? 'قائمة التثبت الشرعي المربوطة بالأدلة (معايير أيوفي AAOIFI v2.1)'
+                    : 'Sharia Compliance Verification Checklist (AAOIFI Standard v2.1)'}
+                </span>
+              </h4>
+              <span className="text-[10px] bg-amber-200/90 text-amber-900 font-bold px-2 py-0.5 rounded-full">
+                {lang === 'ar' ? '4 معايير موثقة' : '4 Verified Items'}
+              </span>
+            </div>
+
+            <div className="space-y-2 font-mono text-[11px]">
+              {/* AAOIFI Item 1 */}
+              <div className="p-2.5 bg-white rounded-xl border border-amber-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="mt-0.5 rounded text-amber-600 focus:ring-amber-500" />
+                  <div>
+                    <span className="font-bold text-slate-900 block text-[11px]">
+                      {lang === 'ar' ? '1. خلو برك السيولة من الفوائد الربوية المضمونة (AAOIFI Standard #21)' : '1. Verified zero guaranteed fixed interest (Riba) in yield pool structures (AAOIFI #21)'}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Zero guaranteed fixed ROI in smart contract pool</span>
+                  </div>
+                </label>
+                <a
+                  href={application.whitepaperUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[10px] flex items-center gap-1 border border-amber-300"
+                >
+                  <FileText className="w-3 h-3 text-amber-800" />
+                  <span>{lang === 'ar' ? 'دليل: الورقة البيضاء §4.2' : 'Evidence: Whitepaper §4.2'}</span>
+                  <ExternalLink className="w-2.5 h-2.5 text-amber-800" />
+                </a>
+              </div>
+
+              {/* AAOIFI Item 2 */}
+              <div className="p-2.5 bg-white rounded-xl border border-amber-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="mt-0.5 rounded text-amber-600 focus:ring-amber-500" />
+                  <div>
+                    <span className="font-bold text-slate-900 block text-[11px]">
+                      {lang === 'ar' ? '2. آلية المشاركة في الربح والخسارة - المضاربة (AAOIFI Standard #13)' : '2. Verified Mudarabah / Musharakah risk-sharing profit mechanism (AAOIFI #13)'}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Proportional sharing matrix verified</span>
+                  </div>
+                </label>
+                <a
+                  href={application.whitepaperUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[10px] flex items-center gap-1 border border-amber-300"
+                >
+                  <FileText className="w-3 h-3 text-amber-800" />
+                  <span>{lang === 'ar' ? 'دليل: عقد المضاربة والتوزيع' : 'Evidence: Mudarabah Agreement'}</span>
+                  <ExternalLink className="w-2.5 h-2.5 text-amber-800" />
+                </a>
+              </div>
+
+              {/* AAOIFI Item 3 */}
+              <div className="p-2.5 bg-white rounded-xl border border-amber-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="mt-0.5 rounded text-amber-600 focus:ring-amber-500" />
+                  <div>
+                    <span className="font-bold text-slate-900 block text-[11px]">
+                      {lang === 'ar' ? '3. وجود أصل حقيقي ومنع الغرر الفاحش (AAOIFI Standard #30)' : '3. Verified asset backing & absence of excessive speculation / Gharar (AAOIFI #30)'}
+                    </span>
+                    <span className="text-[10px] text-slate-500">On-chain reserve oracle proof</span>
+                  </div>
+                </label>
+                <a
+                  href={application.websiteUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[10px] flex items-center gap-1 border border-amber-300"
+                >
+                  <Globe className="w-3 h-3 text-amber-800" />
+                  <span>{lang === 'ar' ? 'دليل: أوراكل المحفظة المضمونة' : 'Evidence: On-Chain Vault Oracle'}</span>
+                  <ExternalLink className="w-2.5 h-2.5 text-amber-800" />
+                </a>
+              </div>
+
+              {/* AAOIFI Item 4 */}
+              <div className="p-2.5 bg-white rounded-xl border border-amber-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="mt-0.5 rounded text-amber-600 focus:ring-amber-500" />
+                  <div>
+                    <span className="font-bold text-slate-900 block text-[11px]">
+                      {lang === 'ar' ? '4. مطابقة نموذج الحوكمة لمعايير الرقابة الشرعية (AAOIFI Gov #7)' : '4. Verified business governance with AAOIFI Governance Guidelines (AAOIFI Gov #7)'}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Board oversight bylaws active</span>
+                  </div>
+                </label>
+                <a
+                  href={application.whitepaperUrl || '#'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[10px] flex items-center gap-1 border border-amber-300"
+                >
+                  <ShieldCheck className="w-3 h-3 text-amber-800" />
+                  <span>{lang === 'ar' ? 'دليل: لائحة الحوكمة والقرار' : 'Evidence: Board Resolution'}</span>
+                  <ExternalLink className="w-2.5 h-2.5 text-amber-800" />
+                </a>
               </div>
             </div>
           </div>

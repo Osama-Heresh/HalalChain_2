@@ -60,14 +60,21 @@ export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
           {/* Public Registry & Verification */}
           <div>
             <h4 className="text-xs font-semibold text-amber-300 uppercase tracking-wider font-mono mb-3">
-              Public Registry & Tools
+              Public Registry & Experts
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li className="hover:text-white transition-colors cursor-pointer">Browse Halal Web3 Registry</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Verify Certificate Hash</li>
-              <li className="hover:text-white transition-colors cursor-pointer">HalalChain Standard v2.1 Docs</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Research Papers & Sharia Framework</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Public API Documentation</li>
+              <li onClick={() => handleNav('registry')} className="hover:text-white transition-colors cursor-pointer">
+                {lang === 'ar' ? 'تصفح السجل الشرعي' : 'Browse Halal Web3 Registry'}
+              </li>
+              <li onClick={() => handleNav('verify')} className="hover:text-white transition-colors cursor-pointer">
+                {lang === 'ar' ? 'التحقق من صحة الشهادة' : 'Verify Certificate Hash'}
+              </li>
+              <li onClick={() => handleNav('resources')} className="hover:text-white transition-colors cursor-pointer">
+                {lang === 'ar' ? 'معايير حلال تشين v2.1' : 'HalalChain Standard v2.1 Docs'}
+              </li>
+              <li onClick={() => handleNav('join_team')} className="hover:text-amber-300 font-bold text-amber-400/90 transition-colors cursor-pointer flex items-center gap-1">
+                <span>{lang === 'ar' ? '🤝 انضم لفريق التقييم الشرعي والفني' : '🤝 Join Expert Evaluation Team'}</span>
+              </li>
             </ul>
           </div>
 

@@ -12,6 +12,7 @@ import { RegistryView } from './components/public/RegistryView';
 import { VerificationView } from './components/public/VerificationView';
 import { ResourcesView } from './components/public/ResourcesView';
 import { ApplyView } from './components/public/ApplyView';
+import { JoinTeamView } from './components/public/JoinTeamView';
 
 // App platforms
 import { CustomerPortalView } from './components/customer/CustomerPortalView';
@@ -164,6 +165,9 @@ const MainContent: React.FC = () => {
                 selectedPackage={selectedApplyPackage}
                 onApplicationCreated={handleApplicationCreated}
               />
+            )}
+            {publicSubView === 'join_team' && (
+              <JoinTeamView onApplicationSubmitted={refreshData} />
             )}
           </>
         )}

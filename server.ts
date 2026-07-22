@@ -10,7 +10,11 @@ import {
   INITIAL_AI_LOGS,
   INITIAL_REMOTE_EMPLOYEES,
   INITIAL_QUESTIONS_LIBRARY,
-  INITIAL_AUDIT_LOGS
+  INITIAL_AUDIT_LOGS,
+  INITIAL_TALENT_APPLICATIONS,
+  INITIAL_PROJECT_TEAM_ASSIGNMENTS,
+  INITIAL_WORK_LOGS,
+  INITIAL_MEMBER_EVALUATIONS
 } from './src/data/mockData.js';
 import {
   PublicCertifiedProject,
@@ -19,7 +23,12 @@ import {
   AiConfig,
   AiServiceLog,
   AuditLogEntry,
-  ClarificationMessage
+  ClarificationMessage,
+  RemoteEmployee,
+  TalentApplication,
+  ProjectTeamAssignment,
+  WorkLogEntry,
+  MemberEvaluation
 } from './src/types.js';
 
 // In-Memory Database Stores
@@ -29,6 +38,11 @@ let applicationsStore: CertificationApplication[] = [...INITIAL_APPLICATIONS];
 let aiConfigStore: AiConfig = { ...INITIAL_AI_CONFIG };
 let aiLogsStore: AiServiceLog[] = [...INITIAL_AI_LOGS];
 let auditLogsStore: AuditLogEntry[] = [...INITIAL_AUDIT_LOGS];
+let remoteEmployeesStore: RemoteEmployee[] = [...INITIAL_REMOTE_EMPLOYEES];
+let talentApplicationsStore: TalentApplication[] = [...INITIAL_TALENT_APPLICATIONS];
+let projectTeamAssignmentsStore: ProjectTeamAssignment[] = [...INITIAL_PROJECT_TEAM_ASSIGNMENTS];
+let workLogsStore: WorkLogEntry[] = [...INITIAL_WORK_LOGS];
+let memberEvaluationsStore: MemberEvaluation[] = [...INITIAL_MEMBER_EVALUATIONS];
 let clarificationMessagesStore: Record<string, ClarificationMessage[]> = {
   'APP-2026-801': [
     {
@@ -544,7 +558,280 @@ Respond in structured JSON format matching this schema:
 
   // Remote Employees API
   app.get('/api/employees', (req, res) => {
-    res.json(INITIAL_REMOTE_EMPLOYEES);
+    res.json(remoteEmployeesStore);
+  });
+
+  // Talent Applications API (Recruitment Portal)
+  app.get('/api/talent-applications', (req, res) => {
+    res.json(talentApplicationsStore);
+  });
+
+  app.post('/api/talent-applications', (req, res) => {
+    const appData = req.body;
+    const newTalentApp: TalentApplication = {
+      id: `TAL-2026-${Math.floor(100 + Math.random() * 900)}`,
+      fullName: appData.fullName || 'Anonymous Candidate',
+      email: appData.email || 'applicant@halalchain.org',
+      phone: appData.phone || '+966 50 123 4567',
+      whatsappNumber: appData.whatsappNumber || '+966501234567',
+      role: appData.role || 'tech_auditor',
+      country: appData.country || 'Global',
+      timeZone: appData.timeZone || 'GMT+0',
+      expectedHourlyRateUsd: Number(appData.expectedHourlyRateUsd) || 150,
+      skills: Array.isArray(appData.skills) ? appData.skills : (appData.skills || '').split(',').map((s: string) => s.trim()).filter(Boolean),
+      experienceYears: Number(appData.experienceYears) || 5,
+      bio: appData.bio || appData.cvSummary || 'Experienced remote professional specializing in Web3 & Sharia audits.',
+      education: appData.education || '• Higher Degree in Islamic Finance / Computer Science & Cybersecurity',
+      experienceDetails: appData.experienceDetails || '• 5+ years of active audit and evaluation experience in international institutions.',
+      cvSummary: appData.cvSummary || 'Experienced remote professional in Web3 & Sharia audits.',
+      cvFileName: appData.cvFileName || `CV_${(appData.fullName || 'Candidate').replace(/\s+/g, '_')}_Attachment.pdf`,
+      cvFileSize: appData.cvFileSize || '2.4 MB',
+      portfolioUrl: appData.portfolioUrl || '',
+      githubUrl: appData.githubUrl || '',
+      status: 'Pending Review',
+      appliedDate: new Date().toISOString().split('T')[0]
+    };
+
+    talentApplicationsStore.unshift(newTalentApp);
+
+    auditLogsStore.unshift({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: newTalentApp.fullName,
+      userRole: newTalentApp.role,
+      action: 'Remote Professional Application Submitted',
+      newValue: `Application ${newTalentApp.id} for ${newTalentApp.role} (${newTalentApp.country})`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    });
+
+    res.json(newTalentApp);
+  });
+
+  // PM Talent Application Approval / Rejection
+  app.post('/api/talent-applications/:id/review', (req, res) => {
+    const { id } = req.params;
+    const { status, notes, reviewerName } = req.body;
+
+    const talentApp = talentApplicationsStore.find((t) => t.id === id);
+    if (!talentApp) {
+      return res.status(404).json({ error: 'Talent application not found' });
+    }
+
+    talentApp.status = status;
+    talentApp.notes = notes || '';
+
+    if (status === 'Approved') {
+      // Check if employee already exists in store
+      const existing = remoteEmployeesStore.find((e) => e.email === talentApp.email || e.name === talentApp.fullName);
+      if (!existing) {
+        const newEmployee: RemoteEmployee = {
+          id: `EMP-${Math.floor(100 + Math.random() * 900)}`,
+          name: talentApp.fullName,
+          role: talentApp.role,
+          country: talentApp.country,
+          timeZone: talentApp.timeZone,
+          skills: talentApp.skills,
+          currentWorkload: 0,
+          hourlyCostUsd: talentApp.expectedHourlyRateUsd,
+          qualityScore: 95,
+          completedProjects: 0,
+          status: 'Available',
+          isRecruitedRemote: true,
+          cvSummary: talentApp.cvSummary,
+          email: talentApp.email,
+          phone: talentApp.phone,
+          whatsappNumber: talentApp.whatsappNumber,
+          bio: talentApp.bio,
+          education: talentApp.education,
+          experienceDetails: talentApp.experienceDetails,
+          cvFileName: talentApp.cvFileName,
+          cvFileSize: talentApp.cvFileSize
+        };
+        remoteEmployeesStore.push(newEmployee);
+      }
+    }
+
+    auditLogsStore.unshift({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: reviewerName || 'Omar Khayyam (PM)',
+      userRole: 'pm',
+      action: `Talent Candidate Application ${status}`,
+      newValue: `${talentApp.fullName} (${talentApp.role}) status changed to ${status}`,
+      reason: notes || 'PM Recruitment Evaluation',
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    });
+
+    res.json(talentApp);
+  });
+
+  // Project Team Assignments API
+  app.get('/api/projects/team-assignments', (req, res) => {
+    res.json(projectTeamAssignmentsStore);
+  });
+
+  app.post('/api/projects/:id/reassign-team', (req, res) => {
+    const { id } = req.params;
+    const { roleToReassign, newEmployeeId, newEmployeeName, reason, pmName } = req.body;
+
+    let assignment = projectTeamAssignmentsStore.find((a) => a.projectId === id);
+    if (!assignment) {
+      assignment = {
+        projectId: id,
+        leadTechAuditorId: 'EMP-002',
+        leadTechAuditorName: 'Youssef Benali',
+        shariaScholarId: 'EMP-001',
+        shariaScholarName: 'Sheikh Dr. Ali Al-Quradaghi',
+        businessAnalystId: 'EMP-003',
+        businessAnalystName: 'Amina Al-Mansouri',
+        qaOfficerId: 'EMP-005',
+        qaOfficerName: 'Zainab Ibrahim',
+        lastUpdated: new Date().toISOString().split('T')[0],
+        reassignmentHistory: []
+      };
+      projectTeamAssignmentsStore.push(assignment);
+    }
+
+    let previousMemberName = 'Unassigned';
+
+    if (roleToReassign === 'tech_auditor') {
+      previousMemberName = assignment.leadTechAuditorName;
+      assignment.leadTechAuditorId = newEmployeeId;
+      assignment.leadTechAuditorName = newEmployeeName;
+    } else if (roleToReassign === 'scholar') {
+      previousMemberName = assignment.shariaScholarName;
+      assignment.shariaScholarId = newEmployeeId;
+      assignment.shariaScholarName = newEmployeeName;
+    } else if (roleToReassign === 'business_analyst') {
+      previousMemberName = assignment.businessAnalystName;
+      assignment.businessAnalystId = newEmployeeId;
+      assignment.businessAnalystName = newEmployeeName;
+    } else if (roleToReassign === 'qa') {
+      previousMemberName = assignment.qaOfficerName;
+      assignment.qaOfficerId = newEmployeeId;
+      assignment.qaOfficerName = newEmployeeName;
+    }
+
+    assignment.lastUpdated = new Date().toISOString().split('T')[0];
+    assignment.reassignmentHistory.unshift({
+      date: new Date().toISOString().split('T')[0],
+      role: roleToReassign,
+      previousMemberName,
+      newMemberName: newEmployeeName,
+      reason: reason || 'PM project timeline optimization / performance swap'
+    });
+
+    auditLogsStore.unshift({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: pmName || 'Omar Khayyam (PM)',
+      userRole: 'pm',
+      projectId: id,
+      action: 'Project Team Member Reassigned',
+      previousValue: `${previousMemberName} (${roleToReassign})`,
+      newValue: `${newEmployeeName} (${roleToReassign})`,
+      reason: reason || 'Project performance optimization',
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    });
+
+    res.json(assignment);
+  });
+
+  // Team Member Performance Evaluations API
+  app.get('/api/evaluations', (req, res) => {
+    res.json(memberEvaluationsStore);
+  });
+
+  app.post('/api/evaluations', (req, res) => {
+    const evalData: MemberEvaluation = req.body;
+    const existingIdx = memberEvaluationsStore.findIndex((e) => e.employeeId === evalData.employeeId);
+
+    if (existingIdx >= 0) {
+      memberEvaluationsStore[existingIdx] = { ...memberEvaluationsStore[existingIdx], ...evalData };
+    } else {
+      memberEvaluationsStore.unshift(evalData);
+    }
+
+    auditLogsStore.unshift({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: evalData.pmManualAssessment.evaluatorName || 'Omar Khayyam (PM Lead)',
+      userRole: 'pm',
+      action: 'PM Member Performance Assessment Saved',
+      newValue: `${evalData.employeeName} (${evalData.role}) Combined Score: ${evalData.finalCombinedScore}/100 [${evalData.ratingCategory}]`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    });
+
+    res.json(evalData);
+  });
+
+  // Payroll & Work Logs API
+  app.get('/api/payroll/work-logs', (req, res) => {
+    res.json(workLogsStore);
+  });
+
+  app.post('/api/payroll/work-logs', (req, res) => {
+    const { employeeId, employeeName, role, projectId, projectName, hoursWorked, hourlyRateUsd, taskDescription, performanceScore } = req.body;
+
+    const newLog: WorkLogEntry = {
+      id: `LOG-2026-${Math.floor(10 + Math.random() * 90)}`,
+      employeeId: employeeId || 'EMP-001',
+      employeeName: employeeName || 'Remote Professional',
+      role: role || 'tech_auditor',
+      projectId: projectId || 'APP-2026-801',
+      projectName: projectName || 'Active Project',
+      hoursWorked: Number(hoursWorked) || 8,
+      hourlyRateUsd: Number(hourlyRateUsd) || 150,
+      totalPayUsd: Number(hoursWorked) * Number(hourlyRateUsd),
+      dateLogged: new Date().toISOString().split('T')[0],
+      taskDescription: taskDescription || 'Technical inspection and documentation',
+      performanceScore: Number(performanceScore) || 95,
+      paymentStatus: 'Pending Approval'
+    };
+
+    workLogsStore.unshift(newLog);
+
+    auditLogsStore.unshift({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: newLog.employeeName,
+      userRole: newLog.role,
+      projectId: newLog.projectId,
+      action: 'Work Hours Logged',
+      newValue: `${newLog.hoursWorked} hrs @ $${newLog.hourlyRateUsd}/hr = $${newLog.totalPayUsd}`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    });
+
+    res.json(newLog);
+  });
+
+  app.post('/api/payroll/approve-release', (req, res) => {
+    const { logIds, pmName } = req.body;
+    if (Array.isArray(logIds)) {
+      workLogsStore.forEach((log) => {
+        if (logIds.includes(log.id)) {
+          log.paymentStatus = 'Approved for Release';
+        }
+      });
+    }
+
+    auditLogsStore.unshift({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: pmName || 'Omar Khayyam (PM)',
+      userRole: 'pm',
+      action: 'Remote Payroll Release Approved',
+      newValue: `${logIds.length} work log entries approved for disbursement`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    });
+
+    res.json({ success: true, count: logIds.length });
   });
 
   // Vite Development / Production Middleware

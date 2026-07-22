@@ -30,7 +30,8 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'registry', labelKey: 'public.registry' },
     { id: 'verify', labelKey: 'public.verify' },
     { id: 'resources', labelKey: 'public.resources' },
-    { id: 'apply', labelKey: 'public.apply' }
+    { id: 'apply', labelKey: 'public.apply' },
+    { id: 'join_team', labelKey: 'public.joinTeam' }
   ];
 
   const rolesList: { role: UserRole; name: string }[] = [
