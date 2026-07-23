@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { PublicCertifiedProject, CertificationApplication } from '../types';
-import { ShieldCheck, Download, X, Lock, CheckCircle2, Award, Printer, Globe, QrCode } from 'lucide-react';
+import { ShieldCheck, Download, X, Lock, CheckCircle2, Award, Printer, Globe, QrCode, Loader2 } from 'lucide-react';
 import { IslamicPatternBg } from './IslamicPatternBg';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 interface ShariaCertificateModalProps {
   isOpen: boolean;
@@ -147,8 +149,52 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
     ? (project as PublicCertifiedProject).shariaSummaryAr
     : `معتمد ومصادق عليه بالامتثال التام للشريعة الإسلامية من قبل هيئة حلال تشين الشرعية الدولية بعد تدقيق البرمجيات والعقود الذكية واقتصاديات التوكن.`;
 
-  const handlePrint = () => {
-    window.print();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handlePrint = async () => {
+    setIsExporting(true);
+    try {
+      const certElement = document.getElementById('printable-certificate');
+      if (!certElement) {
+        window.print();
+        return;
+      }
+
+      // Render high-res snapshot of exact certificate element
+      const canvas = await html2canvas(certElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FAF8F5',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pdfWidth - 20; // 10mm margins
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const yPos = imgHeight < (pdfHeight - 20) ? (pdfHeight - imgHeight) / 2 : 10;
+
+      pdf.addImage(imgData, 'PNG', 10, yPos, imgWidth, Math.min(imgHeight, pdfHeight - 20));
+      pdf.save(`HalalChain_Sharia_Certificate_${certNumber}.pdf`);
+    } catch (err) {
+      console.error('PDF export error, triggering window.print()', err);
+      try {
+        window.print();
+      } catch (e) {
+        console.error('window.print failed', e);
+      }
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -210,10 +256,15 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
 
             <button
               onClick={handlePrint}
-              className="px-5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md"
+              disabled={isExporting}
+              className="px-5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md disabled:opacity-50"
             >
-              <Printer className="w-4 h-4" />
-              <span>{lang === 'ar' ? 'طباعة / حفظ PDF' : 'Print / Save as PDF'}</span>
+              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+              <span>
+                {isExporting
+                  ? (lang === 'ar' ? 'جاري تجهيز PDF...' : 'Generating PDF...')
+                  : (lang === 'ar' ? 'طباعة / حفظ PDF' : 'Print / Save as PDF')}
+              </span>
             </button>
 
             <button
