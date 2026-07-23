@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { AiConfig, AiServiceLog, RemoteEmployee, QuestionLibraryItem } from '../../types';
 import {
+  safeFetch,
+  getLocalAiConfig,
+  getLocalAiLogs,
+  getLocalEmployees,
+  getLocalQuestions
+} from '../../lib/api';
+import {
+  INITIAL_AI_CONFIG,
+  INITIAL_AI_LOGS,
+  INITIAL_REMOTE_EMPLOYEES,
+  INITIAL_QUESTIONS_LIBRARY
+} from '../../data/mockData';
+import {
   BarChart3,
   TrendingUp,
   Sparkles,
@@ -20,31 +33,27 @@ export const ExecPlatformView: React.FC = () => {
   const { t } = useLanguage();
   const [activeExecTab, setActiveExecTab] = useState<'bi' | 'ai_config' | 'workforce' | 'sys_admin'>('bi');
 
-  const [aiConfig, setAiConfig] = useState<AiConfig | null>(null);
-  const [aiLogs, setAiLogs] = useState<AiServiceLog[]>([]);
-  const [employees, setEmployees] = useState<RemoteEmployee[]>([]);
-  const [questions, setQuestions] = useState<QuestionLibraryItem[]>([]);
+  const [aiConfig, setAiConfig] = useState<AiConfig | null>(() => getLocalAiConfig());
+  const [aiLogs, setAiLogs] = useState<AiServiceLog[]>(() => getLocalAiLogs());
+  const [employees, setEmployees] = useState<RemoteEmployee[]>(() => getLocalEmployees());
+  const [questions, setQuestions] = useState<QuestionLibraryItem[]>(() => getLocalQuestions());
 
   useEffect(() => {
-    fetch('/api/ai/config')
-      .then((res) => res.json())
+    safeFetch('/api/ai/config', 'ai_config', INITIAL_AI_CONFIG)
       .then((data) => setAiConfig(data))
-      .catch(console.error);
+      .catch(() => setAiConfig(getLocalAiConfig()));
 
-    fetch('/api/ai/logs')
-      .then((res) => res.json())
+    safeFetch('/api/ai/logs', 'ai_logs', INITIAL_AI_LOGS)
       .then((data) => setAiLogs(data))
-      .catch(console.error);
+      .catch(() => setAiLogs(getLocalAiLogs()));
 
-    fetch('/api/employees')
-      .then((res) => res.json())
+    safeFetch('/api/employees', 'employees', INITIAL_REMOTE_EMPLOYEES)
       .then((data) => setEmployees(data))
-      .catch(console.error);
+      .catch(() => setEmployees(getLocalEmployees()));
 
-    fetch('/api/questions-library')
-      .then((res) => res.json())
+    safeFetch('/api/questions-library', 'questions', INITIAL_QUESTIONS_LIBRARY)
       .then((data) => setQuestions(data))
-      .catch(console.error);
+      .catch(() => setQuestions(getLocalQuestions()));
   }, []);
 
   const handleSaveAiConfig = async (updatedConfig: Partial<AiConfig>) => {

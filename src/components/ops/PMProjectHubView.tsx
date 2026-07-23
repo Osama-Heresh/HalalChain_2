@@ -14,6 +14,21 @@ import {
   WorkflowStage
 } from '../../types';
 import {
+  safeFetch,
+  getLocalEmployees,
+  getLocalTalentApps,
+  getLocalTeamAssignments,
+  getLocalWorkLogs,
+  getLocalEvaluations
+} from '../../lib/api';
+import {
+  INITIAL_REMOTE_EMPLOYEES,
+  INITIAL_TALENT_APPLICATIONS,
+  INITIAL_PROJECT_TEAM_ASSIGNMENTS,
+  INITIAL_WORK_LOGS,
+  INITIAL_MEMBER_EVALUATIONS
+} from '../../data/mockData';
+import {
   Briefcase,
   Users,
   Clock,
@@ -70,12 +85,12 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
   const [projectStatusFilter, setProjectStatusFilter] = useState<'running' | 'closed' | 'all'>('running');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Data States
-  const [employees, setEmployees] = useState<RemoteEmployee[]>([]);
-  const [talentApps, setTalentApps] = useState<TalentApplication[]>([]);
-  const [teamAssignments, setTeamAssignments] = useState<ProjectTeamAssignment[]>([]);
-  const [workLogs, setWorkLogs] = useState<WorkLogEntry[]>([]);
-  const [evaluations, setEvaluations] = useState<MemberEvaluation[]>([]);
+  // Data States initialized with guaranteed mock fallbacks
+  const [employees, setEmployees] = useState<RemoteEmployee[]>(() => getLocalEmployees());
+  const [talentApps, setTalentApps] = useState<TalentApplication[]>(() => getLocalTalentApps());
+  const [teamAssignments, setTeamAssignments] = useState<ProjectTeamAssignment[]>(() => getLocalTeamAssignments());
+  const [workLogs, setWorkLogs] = useState<WorkLogEntry[]>(() => getLocalWorkLogs());
+  const [evaluations, setEvaluations] = useState<MemberEvaluation[]>(() => getLocalEvaluations());
   const [loading, setLoading] = useState(false);
 
   // Selected Evaluation for Modal
@@ -161,20 +176,20 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
     setLoading(true);
     try {
       const [empRes, talentRes, teamRes, logRes, evalRes] = await Promise.all([
-        fetch('/api/employees').then((r) => r.json()),
-        fetch('/api/talent-applications').then((r) => r.json()),
-        fetch('/api/projects/team-assignments').then((r) => r.json()),
-        fetch('/api/payroll/work-logs').then((r) => r.json()),
-        fetch('/api/evaluations').then((r) => r.json())
+        safeFetch('/api/employees', 'employees', INITIAL_REMOTE_EMPLOYEES),
+        safeFetch('/api/talent-applications', 'talent_apps', INITIAL_TALENT_APPLICATIONS),
+        safeFetch('/api/projects/team-assignments', 'team_assignments', INITIAL_PROJECT_TEAM_ASSIGNMENTS),
+        safeFetch('/api/payroll/work-logs', 'work_logs', INITIAL_WORK_LOGS),
+        safeFetch('/api/evaluations', 'evaluations', INITIAL_MEMBER_EVALUATIONS)
       ]);
 
-      setEmployees(empRes || []);
-      setTalentApps(talentRes || []);
-      setTeamAssignments(teamRes || []);
-      setWorkLogs(logRes || []);
-      setEvaluations(evalRes || []);
+      if (empRes && Array.isArray(empRes)) setEmployees(empRes);
+      if (talentRes && Array.isArray(talentRes)) setTalentApps(talentRes);
+      if (teamRes && Array.isArray(teamRes)) setTeamAssignments(teamRes);
+      if (logRes && Array.isArray(logRes)) setWorkLogs(logRes);
+      if (evalRes && Array.isArray(evalRes)) setEvaluations(evalRes);
     } catch (err) {
-      console.error('Failed to load PM data', err);
+      console.warn('Using client-side PM data', err);
     } finally {
       setLoading(false);
     }

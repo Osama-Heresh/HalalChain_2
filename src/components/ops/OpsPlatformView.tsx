@@ -39,6 +39,9 @@ import { IslamicPatternBg } from '../IslamicPatternBg';
 import { PMProjectHubView } from './PMProjectHubView';
 import { TaskDetailModal } from './TaskDetailModal';
 
+import { safeFetch, getLocalTalentApps } from '../../lib/api';
+import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
+
 interface OpsPlatformViewProps {
   currentUserRole: UserRole;
   setCurrentUserRole: (r: UserRole) => void;
@@ -71,17 +74,18 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
   const [aiResult, setAiResult] = useState<any>(null);
 
   // Pending Talent Applications for PM Alert Banner
-  const [pendingTalentApps, setPendingTalentApps] = useState<TalentApplication[]>([]);
+  const [pendingTalentApps, setPendingTalentApps] = useState<TalentApplication[]>(() => {
+    return getLocalTalentApps().filter((t) => t.status === 'Pending Review');
+  });
 
   const fetchTalentApps = () => {
-    fetch('/api/talent-applications')
-      .then((r) => r.json())
+    safeFetch('/api/talent-applications', 'talent_apps', INITIAL_TALENT_APPLICATIONS)
       .then((data) => {
         if (Array.isArray(data)) {
           setPendingTalentApps(data.filter((t: TalentApplication) => t.status === 'Pending Review'));
         }
       })
-      .catch((err) => console.error('Failed to fetch talent apps in OpsPlatformView', err));
+      .catch((err) => console.warn('Using client-side talent apps', err));
   };
 
   useEffect(() => {

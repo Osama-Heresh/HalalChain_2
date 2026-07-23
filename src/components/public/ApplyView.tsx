@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { CertificationApplication } from '../../types';
+import { getLocalApps, saveLocalApps } from '../../lib/api';
 import { ShieldCheck, CheckCircle2, ArrowRight, Upload, Building2, Globe, FileText, Code, Check } from 'lucide-react';
 
 interface ApplyViewProps {
@@ -39,18 +40,55 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setSuccessApp(data);
-        onApplicationCreated(data);
+      let createdApp: CertificationApplication | null = null;
+      try {
+        const res = await fetch('/api/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (res.ok) {
+          createdApp = await res.json();
+        }
+      } catch (err) {
+        console.warn('Network or server error during application submission, creating client-side application.', err);
       }
-    } catch (err) {
-      console.error('Failed to submit application', err);
+
+      if (!createdApp) {
+        const appId = `HC-2026-${Math.floor(100 + Math.random() * 900)}`;
+        const price = formData.packageType === 'Enterprise' ? 24500 : formData.packageType === 'Startup / DeFi' ? 8500 : 14500;
+        createdApp = {
+          id: appId,
+          applicationNumber: `HC-APP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          companyName: formData.companyName,
+          legalCountry: formData.legalCountry,
+          representativeName: formData.representativeName,
+          officialEmail: formData.officialEmail,
+          phone: formData.phone,
+          telegram: formData.telegram,
+          githubUrl: formData.githubUrl,
+          cmcUrl: formData.cmcUrl,
+          websiteUrl: formData.websiteUrl,
+          whitepaperUrl: formData.whitepaperUrl,
+          contractAddress: '0x0000000000000000000000000000000000000000',
+          blockchain: 'Ethereum / Web3',
+          projectDescription: formData.projectDescription,
+          packageType: formData.packageType === 'Enterprise' ? 'Enterprise' : formData.packageType === 'Startup / DeFi' ? 'Starter' : 'Professional',
+          stage: 'project_created',
+          submittedAt: new Date().toISOString(),
+          targetCompletionDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+          depositPaid: false,
+          finalPaid: false,
+          totalFee: price,
+          depositAmount: Math.round(price * 0.5),
+          remainingAmount: Math.round(price * 0.5)
+        };
+      }
+
+      const existingApps = getLocalApps();
+      saveLocalApps([createdApp, ...existingApps]);
+      setSuccessApp(createdApp);
+      onApplicationCreated(createdApp);
     } finally {
       setSubmitting(false);
     }

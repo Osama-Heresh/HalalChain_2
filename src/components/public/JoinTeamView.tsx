@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { UserRole } from '../../types';
+import { UserRole, TalentApplication } from '../../types';
+import { getLocalTalentApps, saveLocalTalentApps } from '../../lib/api';
 import {
   Users,
   Briefcase,
@@ -155,21 +156,49 @@ export const JoinTeamView: React.FC<JoinTeamViewProps> = ({ onApplicationSubmitt
         cvFileSize: form.cvFileSize || '2.2 MB'
       };
 
-      const res = await fetch('/api/talent-applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setSubmittedApp(data);
-        if (onApplicationSubmitted) {
-          onApplicationSubmitted();
+      let appToSubmit: TalentApplication | null = null;
+      try {
+        const res = await fetch('/api/talent-applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          appToSubmit = await res.json();
         }
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        setErrorMessage(errData.error || 'Failed to submit candidate application. Please try again.');
+      } catch (err) {
+        console.warn('Server offline, submitting talent application locally', err);
+      }
+
+      if (!appToSubmit) {
+        appToSubmit = {
+          id: `TAL-${Date.now()}`,
+          fullName: payload.fullName,
+          email: payload.email,
+          role: payload.role as UserRole,
+          status: 'Pending Review',
+          appliedDate: new Date().toISOString().split('T')[0],
+          country: payload.country,
+          timeZone: payload.timeZone,
+          expectedHourlyRateUsd: payload.expectedHourlyRateUsd,
+          skills: payload.skills,
+          experienceYears: payload.experienceYears,
+          bio: payload.bio,
+          education: payload.education,
+          experienceDetails: payload.experienceDetails,
+          cvSummary: payload.cvSummary,
+          portfolioUrl: payload.portfolioUrl,
+          githubUrl: payload.githubUrl,
+          cvFileName: payload.cvFileName,
+          cvFileSize: payload.cvFileSize
+        };
+      }
+
+      const currentTalent = getLocalTalentApps();
+      saveLocalTalentApps([appToSubmit, ...currentTalent]);
+      setSubmittedApp(appToSubmit);
+      if (onApplicationSubmitted) {
+        onApplicationSubmitted();
       }
     } catch (err) {
       console.error('Submission error:', err);
