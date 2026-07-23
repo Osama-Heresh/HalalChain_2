@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { MemberEvaluation, UserRole } from '../../types';
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 import {
   X,
   Award,
@@ -21,7 +23,8 @@ import {
   ChevronRight,
   MessageSquare,
   AlertCircle,
-  Briefcase
+  Briefcase,
+  Loader2
 } from 'lucide-react';
 
 interface TeamMemberEvaluationModalProps {
@@ -61,6 +64,7 @@ export const TeamMemberEvaluationModal: React.FC<TeamMemberEvaluationModalProps>
   );
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [activeView, setActiveView] = useState<'dashboard' | 'form' | 'print'>('dashboard');
+  const [isExporting, setIsExporting] = useState(false);
 
   // Calculate live PM overall score & combined score
   const computedPmScore = Math.round(
@@ -102,8 +106,72 @@ export const TeamMemberEvaluationModal: React.FC<TeamMemberEvaluationModalProps>
     setTimeout(() => setSavedSuccess(false), 2500);
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportPdf = async () => {
+    setIsExporting(true);
+    try {
+      const reportElement = document.getElementById('printable-evaluation-report');
+      if (!reportElement) {
+        window.print();
+        return;
+      }
+
+      const dataUrl = await toPng(reportElement, {
+        quality: 0.98,
+        pixelRatio: 2,
+        backgroundColor: '#FFFFFF',
+        cacheBust: true,
+        filter: (node) => !(node instanceof HTMLElement && node.classList.contains('export-ignore')),
+        style: {
+          margin: '0',
+          transform: 'none',
+        },
+      });
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();   // 210 mm
+      const pdfHeight = pdf.internal.pageSize.getHeight(); // 297 mm
+
+      const margin = 8;
+      const maxW = pdfWidth - margin * 2;
+      const maxH = pdfHeight - margin * 2;
+
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      const imgAspect = img.width / img.height;
+      let finalW = maxW;
+      let finalH = maxW / imgAspect;
+
+      if (finalH > maxH) {
+        finalH = maxH;
+        finalW = maxH * imgAspect;
+      }
+
+      const xPos = (pdfWidth - finalW) / 2;
+      const yPos = margin;
+
+      pdf.addImage(dataUrl, 'PNG', xPos, yPos, finalW, finalH);
+      const safeName = (evaluation.employeeName || 'Member').replace(/\s+/g, '_');
+      pdf.save(`HalalChain_Employee_Evaluation_${safeName}.pdf`);
+    } catch (err) {
+      console.error('PDF export error, falling back to window.print:', err);
+      try {
+        window.print();
+      } catch (e) {
+        console.error('Window print failed:', e);
+      }
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const getRoleLabel = (r: UserRole) => {
@@ -124,72 +192,84 @@ export const TeamMemberEvaluationModal: React.FC<TeamMemberEvaluationModalProps>
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-5xl w-full border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[94vh] print:max-h-none print:shadow-none print:border-0 print:rounded-none">
-        {/* Top Executive Banner */}
-        <div className="bg-[#0B132B] text-white p-6 sm:p-8 shrink-0 relative overflow-hidden print:bg-slate-900">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        {/* PRINTABLE REPORT CONTAINER */}
+        <div id="printable-evaluation-report" className="bg-white flex flex-col flex-1 overflow-y-auto">
+          {/* Top Executive Banner */}
+          <div className="bg-[#0B132B] text-white p-6 sm:p-8 shrink-0 relative overflow-hidden print:bg-slate-900">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all cursor-pointer z-10 print:hidden"
-          >
-            <X className="w-5 h-5" />
-          </button>
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all cursor-pointer z-10 print:hidden export-ignore"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-bold font-serif text-2xl sm:text-3xl flex items-center justify-center shrink-0 shadow-xl border-2 border-amber-400/50">
-                {evaluation.employeeName.charAt(0)}
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                    {getRoleLabel(evaluation.role)}
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    {evaluation.ratingCategory}
-                  </span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-bold font-serif text-2xl sm:text-3xl flex items-center justify-center shrink-0 shadow-xl border-2 border-amber-400/50">
+                  {evaluation.employeeName.charAt(0)}
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-bold font-serif text-white tracking-tight">
-                  {evaluation.employeeName}
-                </h2>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                      {getRoleLabel(evaluation.role)}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      {evaluation.ratingCategory}
+                    </span>
+                  </div>
 
-                <div className="flex items-center gap-2 text-xs font-mono text-slate-300 flex-wrap">
-                  <span className="flex items-center gap-1 text-amber-300 font-bold">
-                    <Briefcase className="w-3.5 h-3.5" />
-                    {evaluation.projectName}
-                  </span>
-                  <span>•</span>
-                  <span className="text-slate-300">Task: {evaluation.currentTask}</span>
+                  <h2 className="text-2xl sm:text-3xl font-bold font-serif text-white tracking-tight">
+                    {evaluation.employeeName}
+                  </h2>
+
+                  <div className="flex items-center gap-2 text-xs font-mono text-slate-300 flex-wrap">
+                    <span className="flex items-center gap-1 text-amber-300 font-bold">
+                      <Briefcase className="w-3.5 h-3.5" />
+                      {evaluation.projectName}
+                    </span>
+                    <span>•</span>
+                    <span className="text-slate-300">Task: {evaluation.currentTask}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Quick Actions Header */}
-            <div className="flex items-center gap-2 print:hidden shrink-0">
-              <button
-                onClick={handlePrint}
-                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-2 shadow-lg transition-all cursor-pointer"
-              >
-                <Printer className="w-4 h-4 text-slate-950" />
-                <span>{lang === 'ar' ? 'طباعة / تصدير PDF' : 'Print / Export PDF'}</span>
-              </button>
+              {/* Quick Actions Header */}
+              <div className="flex items-center gap-2 print:hidden shrink-0 export-ignore">
+                <button
+                  onClick={handleExportPdf}
+                  disabled={isExporting}
+                  className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs flex items-center gap-2 shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isExporting ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                  ) : (
+                    <Printer className="w-4 h-4 text-slate-950" />
+                  )}
+                  <span>
+                    {isExporting
+                      ? (lang === 'ar' ? 'جاري التحميل...' : 'Downloading PDF...')
+                      : (lang === 'ar' ? 'طباعة / حفظ PDF' : 'Print / Save as PDF')}
+                  </span>
+                </button>
 
-              <button
-                onClick={handleSave}
-                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg transition-all cursor-pointer"
-              >
-                {savedSuccess ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-                <span>{savedSuccess ? 'Saved!' : 'Save PM Evaluation'}</span>
-              </button>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg transition-all cursor-pointer"
+                >
+                  {savedSuccess ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                  <span>{savedSuccess ? 'Saved!' : 'Save PM Evaluation'}</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* View Selection Tabs */}
-        <div className="bg-slate-100 border-b border-slate-200 px-3 sm:px-6 pt-3 font-mono text-xs flex items-center gap-2 shrink-0 overflow-x-auto whitespace-nowrap scrollbar-none touch-pan-x print:hidden">
+          {/* View Selection Tabs */}
+          <div className="bg-slate-100 border-b border-slate-200 px-3 sm:px-6 pt-3 font-mono text-xs flex items-center gap-2 shrink-0 overflow-x-auto whitespace-nowrap scrollbar-none touch-pan-x print:hidden export-ignore">
           <button
             onClick={() => setActiveView('dashboard')}
             className={`px-4 py-2.5 font-bold rounded-t-xl transition-all flex items-center gap-2 cursor-pointer border-b-2 ${
@@ -558,22 +638,15 @@ export const TeamMemberEvaluationModal: React.FC<TeamMemberEvaluationModalProps>
             </div>
           )}
         </div>
+        </div>
 
         {/* Footer */}
-        <div className="bg-slate-50 border-t border-slate-200 p-4 sm:p-6 flex items-center justify-between shrink-0 font-mono text-xs print:hidden">
+        <div className="bg-slate-50 border-t border-slate-200 p-4 sm:p-6 flex items-center justify-between shrink-0 font-mono text-xs print:hidden export-ignore">
           <div className="text-slate-500">
             HalalChain Remote Workforce Quality Governance • Certified SLA Evaluation
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={handlePrint}
-              className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 font-bold flex items-center gap-1.5 cursor-pointer"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Print PDF Report</span>
-            </button>
-
             <button
               onClick={onClose}
               className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold cursor-pointer"
