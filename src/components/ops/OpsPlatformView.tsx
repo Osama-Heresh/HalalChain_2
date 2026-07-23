@@ -38,6 +38,7 @@ import {
 import { IslamicPatternBg } from '../IslamicPatternBg';
 import { PMProjectHubView } from './PMProjectHubView';
 import { TaskDetailModal } from './TaskDetailModal';
+import { EmployeeWalletView } from './EmployeeWalletView';
 
 import { safeFetch, getLocalTalentApps } from '../../lib/api';
 import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
@@ -60,7 +61,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
   onRefreshData
 }) => {
   const { t, dir, lang } = useLanguage();
-  const [activeOpsTab, setActiveOpsTab] = useState<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log'>('my_work');
+  const [activeOpsTab, setActiveOpsTab] = useState<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log' | 'wallet'>('my_work');
   const [selectedProjectId, setSelectedProjectId] = useState<string>(applications[0]?.id || '');
 
   // Task Inspection Modal State
@@ -95,37 +96,38 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
   }, []);
 
   // Define allowed sub-tabs for each user role to prevent confusion
-  const getAllowedTabsForRole = (role: UserRole): Array<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log'> => {
+  const getAllowedTabsForRole = (role: UserRole): Array<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log' | 'wallet'> => {
     switch (role) {
       case 'scholar':
-        // Sharia Scholars only need My Work, Sharia Review Workspace, and Audit Log
-        return ['my_work', 'auditor', 'audit_log'];
+        // Sharia Scholars need My Work, Sharia Review Workspace, Wallet, and Audit Log
+        return ['my_work', 'auditor', 'wallet', 'audit_log'];
       case 'finance':
-        // Finance Officers only need My Work, Finance Release Gate, and Audit Log
-        return ['my_work', 'finance', 'audit_log'];
+        // Finance Officers need My Work, Finance Release Gate, Wallet, and Audit Log
+        return ['my_work', 'finance', 'wallet', 'audit_log'];
       case 'tech_auditor':
-        // Tech Auditors need My Work, Technical Audit Workspace, AI Assessment Center, and Audit Log
-        return ['my_work', 'auditor', 'ai_engine', 'audit_log'];
+        // Tech Auditors need My Work, Technical Audit Workspace, AI Assessment Center, Wallet, and Audit Log
+        return ['my_work', 'auditor', 'ai_engine', 'wallet', 'audit_log'];
       case 'sales':
       case 'marketing':
-        // Sales / Marketing need My Work, CRM & Sales Pipeline, and Audit Log
-        return ['my_work', 'crm', 'audit_log'];
+        // Sales / Marketing need My Work, CRM & Sales Pipeline, Wallet, and Audit Log
+        return ['my_work', 'crm', 'wallet', 'audit_log'];
       case 'pm':
-        // PMs need My Work, PM Project Hub, CRM, and Audit Log
-        return ['my_work', 'pm', 'crm', 'audit_log'];
+        // PMs need My Work, PM Project Hub, CRM, Wallet, and Audit Log
+        return ['my_work', 'pm', 'crm', 'wallet', 'audit_log'];
       case 'business_analyst':
-        // Business Analysts need My Work, PM Hub, AI Assessment Center, and Audit Log
-        return ['my_work', 'pm', 'ai_engine', 'audit_log'];
+        // Business Analysts need My Work, PM Hub, AI Assessment Center, Wallet, and Audit Log
+        return ['my_work', 'pm', 'ai_engine', 'wallet', 'audit_log'];
       case 'qa':
-        // QA Officers need My Work, Auditor/QA Workspace, and Audit Log
-        return ['my_work', 'auditor', 'audit_log'];
+        // QA Officers need My Work, Auditor/QA Workspace, Wallet, and Audit Log
+        return ['my_work', 'auditor', 'wallet', 'audit_log'];
       case 'admin':
       case 'exec':
       default:
         // System Admins and Executives have full operational visibility across all tabs
-        return ['my_work', 'pm', 'ai_engine', 'auditor', 'crm', 'finance', 'audit_log'];
+        return ['my_work', 'pm', 'ai_engine', 'auditor', 'crm', 'finance', 'wallet', 'audit_log'];
     }
   };
+
 
   const allowedTabs = getAllowedTabsForRole(currentUserRole);
 
@@ -446,6 +448,18 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
           </button>
         )}
 
+        {allowedTabs.includes('wallet') && (
+          <button
+            onClick={() => setActiveOpsTab('wallet')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeOpsTab === 'wallet' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Coins className="w-3.5 h-3.5 text-amber-500" />
+            <span>{lang === 'ar' ? 'محفظتي والمكافآت' : 'Employee Wallet'}</span>
+          </button>
+        )}
+
         {allowedTabs.includes('audit_log') && (
           <button
             onClick={() => setActiveOpsTab('audit_log')}
@@ -459,6 +473,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
             </span>
           </button>
         )}
+
       </div>
 
       {/* Tab 1: My Work Dashboard */}
@@ -1174,6 +1189,11 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
             ))}
           </div>
         </div>
+      )}
+
+      {/* Tab 8: Employee Wallet */}
+      {activeOpsTab === 'wallet' && (
+        <EmployeeWalletView currentUserRole={currentUserRole} />
       )}
 
       {/* Task Decision & Linked Reference Modal */}

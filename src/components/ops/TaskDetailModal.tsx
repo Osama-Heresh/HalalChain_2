@@ -238,7 +238,95 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
           )}
 
+          {/* Enhanced Task Metrics & Live Progress Bar */}
+          <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase text-amber-400 tracking-wider">
+                  {lang === 'ar' ? 'مؤشر إنجاز مرحلة العمل' : 'Workflow Stage Execution Progress'}
+                </span>
+                <div className="text-lg font-serif font-bold text-white flex items-center gap-2">
+                  <span>{application.stage.replace(/_/g, ' ').toUpperCase()}</span>
+                  <span className="px-2 py-0.5 rounded text-xs bg-amber-500/20 text-amber-300 font-mono border border-amber-500/30">
+                    {(() => {
+                      const map: Record<string, number> = {
+                        waiting_deposit: 10,
+                        project_created: 25,
+                        ai_assessment: 40,
+                        technical_review: 55,
+                        business_review: 65,
+                        scholar_review: 80,
+                        quality_assurance: 90,
+                        waiting_final_payment: 95,
+                        published_registry: 100,
+                        completed: 100
+                      };
+                      return map[application.stage] || 50;
+                    })()}% Completed
+                  </span>
+                </div>
+              </div>
+
+              {/* Priority & SLA Countdown */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="px-3 py-1 rounded-xl text-xs font-mono font-bold bg-amber-500 text-slate-950">
+                  PRIORITY: HIGH
+                </span>
+                <span className="px-3 py-1 rounded-xl text-xs font-mono font-bold bg-slate-800 text-slate-200 border border-slate-700">
+                  Target SLA: {application.targetCompletionDate}
+                </span>
+              </div>
+            </div>
+
+            {/* Visual Stage Bar */}
+            <div className="space-y-1">
+              <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
+                <div
+                  className="bg-gradient-to-r from-amber-500 to-emerald-400 h-full transition-all duration-500"
+                  style={{
+                    width: `${(() => {
+                      const map: Record<string, number> = {
+                        waiting_deposit: 10,
+                        project_created: 25,
+                        ai_assessment: 40,
+                        technical_review: 55,
+                        business_review: 65,
+                        scholar_review: 80,
+                        quality_assurance: 90,
+                        waiting_final_payment: 95,
+                        published_registry: 100,
+                        completed: 100
+                      };
+                      return map[application.stage] || 50;
+                    })()}%`
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-slate-300 text-[11px] font-mono">
+              <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                <div className="text-[10px] text-slate-400">{lang === 'ar' ? 'الوقت المقدر' : 'Estimated Time'}</div>
+                <div className="font-bold text-white text-xs mt-0.5">24.0 Hours</div>
+              </div>
+              <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                <div className="text-[10px] text-slate-400">{lang === 'ar' ? 'الوقت المنقضي' : 'Elapsed Working Time'}</div>
+                <div className="font-bold text-amber-400 text-xs mt-0.5">14.5 Hours Logged</div>
+              </div>
+              <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                <div className="text-[10px] text-slate-400">{lang === 'ar' ? 'الأدلة والملفات' : 'Evidence Items'}</div>
+                <div className="font-bold text-emerald-400 text-xs mt-0.5">4 Documents Verified</div>
+              </div>
+              <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                <div className="text-[10px] text-slate-400">{lang === 'ar' ? 'المناقشات والاستفسارات' : 'Discussions Count'}</div>
+                <div className="font-bold text-blue-400 text-xs mt-0.5">{messages.length} Clarifications</div>
+              </div>
+            </div>
+          </div>
+
           {/* Section 1: Linked References & Evidence Inspection */}
+
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h3 className="text-sm font-bold font-serif text-slate-900 flex items-center gap-2">

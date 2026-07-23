@@ -387,3 +387,52 @@ export interface QuestionLibraryItem {
   applicableMethodology: string;
   status: 'Active' | 'Retired';
 }
+
+export interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'new_task' | 'task_completed' | 'clarification' | 'payment' | 'certificate' | 'deadline' | 'overdue' | 'message';
+  timestamp: string;
+  isRead: boolean;
+  linkTab?: PlatformTab;
+  projectId?: string;
+}
+
+export interface WalletTransaction {
+  id: string;
+  date: string;
+  title: string;
+  category: 'Payroll' | 'Bonus' | 'Deduction' | 'Customer Deposit' | 'Customer Final Payment' | 'AI Operating Expense' | 'Audit Fee' | 'Refund' | 'Subscription';
+  type: 'credit' | 'debit';
+  amountUsd: number;
+  status: 'Completed' | 'Pending' | 'Processing';
+  relatedProject?: string;
+  description: string;
+}
+
+export interface EmployeeWalletData {
+  employeeId: string;
+  employeeName: string;
+  currentBalanceUsd: number;
+  pendingPayrollUsd: number;
+  totalEarnedUsd: number;
+  bonusesUsd: number;
+  deductionsUsd: number;
+  preferredCurrency: 'USD' | 'HLC';
+  transactions: WalletTransaction[];
+}
+
+export interface CompanyWalletData {
+  currentBalanceUsd: number;
+  totalIncomeUsd: number;
+  totalExpensesUsd: number;
+  customerPaymentsUsd: number;
+  refundsUsd: number;
+  payrollPaymentsUsd: number;
+  subscriptionsUsd: number;
+  operatingExpensesUsd: number;
+  monthlySummary: { month: string; income: number; expenses: number; netProfit: number }[];
+  transactions: WalletTransaction[];
+}
+

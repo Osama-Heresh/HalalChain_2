@@ -28,10 +28,11 @@ import {
   Layers
 } from 'lucide-react';
 import { IslamicPatternBg } from '../IslamicPatternBg';
+import { CompanyWalletView } from './CompanyWalletView';
 
 export const ExecPlatformView: React.FC = () => {
   const { t } = useLanguage();
-  const [activeExecTab, setActiveExecTab] = useState<'bi' | 'ai_config' | 'workforce' | 'sys_admin'>('bi');
+  const [activeExecTab, setActiveExecTab] = useState<'bi' | 'company_wallet' | 'ai_config' | 'workforce' | 'sys_admin'>('bi');
 
   const [aiConfig, setAiConfig] = useState<AiConfig | null>(() => getLocalAiConfig());
   const [aiLogs, setAiLogs] = useState<AiServiceLog[]>(() => getLocalAiLogs());
@@ -99,6 +100,15 @@ export const ExecPlatformView: React.FC = () => {
           }`}
         >
           Executive BI Analytics
+        </button>
+        <button
+          onClick={() => setActiveExecTab('company_wallet')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeExecTab === 'company_wallet' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
+          <span>Company Wallet & Payouts</span>
         </button>
         <button
           onClick={() => setActiveExecTab('ai_config')}
@@ -331,6 +341,11 @@ export const ExecPlatformView: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Tab 5: Company Wallet */}
+      {activeExecTab === 'company_wallet' && (
+        <CompanyWalletView />
+      )}
     </div>
   );
 };
+

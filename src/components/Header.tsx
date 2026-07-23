@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { PlatformTab, UserRole } from '../types';
 import { ShieldCheck, Globe, User, Briefcase, BarChart3, ChevronDown, Menu, X } from 'lucide-react';
+import { NotificationCenter } from './NotificationCenter';
 
 interface HeaderProps {
   activePlatform: PlatformTab;
@@ -162,6 +163,9 @@ export const Header: React.FC<HeaderProps> = ({
                 ))}
               </div>
             </div>
+
+            {/* Unified Notification Center */}
+            <NotificationCenter onNavigateTab={setActivePlatform} />
 
             {/* Language Switcher Button */}
             <button
