@@ -152,8 +152,40 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto print:p-0 print:bg-white print:static">
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border-4 border-amber-500 overflow-hidden my-auto print:border-2 print:shadow-none print:rounded-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto print:p-0 print:bg-white print:static print:block">
+      {/* Print Styles Injection */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #printable-certificate, #printable-certificate * {
+            visibility: visible !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          #printable-certificate {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 24px !important;
+            box-shadow: none !important;
+            border-width: 8px !important;
+            border-color: #0B132B !important;
+            background-color: #FAF8F5 !important;
+            border-radius: 0 !important;
+          }
+          .print\\:hidden {
+            display: none !important;
+          }
+        }
+      `}</style>
+
+      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border-4 border-amber-500 overflow-hidden my-auto print:border-0 print:shadow-none print:rounded-none">
         
         {/* Top Control Bar (Hidden in Print) */}
         <div className="bg-[#0B132B] text-white px-6 py-3 border-b border-amber-500/30 flex items-center justify-between print:hidden">
@@ -178,10 +210,10 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
 
             <button
               onClick={handlePrint}
-              className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
+              className="px-5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md"
             >
               <Printer className="w-4 h-4" />
-              <span>{lang === 'ar' ? 'طباعة / حفظ PDF' : 'Print / Download PDF'}</span>
+              <span>{lang === 'ar' ? 'طباعة / حفظ PDF' : 'Print / Save as PDF'}</span>
             </button>
 
             <button
@@ -194,7 +226,7 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
         </div>
 
         {/* CERTIFICATE CANVAS BODY */}
-        <div className="relative p-6 sm:p-10 bg-[#FAF8F5] text-slate-900 border-[12px] border-[#0B132B] rounded-2xl m-2 sm:m-4 space-y-6 shadow-inner print:m-0 print:border-4 print:p-6">
+        <div id="printable-certificate" className="relative p-6 sm:p-10 bg-[#FAF8F5] text-slate-900 border-[12px] border-[#0B132B] rounded-2xl m-2 sm:m-4 space-y-6 shadow-inner print:m-0 print:border-8 print:p-8">
           
           {/* Decorative Corner Accents */}
           <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-amber-600"></div>

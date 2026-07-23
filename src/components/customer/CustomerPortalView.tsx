@@ -465,24 +465,13 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
               </p>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="pt-2 flex items-center justify-center">
               <button
                 onClick={() => setShowCertModal(true)}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all cursor-pointer inline-flex items-center justify-center gap-2 shadow-lg"
+                className="px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all cursor-pointer inline-flex items-center justify-center gap-2 shadow-lg"
               >
                 <Award className="w-4 h-4" />
-                <span>Open Full Certificate Document with Barcode</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowCertModal(true);
-                  setTimeout(() => window.print(), 300);
-                }}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs transition-all cursor-pointer inline-flex items-center justify-center gap-2"
-              >
-                <Download className="w-4 h-4 text-amber-400" />
-                <span>Download / Print PDF</span>
+                <span>View & Print Official Sharia Certificate</span>
               </button>
             </div>
           </div>
