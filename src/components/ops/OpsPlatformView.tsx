@@ -345,7 +345,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
         )}
 
       {/* Navigation Sub-Tabs (Filtered per role) */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto scrollbar-none max-w-full touch-pan-x">
         {allowedTabs.includes('my_work') && (
           <button
             onClick={() => setActiveOpsTab('my_work')}

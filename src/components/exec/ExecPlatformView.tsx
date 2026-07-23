@@ -82,7 +82,7 @@ export const ExecPlatformView: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto scrollbar-none max-w-full touch-pan-x">
         <button
           onClick={() => setActiveExecTab('bi')}
           className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap ${

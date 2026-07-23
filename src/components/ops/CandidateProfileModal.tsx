@@ -225,7 +225,7 @@ export const CandidateProfileModal: React.FC<CandidateProfileModalProps> = ({
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="bg-slate-100 border-b border-slate-200 px-6 pt-3 font-mono text-xs flex items-center gap-2 overflow-x-auto shrink-0">
+        <div className="bg-slate-100 border-b border-slate-200 px-3 sm:px-6 pt-3 font-mono text-xs flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none touch-pan-x shrink-0">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-2.5 font-bold rounded-t-xl transition-all flex items-center gap-2 cursor-pointer border-b-2 ${

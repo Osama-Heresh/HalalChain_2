@@ -483,7 +483,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
 
       {/* Main PM Navigation Tabs */}
       <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto text-xs font-mono">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none touch-pan-x max-w-full pb-1 text-xs font-mono">
           <button
             onClick={() => setPmSubTab('projects')}
             className={`px-4 py-2.5 rounded-2xl font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
