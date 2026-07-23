@@ -154,10 +154,10 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
       </div>
 
       {/* Navigation Tabs inside Customer Portal */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-none max-w-full touch-pan-x">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold ${
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold shrink-0 ${
             activeTab === 'overview'
               ? 'bg-[#0B132B] text-amber-400 shadow-md'
               : 'text-slate-600 hover:bg-slate-100'
@@ -167,7 +167,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('payments')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold flex items-center gap-1.5 ${
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold flex items-center gap-1.5 shrink-0 ${
             activeTab === 'payments'
               ? 'bg-[#0B132B] text-amber-400 shadow-md'
               : 'text-slate-600 hover:bg-slate-100'
@@ -181,7 +181,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('messages')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold flex items-center gap-1.5 ${
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold flex items-center gap-1.5 shrink-0 ${
             activeTab === 'messages'
               ? 'bg-[#0B132B] text-amber-400 shadow-md'
               : 'text-slate-600 hover:bg-slate-100'
@@ -193,7 +193,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
         <button
           onClick={() => setActiveTab('certificate')}
           disabled={currentApp.stage !== 'published_registry'}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold flex items-center gap-1.5 disabled:opacity-40 ${
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold flex items-center gap-1.5 disabled:opacity-40 shrink-0 ${
             activeTab === 'certificate'
               ? 'bg-[#0B132B] text-amber-400 shadow-md'
               : 'text-slate-600 hover:bg-slate-100'
