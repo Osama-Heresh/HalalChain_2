@@ -101,6 +101,7 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
   isIssuing = false
 }) => {
   const { lang, dir } = useLanguage();
+  const [isExporting, setIsExporting] = useState(false);
 
   if (!isOpen || !project) return null;
 
@@ -149,8 +150,6 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
     ? (project as PublicCertifiedProject).shariaSummaryAr
     : `معتمد ومصادق عليه بالامتثال التام للشريعة الإسلامية من قبل هيئة حلال تشين الشرعية الدولية بعد تدقيق البرمجيات والعقود الذكية واقتصاديات التوكن.`;
 
-  const [isExporting, setIsExporting] = useState(false);
-
   const handlePrint = async () => {
     setIsExporting(true);
     try {
@@ -167,6 +166,22 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
         allowTaint: true,
         backgroundColor: '#FAF8F5',
         logging: false,
+        onclone: (clonedDoc) => {
+          // Replace unsupported oklch color function in Tailwind CSS with valid fallback colors
+          const styleEls = clonedDoc.querySelectorAll('style');
+          styleEls.forEach((style) => {
+            if (style.textContent) {
+              style.textContent = style.textContent.replace(/oklch\([^\)]+\)/g, '#0b132b');
+            }
+          });
+          const allElements = clonedDoc.querySelectorAll('*');
+          allElements.forEach((el) => {
+            const st = el.getAttribute('style');
+            if (st && st.includes('oklch')) {
+              el.setAttribute('style', st.replace(/oklch\([^\)]+\)/g, '#0b132b'));
+            }
+          });
+        }
       });
 
       const imgData = canvas.toDataURL('image/png');
