@@ -166,6 +166,10 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
         pixelRatio: 2,
         backgroundColor: '#FAF8F5',
         cacheBust: true,
+        style: {
+          margin: '0',
+          transform: 'none',
+        },
       });
 
       // Create PDF in A4 landscape format
@@ -306,7 +310,8 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
         </div>
 
         {/* CERTIFICATE CANVAS BODY */}
-        <div id="printable-certificate" className="relative p-6 sm:p-10 bg-[#FAF8F5] text-slate-900 border-[12px] border-[#0B132B] rounded-2xl m-2 sm:m-4 space-y-6 shadow-inner print:m-0 print:border-8 print:p-8">
+        <div className="p-3 sm:p-5 bg-[#FAF8F5] rounded-2xl">
+          <div id="printable-certificate" className="relative p-6 sm:p-10 bg-[#FAF8F5] text-slate-900 border-[12px] border-[#0B132B] rounded-2xl space-y-6 shadow-inner box-border print:border-8 print:p-8">
           
           {/* Decorative Corner Accents */}
           <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-amber-600"></div>
@@ -451,6 +456,7 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
             </div>
           </div>
 
+          </div>
         </div>
       </div>
     </div>
