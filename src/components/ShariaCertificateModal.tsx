@@ -101,6 +101,7 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
   isIssuing = false
 }) => {
   const { lang, dir } = useLanguage();
+  const [isExporting, setIsExporting] = useState(false);
 
   if (!isOpen || !project) return null;
 
@@ -148,8 +149,6 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
   const shariaSummaryAr = isCertified
     ? (project as PublicCertifiedProject).shariaSummaryAr
     : `معتمد ومصادق عليه بالامتثال التام للشريعة الإسلامية من قبل هيئة حلال تشين الشرعية الدولية بعد تدقيق البرمجيات والعقود الذكية واقتصاديات التوكن.`;
-
-  const [isExporting, setIsExporting] = useState(false);
 
   const handlePrint = async () => {
     setIsExporting(true);
