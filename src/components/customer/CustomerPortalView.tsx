@@ -13,9 +13,11 @@ import {
   Lock,
   Send,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Award
 } from 'lucide-react';
 import { IslamicPatternBg } from '../IslamicPatternBg';
+import { ShariaCertificateModal } from '../ShariaCertificateModal';
 
 interface CustomerPortalViewProps {
   applications: CertificationApplication[];
@@ -29,6 +31,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
   const { t, dir } = useLanguage();
   const [selectedAppId, setSelectedAppId] = useState<string>(applications[0]?.id || '');
   const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'messages' | 'certificate'>('overview');
+  const [showCertModal, setShowCertModal] = useState(false);
 
   const [messageInput, setMessageInput] = useState('');
   const [messagesList, setMessagesList] = useState<ClarificationMessage[]>([]);
@@ -442,27 +445,56 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
       )}
 
       {/* Tab Content 4: Certificate View */}
-      {activeTab === 'certificate' && currentApp.stage === 'published_registry' && (
+      {activeTab === 'certificate' && (
         <div className="bg-[#0B132B] text-white p-8 rounded-3xl border-2 border-amber-500 shadow-2xl space-y-6 text-center relative overflow-hidden">
           <IslamicPatternBg />
-          <div className="relative z-10 space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/40">
-              <ShieldCheck className="w-10 h-10" />
+          <div className="relative z-10 space-y-4 max-w-xl mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-700 p-0.5 mx-auto shadow-lg">
+              <div className="w-full h-full bg-[#0B132B] rounded-[14px] flex items-center justify-center">
+                <ShieldCheck className="w-10 h-10 text-amber-400" />
+              </div>
             </div>
-            <h2 className="text-2xl font-bold font-serif text-amber-300">Official Sharia Certification Document</h2>
-            <p className="text-xs text-slate-300 max-w-xl mx-auto">
-              This certificate confirms full Sharia compliance for {currentApp.companyName} under HalalChain Standard v2.1.
-            </p>
-            <button
-              onClick={() => window.print()}
-              className="px-8 py-3 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all cursor-pointer inline-flex items-center gap-2 shadow-lg"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download Official PDF Certificate</span>
-            </button>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 rounded font-bold uppercase">
+                OFFICIAL SHARIA DIPLOMA & CERTIFICATION
+              </span>
+              <h2 className="text-2xl font-bold font-serif text-amber-300">Sharia Compliance Certificate</h2>
+              <p className="text-xs text-slate-300">
+                Official document confirming full theological and bytecode compliance for <strong className="text-white">{currentApp.companyName}</strong> featuring barcode, QR code verification, scholar signatures, and PDF download capability.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={() => setShowCertModal(true)}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all cursor-pointer inline-flex items-center justify-center gap-2 shadow-lg"
+              >
+                <Award className="w-4 h-4" />
+                <span>Open Full Certificate Document with Barcode</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowCertModal(true);
+                  setTimeout(() => window.print(), 300);
+                }}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs transition-all cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4 text-amber-400" />
+                <span>Download / Print PDF</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Sharia Certificate Modal */}
+      <ShariaCertificateModal
+        isOpen={showCertModal}
+        onClose={() => setShowCertModal(false)}
+        project={currentApp}
+      />
     </div>
   );
 };

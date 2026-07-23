@@ -49,11 +49,11 @@ export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
               Certification Services
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li className="hover:text-white transition-colors cursor-pointer">Sharia Compliance Certificate</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Sharia Governance Certificate</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Smart Contract Bytecode Audit</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Tokenomics Sustainability Review</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Annual Compliance Re-certification</li>
+              <li onClick={() => handleNav('services')} className="hover:text-white transition-colors cursor-pointer">Sharia Compliance Certificate</li>
+              <li onClick={() => handleNav('services')} className="hover:text-white transition-colors cursor-pointer">Sharia Governance Certificate</li>
+              <li onClick={() => handleNav('services')} className="hover:text-white transition-colors cursor-pointer">Smart Contract Bytecode Audit</li>
+              <li onClick={() => handleNav('pricing')} className="hover:text-white transition-colors cursor-pointer">Tokenomics Sustainability Review</li>
+              <li onClick={() => handleNav('pricing')} className="hover:text-white transition-colors cursor-pointer">Annual Compliance Re-certification</li>
             </ul>
           </div>
 
@@ -98,10 +98,10 @@ export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
         <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
           <p>© 2026 HalalChain™ Enterprise Platform. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <span className="hover:text-slate-200 cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-slate-200 cursor-pointer">Terms of Service</span>
-            <span className="hover:text-slate-200 cursor-pointer">Security Standards</span>
-            <span className="hover:text-slate-200 cursor-pointer">Contact Us</span>
+            <span onClick={() => handleNav('resources')} className="hover:text-slate-200 cursor-pointer">Privacy Policy</span>
+            <span onClick={() => handleNav('resources')} className="hover:text-slate-200 cursor-pointer">Terms of Service</span>
+            <span onClick={() => handleNav('methodology')} className="hover:text-slate-200 cursor-pointer">Security Standards</span>
+            <span onClick={() => handleNav('apply')} className="hover:text-slate-200 cursor-pointer">Contact Us</span>
           </div>
         </div>
       </div>

@@ -197,11 +197,18 @@ async function startServer() {
   // Advance Workflow Stage
   app.post('/api/applications/:id/advance', (req, res) => {
     const { id } = req.params;
-    const { nextStage, reason, note, userName, userRole } = req.body;
+    const { nextStage, reason, note, userName, userRole, autoConfirmPayment } = req.body;
 
     const project = applicationsStore.find((a) => a.id === id);
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Auto-confirm payment if PM or Finance forces certificate production or autoConfirmPayment is flag
+    if (autoConfirmPayment || userRole === 'pm' || userRole === 'finance' || userRole === 'admin') {
+      project.depositPaid = true;
+      project.finalPaid = true;
+      project.remainingAmount = 0;
     }
 
     // Payment Lock Check: Cannot issue certificate or complete if final payment unpaid

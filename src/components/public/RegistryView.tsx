@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { PublicCertifiedProject } from '../../types';
-import { Search, Filter, Lock, ExternalLink, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Search, Filter, Lock, ExternalLink, ShieldCheck, CheckCircle2, Award, FileText } from 'lucide-react';
+import { ShariaCertificateModal } from '../ShariaCertificateModal';
 
 interface RegistryViewProps {
   certifiedProjects: PublicCertifiedProject[];
@@ -16,6 +17,7 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [selectedCertProject, setSelectedCertProject] = useState<PublicCertifiedProject | null>(null);
 
   const categoriesEn = ['All', 'L1 Blockchain Ecosystem', 'Real World Assets (RWA Gold)', 'DeFi / Mudarabah Liquidity', 'Payments & Settlement', 'Philanthropy & Endowment'];
   const categoriesAr = [
@@ -158,14 +160,23 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
                       </span>
                     </td>
                     <td className="p-4 font-mono font-semibold text-amber-700">{project.riskRating}</td>
-                    <td className="p-4 text-right rtl:text-left space-x-2">
-                      <button
-                        onClick={() => onSelectVerify(project.certificateNumber)}
-                        className="px-3 py-1.5 rounded-lg bg-[#0B132B] text-amber-300 font-semibold text-xs hover:bg-[#1C2541] transition-all cursor-pointer inline-flex items-center gap-1"
-                      >
-                        <Lock className="w-3 h-3 text-emerald-400" />
-                        <span>{lang === 'ar' ? 'تحقق من التوقيع' : 'Verify Hash'}</span>
-                      </button>
+                    <td className="p-4 text-right rtl:text-left">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setSelectedCertProject(project)}
+                          className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all cursor-pointer inline-flex items-center gap-1 shadow-sm"
+                        >
+                          <Award className="w-3.5 h-3.5" />
+                          <span>{lang === 'ar' ? 'عرض الشهادة' : 'View Certificate'}</span>
+                        </button>
+                        <button
+                          onClick={() => onSelectVerify(project.certificateNumber)}
+                          className="px-3 py-1.5 rounded-lg bg-[#0B132B] text-amber-300 font-semibold text-xs hover:bg-[#1C2541] transition-all cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <Lock className="w-3 h-3 text-emerald-400" />
+                          <span>{lang === 'ar' ? 'تحقق' : 'Verify'}</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -174,6 +185,13 @@ export const RegistryView: React.FC<RegistryViewProps> = ({
           </table>
         </div>
       </div>
+
+      {/* Certificate Modal */}
+      <ShariaCertificateModal
+        isOpen={!!selectedCertProject}
+        onClose={() => setSelectedCertProject(null)}
+        project={selectedCertProject}
+      />
     </div>
   );
 };

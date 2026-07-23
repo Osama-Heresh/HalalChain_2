@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CertificationApplication, UserRole, ClarificationMessage, WorkflowStage } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
+import { ShariaCertificateModal } from '../ShariaCertificateModal';
 import {
   X,
   ExternalLink,
@@ -20,7 +21,8 @@ import {
   Send,
   Building,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Award
 } from 'lucide-react';
 
 interface TaskDetailModalProps {
@@ -42,6 +44,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [messages, setMessages] = useState<ClarificationMessage[]>([]);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showCertModal, setShowCertModal] = useState(false);
 
   useEffect(() => {
     if (application) {
@@ -202,12 +205,22 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </p>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowCertModal(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
+            >
+              <Award className="w-4 h-4 text-slate-950" />
+              <span>{lang === 'ar' ? 'عرض الشهادة (باركوود)' : 'View Certificate'}</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Modal Body */}
@@ -554,6 +567,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Sharia Certificate Modal */}
+      <ShariaCertificateModal
+        isOpen={showCertModal}
+        onClose={() => setShowCertModal(false)}
+        project={application}
+      />
     </div>
   );
 };

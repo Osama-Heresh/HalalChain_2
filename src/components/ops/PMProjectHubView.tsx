@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { CandidateProfileModal } from './CandidateProfileModal';
 import { TeamMemberEvaluationModal } from './TeamMemberEvaluationModal';
+import { ShariaCertificateModal } from '../ShariaCertificateModal';
 import {
   CertificationApplication,
   RemoteEmployee,
@@ -79,6 +80,38 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
 
   // Selected Evaluation for Modal
   const [selectedEvaluationModal, setSelectedEvaluationModal] = useState<MemberEvaluation | null>(null);
+
+  // Certificate Modal State
+  const [certModalProject, setCertModalProject] = useState<CertificationApplication | null>(null);
+  const [isIssuingCert, setIsIssuingCert] = useState(false);
+
+  // Handle PM Produce & Issue Certificate
+  const handleIssueCertificate = async (projectId: string) => {
+    setIsIssuingCert(true);
+    try {
+      const res = await fetch(`/api/applications/${projectId}/advance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nextStage: 'published_registry',
+          reason: 'Official Sharia Certificate Produced & Minted by PM after tasks completion.',
+          userName: 'Omar Khayyam (PM)',
+          userRole: 'pm',
+          autoConfirmPayment: true
+        })
+      });
+
+      if (res.ok) {
+        const updatedApp = await res.json();
+        setCertModalProject(updatedApp);
+        fetchPMData();
+      }
+    } catch (err) {
+      console.error('Failed to issue certificate from PM hub', err);
+    } finally {
+      setIsIssuingCert(false);
+    }
+  };
 
   // Reassignment Modal State
   const [reassignModalProject, setReassignModalProject] = useState<CertificationApplication | null>(null);
@@ -676,7 +709,15 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          onClick={() => setCertModalProject(app)}
+                          className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-mono text-xs font-bold hover:bg-amber-400 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+                        >
+                          <Award className="w-4 h-4 text-slate-950" />
+                          <span>{app.stage === 'published_registry' ? 'View Certificate (Barcode)' : 'Produce & Issue Certificate'}</span>
+                        </button>
+
                         <button
                           onClick={() => onOpenTaskModal(app)}
                           className="px-3 py-1.5 rounded-xl bg-[#0B132B] text-amber-300 font-mono text-xs font-bold hover:bg-[#1C2541] cursor-pointer flex items-center gap-1.5"
@@ -1792,6 +1833,15 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
           onSaveAssessment={handleSaveAssessment}
         />
       )}
+
+      {/* Official Sharia Certificate Modal */}
+      <ShariaCertificateModal
+        isOpen={!!certModalProject}
+        onClose={() => setCertModalProject(null)}
+        project={certModalProject}
+        onIssueCertificate={(id) => handleIssueCertificate(id)}
+        isIssuing={isIssuingCert}
+      />
     </div>
   );
 };

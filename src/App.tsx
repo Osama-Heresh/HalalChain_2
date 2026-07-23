@@ -107,6 +107,11 @@ const MainContent: React.FC = () => {
     refreshData();
   }, []);
 
+  // Scroll to top whenever page view or public subview changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [activePlatformView, publicSubView]);
+
   const handleApplyService = (pkgName: string) => {
     setSelectedApplyPackage(pkgName);
     setPublicSubView('apply');

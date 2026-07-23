@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { PublicCertifiedProject } from '../../types';
-import { Search, Lock, ShieldCheck, CheckCircle2, FileText, Share2, Download, AlertCircle } from 'lucide-react';
+import { Search, Lock, ShieldCheck, CheckCircle2, FileText, Share2, Download, AlertCircle, Award } from 'lucide-react';
+import { ShariaCertificateModal } from '../ShariaCertificateModal';
 
 interface VerificationViewProps {
   initialQuery?: string;
@@ -13,6 +14,7 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
   const [loading, setLoading] = useState(false);
   const [verifiedProject, setVerifiedProject] = useState<PublicCertifiedProject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showCertModal, setShowCertModal] = useState(false);
 
   useEffect(() => {
     if (initialQuery) {
@@ -112,9 +114,19 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-xl border border-emerald-500/40 text-xs font-mono font-bold">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>{lang === 'ar' ? 'معتمدة وموثقة رسمياً' : 'OFFICIALLY VERIFIED'}</span>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <button
+                onClick={() => setShowCertModal(true)}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
+              >
+                <Award className="w-4 h-4" />
+                <span>{lang === 'ar' ? 'عرض الشهادة بالباركوود' : 'View Certificate (Barcode)'}</span>
+              </button>
+
+              <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-xl border border-emerald-500/40 text-xs font-mono font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>{lang === 'ar' ? 'معتمدة وموثقة رسمياً' : 'OFFICIALLY VERIFIED'}</span>
+              </div>
             </div>
           </div>
 
@@ -173,6 +185,13 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
           </div>
         </div>
       )}
+
+      {/* Sharia Certificate Modal */}
+      <ShariaCertificateModal
+        isOpen={showCertModal}
+        onClose={() => setShowCertModal(false)}
+        project={verifiedProject}
+      />
     </div>
   );
 };
