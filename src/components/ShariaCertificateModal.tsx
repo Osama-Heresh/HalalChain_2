@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { PublicCertifiedProject, CertificationApplication } from '../types';
-import { ShieldCheck, Download, X, Lock, CheckCircle2, Award, Printer, Globe, QrCode, Loader2 } from 'lucide-react';
+import { ShieldCheck, X, Lock, CheckCircle2, Award, Printer } from 'lucide-react';
 import { IslamicPatternBg } from './IslamicPatternBg';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 
 interface ShariaCertificateModalProps {
   isOpen: boolean;
@@ -101,7 +99,6 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
   isIssuing = false
 }) => {
   const { lang, dir } = useLanguage();
-  const [isExporting, setIsExporting] = useState(false);
 
   if (!isOpen || !project) return null;
 
@@ -150,66 +147,8 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
     ? (project as PublicCertifiedProject).shariaSummaryAr
     : `معتمد ومصادق عليه بالامتثال التام للشريعة الإسلامية من قبل هيئة حلال تشين الشرعية الدولية بعد تدقيق البرمجيات والعقود الذكية واقتصاديات التوكن.`;
 
-  const handlePrint = async () => {
-    setIsExporting(true);
-    try {
-      const certElement = document.getElementById('printable-certificate');
-      if (!certElement) {
-        window.print();
-        return;
-      }
-
-      // Render high-res snapshot of exact certificate element
-      const canvas = await html2canvas(certElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#FAF8F5',
-        logging: false,
-        onclone: (clonedDoc) => {
-          // Replace unsupported oklch color function in Tailwind CSS with valid fallback colors
-          const styleEls = clonedDoc.querySelectorAll('style');
-          styleEls.forEach((style) => {
-            if (style.textContent) {
-              style.textContent = style.textContent.replace(/oklch\([^\)]+\)/g, '#0b132b');
-            }
-          });
-          const allElements = clonedDoc.querySelectorAll('*');
-          allElements.forEach((el) => {
-            const st = el.getAttribute('style');
-            if (st && st.includes('oklch')) {
-              el.setAttribute('style', st.replace(/oklch\([^\)]+\)/g, '#0b132b'));
-            }
-          });
-        }
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidth = pdfWidth - 20; // 10mm margins
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const yPos = imgHeight < (pdfHeight - 20) ? (pdfHeight - imgHeight) / 2 : 10;
-
-      pdf.addImage(imgData, 'PNG', 10, yPos, imgWidth, Math.min(imgHeight, pdfHeight - 20));
-      pdf.save(`HalalChain_Sharia_Certificate_${certNumber}.pdf`);
-    } catch (err) {
-      console.error('PDF export error, triggering window.print()', err);
-      try {
-        window.print();
-      } catch (e) {
-        console.error('window.print failed', e);
-      }
-    } finally {
-      setIsExporting(false);
-    }
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
@@ -217,6 +156,17 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
       {/* Print Styles Injection */}
       <style>{`
         @media print {
+          @page {
+            size: A4 landscape;
+            margin: 5mm;
+          }
+          body {
+            background-color: #FAF8F5 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           body * {
             visibility: hidden !important;
           }
@@ -224,21 +174,20 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
             visibility: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            color-adjust: exact !important;
           }
           #printable-certificate {
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            height: auto !important;
+            box-sizing: border-box !important;
             margin: 0 !important;
-            padding: 24px !important;
+            padding: 20px !important;
             box-shadow: none !important;
             border-width: 8px !important;
             border-color: #0B132B !important;
             background-color: #FAF8F5 !important;
-            border-radius: 0 !important;
+            border-radius: 12px !important;
           }
           .print\\:hidden {
             display: none !important;
@@ -271,15 +220,10 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
 
             <button
               onClick={handlePrint}
-              disabled={isExporting}
-              className="px-5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md disabled:opacity-50"
+              className="px-5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-md"
             >
-              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-              <span>
-                {isExporting
-                  ? (lang === 'ar' ? 'جاري تجهيز PDF...' : 'Generating PDF...')
-                  : (lang === 'ar' ? 'طباعة / حفظ PDF' : 'Print / Save as PDF')}
-              </span>
+              <Printer className="w-4 h-4" />
+              <span>{lang === 'ar' ? 'طباعة / حفظ PDF' : 'Print / Save as PDF'}</span>
             </button>
 
             <button
