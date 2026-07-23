@@ -14,6 +14,8 @@ import {
   Scale
 } from 'lucide-react';
 import { IslamicPatternBg, GoldFiligreeLine } from '../IslamicPatternBg';
+import { WhyTrustSection } from './WhyTrustSection';
+import { FaqSection } from './FaqSection';
 
 interface HomeViewProps {
   certifiedProjects: PublicCertifiedProject[];
@@ -188,6 +190,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
+      {/* Why Trust HalalChain? Section */}
+      <WhyTrustSection />
+
       {/* 4-Step Methodology Highlights */}
       <section className="bg-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 rounded-3xl max-w-7xl mx-auto border border-amber-500/20 relative overflow-hidden">
         <IslamicPatternBg />
@@ -254,6 +259,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </div>
       </section>
+
+      {/* Frequently Asked Questions Section */}
+      <FaqSection />
 
       {/* Sharia vs Fatwa Distinction Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

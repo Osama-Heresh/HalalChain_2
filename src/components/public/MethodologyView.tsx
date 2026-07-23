@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { ShieldCheck, Cpu, Code, Coins, Users, CheckCircle2, FileText, Lock, Award, Search } from 'lucide-react';
 import { IslamicPatternBg, GoldFiligreeLine } from '../IslamicPatternBg';
+import { WhyTrustSection } from './WhyTrustSection';
+import { FaqSection } from './FaqSection';
 
 export const MethodologyView: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -226,6 +228,12 @@ export const MethodologyView: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Why Trust HalalChain & FAQ */}
+      <div className="pt-8 space-y-12 border-t border-slate-200">
+        <WhyTrustSection />
+        <FaqSection />
       </div>
     </div>
   );

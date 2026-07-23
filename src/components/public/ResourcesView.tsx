@@ -1,6 +1,8 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { FileText, BookOpen, Download, ExternalLink, ShieldCheck, Scale } from 'lucide-react';
+import { FaqSection } from './FaqSection';
+import { WhyTrustSection } from './WhyTrustSection';
 
 export const ResourcesView: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -91,6 +93,11 @@ export const ResourcesView: React.FC = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="pt-8 space-y-12 border-t border-slate-200">
+        <WhyTrustSection />
+        <FaqSection />
       </div>
     </div>
   );
