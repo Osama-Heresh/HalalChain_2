@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { RbacProvider, useRbac } from './context/RbacContext';
 import { AuthModal } from './components/auth/AuthModal';
+import { AccessDeniedPage } from './components/auth/AccessDeniedPage';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 
@@ -48,6 +50,7 @@ import {
 const MainContent: React.FC = () => {
   const { dir } = useLanguage();
   const { currentUser, isAuthModalOpen, closeAuthModal } = useAuth();
+  const { hasPlatformAccess } = useRbac();
 
   const [activePlatformView, setActivePlatformView] = useState<PlatformView>('exec_platform');
   const [publicSubView, setPublicSubView] = useState<PublicSubView>('home');
@@ -176,71 +179,84 @@ const MainContent: React.FC = () => {
       />
 
       <main className="flex-grow">
-        {/* PLATFORM 1: PUBLIC WEBSITE */}
-        {activePlatformView === 'public_website' && (
+        {!hasPlatformAccess(activePlatformView) ? (
+          <AccessDeniedPage
+            targetPlatform={activePlatformView}
+            requiredPermission={`platform:${activePlatformView}`}
+            onRedirectAuthorized={() => {
+              setActivePlatformView('public_website');
+              setPublicSubView('home');
+            }}
+          />
+        ) : (
           <>
-            {publicSubView === 'home' && (
-              <HomeView
-                certifiedProjects={certifiedProjects}
-                onNavigate={(sub) => setPublicSubView(sub as PublicSubView)}
-                onApplyPackage={handleApplyService}
+            {/* PLATFORM 1: PUBLIC WEBSITE */}
+            {activePlatformView === 'public_website' && (
+              <>
+                {publicSubView === 'home' && (
+                  <HomeView
+                    certifiedProjects={certifiedProjects}
+                    onNavigate={(sub) => setPublicSubView(sub as PublicSubView)}
+                    onApplyPackage={handleApplyService}
+                  />
+                )}
+                {publicSubView === 'services' && (
+                  <ServicesView onApplyService={handleApplyService} />
+                )}
+                {publicSubView === 'methodology' && <MethodologyView />}
+                {publicSubView === 'pricing' && (
+                  <PricingView onApplyPackage={handleApplyService} />
+                )}
+                {publicSubView === 'registry' && (
+                  <RegistryView
+                    certifiedProjects={certifiedProjects}
+                    onSelectVerify={handleSelectVerify}
+                  />
+                )}
+                {publicSubView === 'verify' && (
+                  <VerificationView initialQuery={verifyCertQuery} />
+                )}
+                {publicSubView === 'resources' && <ResourcesView />}
+                {publicSubView === 'apply' && (
+                  <ApplyView
+                    selectedPackage={selectedApplyPackage}
+                    onApplicationCreated={handleApplicationCreated}
+                  />
+                )}
+                {publicSubView === 'join_team' && (
+                  <JoinTeamView onApplicationSubmitted={refreshData} />
+                )}
+              </>
+            )}
+
+            {/* PLATFORM 2: CUSTOMER PORTAL */}
+            {activePlatformView === 'customer_portal' && (
+              <CustomerPortalView
+                applications={applications}
+                onRefreshApplications={refreshData}
               />
             )}
-            {publicSubView === 'services' && (
-              <ServicesView onApplyService={handleApplyService} />
-            )}
-            {publicSubView === 'methodology' && <MethodologyView />}
-            {publicSubView === 'pricing' && (
-              <PricingView onApplyPackage={handleApplyService} />
-            )}
-            {publicSubView === 'registry' && (
-              <RegistryView
-                certifiedProjects={certifiedProjects}
-                onSelectVerify={handleSelectVerify}
+
+            {/* PLATFORM 3: OPERATIONS PLATFORM */}
+            {activePlatformView === 'ops_platform' && (
+              <OpsPlatformView
+                currentUserRole={currentUserRole}
+                setCurrentUserRole={setCurrentUserRole}
+                applications={applications}
+                leads={leads}
+                auditLogs={auditLogs}
+                onRefreshData={refreshData}
               />
             )}
-            {publicSubView === 'verify' && (
-              <VerificationView initialQuery={verifyCertQuery} />
-            )}
-            {publicSubView === 'resources' && <ResourcesView />}
-            {publicSubView === 'apply' && (
-              <ApplyView
-                selectedPackage={selectedApplyPackage}
-                onApplicationCreated={handleApplicationCreated}
+
+            {/* PLATFORM 4: EXECUTIVE PLATFORM */}
+            {activePlatformView === 'exec_platform' && (
+              <ExecPlatformView
+                systemMode={systemMode}
+                onModeChange={handleModeChange}
               />
-            )}
-            {publicSubView === 'join_team' && (
-              <JoinTeamView onApplicationSubmitted={refreshData} />
             )}
           </>
-        )}
-
-        {/* PLATFORM 2: CUSTOMER PORTAL */}
-        {activePlatformView === 'customer_portal' && (
-          <CustomerPortalView
-            applications={applications}
-            onRefreshApplications={refreshData}
-          />
-        )}
-
-        {/* PLATFORM 3: OPERATIONS PLATFORM */}
-        {activePlatformView === 'ops_platform' && (
-          <OpsPlatformView
-            currentUserRole={currentUserRole}
-            setCurrentUserRole={setCurrentUserRole}
-            applications={applications}
-            leads={leads}
-            auditLogs={auditLogs}
-            onRefreshData={refreshData}
-          />
-        )}
-
-        {/* PLATFORM 4: EXECUTIVE PLATFORM */}
-        {activePlatformView === 'exec_platform' && (
-          <ExecPlatformView
-            systemMode={systemMode}
-            onModeChange={handleModeChange}
-          />
         )}
       </main>
 
@@ -262,7 +278,9 @@ export default function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <MainContent />
+        <RbacProvider>
+          <MainContent />
+        </RbacProvider>
       </AuthProvider>
     </LanguageProvider>
   );

@@ -32,7 +32,30 @@ export type UserRole =
   | 'qa'
   | 'finance'
   | 'exec'
-  | 'admin';
+  | 'admin'
+  | string; // Allow custom roles created by GM
+
+export interface RoleDefinition {
+  id: string;
+  name: string;
+  description: string;
+  category: 'Executive' | 'Operations' | 'External Client' | 'Custom';
+  isSystemRole?: boolean;
+  createdAt?: string;
+}
+
+export interface PermissionDefinition {
+  key: string;
+  label: string;
+  category: 'Platform Views' | 'Executive Modules' | 'Operations Workspace' | 'Customer Portal' | 'System Actions';
+  description: string;
+}
+
+export interface RolePermissionsMap {
+  [roleId: string]: {
+    [permissionKey: string]: boolean;
+  };
+}
 
 export type WorkflowStage =
   | 'lead_generated'

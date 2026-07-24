@@ -42,6 +42,7 @@ import { EmployeeWalletView } from './EmployeeWalletView';
 
 import { safeFetch, getLocalTalentApps } from '../../lib/api';
 import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
+import { useRbac } from '../../context/RbacContext';
 
 interface OpsPlatformViewProps {
   currentUserRole: UserRole;
@@ -95,47 +96,26 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Define allowed sub-tabs for each user role to prevent confusion
-  const getAllowedTabsForRole = (role: UserRole): Array<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log' | 'wallet'> => {
-    switch (role) {
-      case 'scholar':
-        // Sharia Scholars need My Work, Sharia Review Workspace, Wallet, and Audit Log
-        return ['my_work', 'auditor', 'wallet', 'audit_log'];
-      case 'finance':
-        // Finance Officers need My Work, Finance Release Gate, Wallet, and Audit Log
-        return ['my_work', 'finance', 'wallet', 'audit_log'];
-      case 'tech_auditor':
-        // Tech Auditors need My Work, Technical Audit Workspace, AI Assessment Center, Wallet, and Audit Log
-        return ['my_work', 'auditor', 'ai_engine', 'wallet', 'audit_log'];
-      case 'sales':
-      case 'marketing':
-        // Sales / Marketing need My Work, CRM & Sales Pipeline, Wallet, and Audit Log
-        return ['my_work', 'crm', 'wallet', 'audit_log'];
-      case 'pm':
-        // PMs need My Work, PM Project Hub, CRM, Wallet, and Audit Log
-        return ['my_work', 'pm', 'crm', 'wallet', 'audit_log'];
-      case 'business_analyst':
-        // Business Analysts need My Work, PM Hub, AI Assessment Center, Wallet, and Audit Log
-        return ['my_work', 'pm', 'ai_engine', 'wallet', 'audit_log'];
-      case 'qa':
-        // QA Officers need My Work, Auditor/QA Workspace, Wallet, and Audit Log
-        return ['my_work', 'auditor', 'wallet', 'audit_log'];
-      case 'admin':
-      case 'exec':
-      default:
-        // System Admins and Executives have full operational visibility across all tabs
-        return ['my_work', 'pm', 'ai_engine', 'auditor', 'crm', 'finance', 'wallet', 'audit_log'];
-    }
-  };
+  const { hasTabAccess } = useRbac();
 
+  const ALL_OPS_TABS: Array<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log' | 'wallet'> = [
+    'my_work',
+    'crm',
+    'pm',
+    'ai_engine',
+    'auditor',
+    'finance',
+    'audit_log',
+    'wallet'
+  ];
 
-  const allowedTabs = getAllowedTabsForRole(currentUserRole);
+  const allowedTabs = ALL_OPS_TABS.filter((tab) => hasTabAccess('ops_platform', tab, currentUserRole));
 
   useEffect(() => {
-    if (!allowedTabs.includes(activeOpsTab)) {
+    if (allowedTabs.length > 0 && !allowedTabs.includes(activeOpsTab)) {
       setActiveOpsTab(allowedTabs[0]);
     }
-  }, [currentUserRole]);
+  }, [currentUserRole, allowedTabs]);
 
   const selectedApp = applications.find((a) => a.id === selectedProjectId) || applications[0];
 

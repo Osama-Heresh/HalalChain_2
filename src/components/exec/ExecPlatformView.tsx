@@ -35,6 +35,8 @@ import {
 } from 'lucide-react';
 import { IslamicPatternBg } from '../IslamicPatternBg';
 import { CompanyWalletView } from './CompanyWalletView';
+import { RbacAdminConsole } from './RbacAdminConsole';
+import { useRbac } from '../../context/RbacContext';
 
 interface ExecPlatformViewProps {
   systemMode?: 'demo' | 'production';
@@ -46,7 +48,8 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
   onModeChange
 }) => {
   const { t } = useLanguage();
-  const [activeExecTab, setActiveExecTab] = useState<'bi' | 'company_wallet' | 'ai_config' | 'workforce' | 'sys_admin'>('bi');
+  const { hasTabAccess } = useRbac();
+  const [activeExecTab, setActiveExecTab] = useState<'bi' | 'company_wallet' | 'ai_config' | 'workforce' | 'sys_admin' | 'rbac_admin'>('bi');
 
   const [aiConfig, setAiConfig] = useState<AiConfig | null>(() => getLocalAiConfig());
   const [aiLogs, setAiLogs] = useState<AiServiceLog[]>(() => getLocalAiLogs());
@@ -175,49 +178,75 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto scrollbar-none max-w-full touch-pan-x">
-        <button
-          onClick={() => setActiveExecTab('bi')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap ${
-            activeExecTab === 'bi' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          Executive BI Analytics
-        </button>
-        <button
-          onClick={() => setActiveExecTab('company_wallet')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeExecTab === 'company_wallet' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Company Wallet & Payouts</span>
-        </button>
-        <button
-          onClick={() => setActiveExecTab('ai_config')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeExecTab === 'ai_config' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>Centralized AI Infrastructure Layer</span>
-        </button>
-        <button
-          onClick={() => setActiveExecTab('workforce')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap ${
-            activeExecTab === 'workforce' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          Global Remote Workforce ({employees.length})
-        </button>
-        <button
-          onClick={() => setActiveExecTab('sys_admin')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeExecTab === 'sys_admin' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <Settings className="w-3.5 h-3.5 text-amber-400" />
-          <span>Firebase Database & System Admin</span>
-        </button>
+        {hasTabAccess('exec_platform', 'bi') && (
+          <button
+            onClick={() => setActiveExecTab('bi')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap ${
+              activeExecTab === 'bi' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Executive BI Analytics
+          </button>
+        )}
+
+        {hasTabAccess('exec_platform', 'company_wallet') && (
+          <button
+            onClick={() => setActiveExecTab('company_wallet')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeExecTab === 'company_wallet' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Company Wallet & Payouts</span>
+          </button>
+        )}
+
+        {hasTabAccess('exec_platform', 'ai_config') && (
+          <button
+            onClick={() => setActiveExecTab('ai_config')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeExecTab === 'ai_config' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Centralized AI Infrastructure Layer</span>
+          </button>
+        )}
+
+        {hasTabAccess('exec_platform', 'workforce') && (
+          <button
+            onClick={() => setActiveExecTab('workforce')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap ${
+              activeExecTab === 'workforce' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Global Remote Workforce ({employees.length})
+          </button>
+        )}
+
+        {hasTabAccess('exec_platform', 'sys_admin') && (
+          <button
+            onClick={() => setActiveExecTab('sys_admin')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeExecTab === 'sys_admin' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5 text-amber-400" />
+            <span>Firebase Database & System Admin</span>
+          </button>
+        )}
+
+        {hasTabAccess('exec_platform', 'rbac_admin') && (
+          <button
+            onClick={() => setActiveExecTab('rbac_admin')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeExecTab === 'rbac_admin' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>RBAC & Access Control</span>
+          </button>
+        )}
       </div>
 
       {/* Tab 1: Executive BI */}
@@ -550,6 +579,11 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
       {/* Tab 5: Company Wallet */}
       {activeExecTab === 'company_wallet' && (
         <CompanyWalletView />
+      )}
+
+      {/* Tab 6: RBAC & Access Control Admin Console */}
+      {activeExecTab === 'rbac_admin' && (
+        <RbacAdminConsole />
       )}
     </div>
   );

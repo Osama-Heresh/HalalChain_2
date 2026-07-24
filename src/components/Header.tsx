@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useRbac } from '../context/RbacContext';
 import { PlatformTab, UserRole } from '../types';
 import { ShieldCheck, Globe, User, Briefcase, BarChart3, ChevronDown, Menu, X, KeyRound, LogOut, Sparkles } from 'lucide-react';
 import { NotificationCenter } from './NotificationCenter';
@@ -28,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { lang, toggleLang, t } = useLanguage();
   const { currentUser, openAuthModal, logout, updateCurrentRole } = useAuth();
+  const { hasPlatformAccess } = useRbac();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const rolesList: { role: UserRole; name: string }[] = [
@@ -97,50 +99,61 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Platform Navigation Tabs */}
           <nav className="hidden lg:flex items-center gap-1 bg-[#1C2541]/80 p-1.5 rounded-xl border border-white/10">
-            <button
-              onClick={() => setActivePlatform('public')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                activePlatform === 'public'
-                  ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Globe className="w-3.5 h-3.5" />
-              {t('nav.public')}
-            </button>
-            <button
-              onClick={() => setActivePlatform('customer')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                activePlatform === 'customer'
-                  ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              {t('nav.customer')}
-            </button>
-            <button
-              onClick={() => setActivePlatform('ops')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                activePlatform === 'ops'
-                  ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Briefcase className="w-3.5 h-3.5" />
-              {t('nav.ops')}
-            </button>
-            <button
-              onClick={() => setActivePlatform('exec')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                activePlatform === 'exec'
-                  ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <BarChart3 className="w-3.5 h-3.5" />
-              {t('nav.exec')}
-            </button>
+            {hasPlatformAccess('public_website') && (
+              <button
+                onClick={() => setActivePlatform('public')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activePlatform === 'public'
+                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
+                    : 'text-slate-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                {t('nav.public')}
+              </button>
+            )}
+
+            {hasPlatformAccess('customer_portal') && (
+              <button
+                onClick={() => setActivePlatform('customer')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activePlatform === 'customer'
+                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
+                    : 'text-slate-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <User className="w-3.5 h-3.5" />
+                {t('nav.customer')}
+              </button>
+            )}
+
+            {hasPlatformAccess('ops_platform') && (
+              <button
+                onClick={() => setActivePlatform('ops')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activePlatform === 'ops'
+                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
+                    : 'text-slate-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                {t('nav.ops')}
+              </button>
+            )}
+
+            {hasPlatformAccess('exec_platform') && (
+              <button
+                onClick={() => setActivePlatform('exec')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activePlatform === 'exec'
+                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
+                    : 'text-slate-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                {t('nav.exec')}
+              </button>
+            )}
           </nav>
 
           {/* Right Actions: Auth User Profile, Language Switcher & Mobile Toggle */}
