@@ -26,7 +26,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Hero Section
     'hero.badge': 'Global Independent Sharia Certification Authority for Web3',
     'hero.headline': 'Bringing Absolute Sharia Transparency to Blockchain & Cryptocurrencies',
-    'hero.subtext': 'HalalChain provides independent technical, business, AI-assisted and scholar-approved Sharia certification for crypto projects, smart contracts, and Web3 protocols worldwide.',
+    'hero.subtext': 'HalalChain™ provides independent technical, business, AI-assisted and scholar-approved Sharia certification for crypto projects, smart contracts, and Web3 protocols worldwide.',
     'hero.btn.apply': 'Apply for Certification',
     'hero.btn.verify': 'Verify Certificate',
     'hero.btn.registry': 'Browse Certified Web3 Registry',
@@ -50,7 +50,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Verification
     'verify.title': 'Certificate Verification Portal',
-    'verify.subtitle': 'Enter a certificate number or hash to instantly check authenticity on the HalalChain blockchain ledger.',
+    'verify.subtitle': 'Enter a certificate number or hash to instantly check authenticity on the HalalChain™ blockchain ledger.',
     'verify.placeholder': 'e.g. HC-CERT-2026-8801',
     'verify.button': 'Verify Authenticity',
 
@@ -67,7 +67,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'cust.payFinal': 'Pay Final Invoice',
 
     // Operations Platform
-    'ops.title': 'HalalChain Operations Operating System',
+    'ops.title': 'HalalChain™ Operations Operating System',
     'ops.roleSelector': 'Switch Employee Role:',
     'ops.crm': 'CRM & Sales Pipeline',
     'ops.pm': 'Project Manager Hub',
@@ -89,7 +89,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exec.sysAdmin': 'System Administration & Configuration',
 
     // Sharia Statement
-    'sharia.disclaimer': 'HalalChain provides technical and Sharia compliance assessments based on documented evidence. HalalChain does not issue fatwas.'
+    'sharia.disclaimer': 'HalalChain™ provides technical and Sharia compliance assessments based on documented evidence. HalalChain™ does not issue fatwas.'
   },
   ar: {
     // Brand & Header
@@ -116,7 +116,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Hero Section
     'hero.badge': 'الهيئة العالمية المستقلة لشهادات الشريعة للويب 3',
     'hero.headline': 'إرساء الشفافية الشرعية المطلقة لتقنيات البلوكشين والعملات المشفرة',
-    'hero.subtext': 'تقدم حلال تشين تقييماً فنياً وتجارياً ومساعداً بالذكاء الاصطناعي معتمدًا من علماء الشريعة لمشاريع العملات الرقمية والعقود الذكية وبروتوكولات الويب 3 حول العالم.',
+    'hero.subtext': 'تقدم حلال تشين™ تقييماً فنياً وتجارياً ومساعداً بالذكاء الاصطناعي معتمدًا من علماء الشريعة لمشاريع العملات الرقمية والعقود الذكية وبروتوكولات الويب 3 حول العالم.',
     'hero.btn.apply': 'قدم طلب اعتماد الآن',
     'hero.btn.verify': 'التحقق من شهادة',
     'hero.btn.registry': 'تصفح السجل الشرعي المعتمد',
@@ -140,7 +140,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Verification
     'verify.title': 'بوابة التحقق من صحة الشهادات',
-    'verify.subtitle': 'أدخل رقم الشهادة أو التوقيع الرقمي للتحقق الفوري من صحتها على دفتر حلال تشين.',
+    'verify.subtitle': 'أدخل رقم الشهادة أو التوقيع الرقمي للتحقق الفوري من صحتها على دفتر حلال تشين™.',
     'verify.placeholder': 'مثال: HC-CERT-2026-8801',
     'verify.button': 'تحقق من الموثوقية',
 
@@ -157,7 +157,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'cust.payFinal': 'دفع الفاتورة النهائية',
 
     // Operations Platform
-    'ops.title': 'نظام إدارة عمليات حلال تشين',
+    'ops.title': 'نظام إدارة عمليات حلال تشين™',
     'ops.roleSelector': 'تغيير دور الموظف:',
     'ops.crm': 'إدارة العلاقات والمبيعات',
     'ops.pm': 'مركز إدارة المشاريع',
@@ -179,6 +179,6 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exec.sysAdmin': 'إدارة النظام والتهيئات',
 
     // Sharia Statement
-    'sharia.disclaimer': 'تقدم حلال تشين تقييمات الامتثال الفني والشرعي بناءً على الأدلة الموثقة. ولا تصدر حلال تشين فتاوى شرعية.'
+    'sharia.disclaimer': 'تقدم حلال تشين™ تقييمات الامتثال الفني والشرعي بناءً على الأدلة الموثقة. ولا تصدر حلال تشين™ فتاوى شرعية.'
   }
 };

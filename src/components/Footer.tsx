@@ -29,7 +29,7 @@ export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
               </div>
               <div>
                 <span className="text-lg font-bold text-white font-serif">
-                  HALAL<span className="text-amber-400">CHAIN</span>
+                  HALAL<span className="text-amber-400">CHAIN</span>™
                 </span>
                 <p className="text-[10px] text-amber-300/80 font-mono uppercase">{t('app.tagline')}</p>
               </div>
@@ -70,7 +70,7 @@ export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
                 {lang === 'ar' ? 'التحقق من صحة الشهادة' : 'Verify Certificate Hash'}
               </li>
               <li onClick={() => handleNav('resources')} className="hover:text-white transition-colors cursor-pointer">
-                {lang === 'ar' ? 'معايير حلال تشين v2.1' : 'HalalChain Standard v2.1 Docs'}
+                {lang === 'ar' ? 'معايير حلال تشين™ v2.1' : 'HalalChain™ Standard v2.1 Docs'}
               </li>
               <li onClick={() => handleNav('join_team')} className="hover:text-amber-300 font-bold text-amber-400/90 transition-colors cursor-pointer flex items-center gap-1">
                 <span>{lang === 'ar' ? '🤝 انضم لفريق التقييم الشرعي والفني' : '🤝 Join Expert Evaluation Team'}</span>
@@ -84,7 +84,7 @@ export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
               Sharia Advisory Board
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed mb-3">
-              All assessments strictly adhere to AAOIFI Sharia Standards and HalalChain Methodology v2.1.
+              All assessments strictly adhere to AAOIFI Sharia Standards and HalalChain™ Methodology v2.1.
             </p>
             <div className="bg-[#1C2541] p-3 rounded-lg border border-amber-500/20 text-[11px] text-slate-300">
               <span className="text-amber-400 font-semibold block mb-1">Official Disclaimer:</span>

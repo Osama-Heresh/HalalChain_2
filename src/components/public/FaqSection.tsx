@@ -9,9 +9,9 @@ export const FaqSection: React.FC = () => {
 
   const faqsEn = [
     {
-      question: 'Who developed the HalalChain methodology?',
+      question: 'Who developed the HalalChain™ methodology?',
       answer:
-        'HalalChain uses a structured methodology combining blockchain technical analysis, business assessment, documented evidence review and Sharia compliance evaluation. The methodology is continuously refined through collaboration with qualified scholars and technical specialists.'
+        'HalalChain™ uses a structured methodology combining blockchain technical analysis, business assessment, documented evidence review and Sharia compliance evaluation. The methodology is continuously refined through collaboration with qualified scholars and technical specialists.'
     },
     {
       question: 'Who reviews my project?',
@@ -21,25 +21,25 @@ export const FaqSection: React.FC = () => {
     {
       question: 'How are decisions documented?',
       answer:
-        'All findings, reviewer comments and supporting evidence are permanently recorded inside the HalalChain platform, creating a transparent audit trail for every certification.'
+        'All findings, reviewer comments and supporting evidence are permanently recorded inside the HalalChain™ platform, creating a transparent audit trail for every certification.'
     },
     {
       question: 'Can anyone verify my certificate?',
       answer:
-        'Yes. Every issued certificate includes a unique certificate number and can be verified through the HalalChain Public Registry.'
+        'Yes. Every issued certificate includes a unique certificate number and can be verified through the HalalChain™ Public Registry.'
     },
     {
-      question: 'Does HalalChain guarantee investment performance?',
+      question: 'Does HalalChain™ guarantee investment performance?',
       answer:
-        'No. HalalChain evaluates projects according to its published assessment methodology. Certification does not constitute investment advice, financial endorsement or a guarantee of future performance.'
+        'No. HalalChain™ evaluates projects according to its published assessment methodology. Certification does not constitute investment advice, financial endorsement or a guarantee of future performance.'
     }
   ];
 
   const faqsAr = [
     {
-      question: 'من الذي طور منهجية حلال تشين؟',
+      question: 'من الذي طور منهجية حلال تشين™؟',
       answer:
-        'تستخدم حلال تشين منهجية هيكلية تجمع بين التحليل الفني للبلوكشين، وتقييم الأعمال، ومراجعة الأدلة الموثقة، وتقييم الامتثال للشريعة الإسلامية. ويتم تطوير المنهجية باستمرار بالتعاون مع علماء شرعيين وخبراء تقنيين.'
+        'تستخدم حلال تشين™ منهجية هيكلية تجمع بين التحليل الفني للبلوكشين، وتقييم الأعمال، ومراجعة الأدلة الموثقة، وتقييم الامتثال للشريعة الإسلامية. ويتم تطوير المنهجية باستمرار بالتعاون مع علماء شرعيين وخبراء تقنيين.'
     },
     {
       question: 'من الذي يقوم بمراجعة مشروعي؟',
@@ -49,17 +49,17 @@ export const FaqSection: React.FC = () => {
     {
       question: 'كيف يتم توثيق قرارات الاعتماد؟',
       answer:
-        'يتم تسجيل جميع النتائج وملاحظات المراجعين والأدلة الداعمة بشكل دائم داخل منصة حلال تشين، مما ينشئ مسار تدقيق شفاف لكل شهادة.'
+        'يتم تسجيل جميع النتائج وملاحظات المراجعين والأدلة الداعمة بشكل دائم داخل منصة حلال تشين™، مما ينشئ مسار تدقيق شفاف لكل شهادة.'
     },
     {
       question: 'هل يمكن لأي شخص التحقق من صحة شهادتي؟',
       answer:
-        'نعم. تتضمن كل شهادة صادرة رقم شهادة فريدًا ويمكن التحقق منها فورًا من خلال السجل العام المفتوح لـ حلال تشين.'
+        'نعم. تتضمن كل شهادة صادرة رقم شهادة فريدًا ويمكن التحقق منها فورًا من خلال السجل العام المفتوح لـ حلال تشين™.'
     },
     {
-      question: 'هل تضمن حلال تشين الأداء الاستثماري أو الأرباح؟',
+      question: 'هل تضمن حلال تشين™ الأداء الاستثماري أو الأرباح؟',
       answer:
-        'لا. تقيم حلال تشين المشاريع وفقًا لمنهجيتها الشرعية والفنية المنشورة. ولا يشكل الاعتماد نصيحة استثمارية أو تأييدًا ماليًا أو ضمانًا للأداء المستقبلي.'
+        'لا. تقيم حلال تشين™ المشاريع وفقًا لمنهجيتها الشرعية والفنية المنشورة. ولا يشكل الاعتماد نصيحة استثمارية أو تأييدًا ماليًا أو ضمانًا للأداء المستقبلي.'
     }
   ];
 

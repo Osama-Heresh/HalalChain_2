@@ -17,7 +17,7 @@ export const WhyTrustSection: React.FC = () => {
     {
       icon: Layers,
       title: 'Structured Methodology',
-      text: 'HalalChain applies a structured assessment methodology combining blockchain technical analysis, business model assessment, documented evidence review and Sharia compliance evaluation. Every project follows the same transparent process.'
+      text: 'HalalChain™ applies a structured assessment methodology combining blockchain technical analysis, business model assessment, documented evidence review and Sharia compliance evaluation. Every project follows the same transparent process.'
     },
     {
       icon: ShieldCheck,
@@ -37,12 +37,12 @@ export const WhyTrustSection: React.FC = () => {
     {
       icon: Award,
       title: 'Digital Certificate Verification',
-      text: 'Every issued certificate contains a unique certificate number and online verification page through the HalalChain Public Registry.'
+      text: 'Every issued certificate contains a unique certificate number and online verification page through the HalalChain™ Public Registry.'
     },
     {
       icon: RefreshCw,
       title: 'Continuous Improvement',
-      text: 'HalalChain is committed to continuously improving its methodology through collaboration with qualified scholars and blockchain specialists while maintaining a transparent and documented review process.'
+      text: 'HalalChain™ is committed to continuously improving its methodology through collaboration with qualified scholars and blockchain specialists while maintaining a transparent and documented review process.'
     }
   ];
 
@@ -50,7 +50,7 @@ export const WhyTrustSection: React.FC = () => {
     {
       icon: Layers,
       title: 'منهجية هيكلية منظمة',
-      text: 'تطبق حلال تشين منهجية تقييم هيكلية تجمع بين التحليل الفني للبلوكشين، وتقييم نموذج الأعمال، ومراجعة الأدلة الموثقة، وتقييم الامتثال للشريعة الإسلامية. يتبع كل مشروع نفس العملية الشفافة.'
+      text: 'تطبق حلال تشين™ منهجية تقييم هيكلية تجمع بين التحليل الفني للبلوكشين، وتقييم نموذج الأعمال، ومراجعة الأدلة الموثقة، وتقييم الامتثال للشريعة الإسلامية. يتبع كل مشروع نفس العملية الشفافة.'
     },
     {
       icon: ShieldCheck,
@@ -70,12 +70,12 @@ export const WhyTrustSection: React.FC = () => {
     {
       icon: Award,
       title: 'التحقق الرقمي من الشهادات',
-      text: 'تحتوي كل شهادة صادرة على رقم شهادة فريد وصفحة تحقق فورية عبر الإنترنت من خلال السجل العام لشركة حلال تشين.'
+      text: 'تحتوي كل شهادة صادرة على رقم شهادة فريد وصفحة تحقق فورية عبر الإنترنت من خلال السجل العام لشركة حلال تشين™.'
     },
     {
       icon: RefreshCw,
       title: 'التطوير والتحسين المستمر',
-      text: 'تلتزم حلال تشين بالتحسين المستمر لمنهجيتها من خلال التعاون مع علماء متخصصين وخبراء تقنية البلوكشين مع الحفاظ على عملية مراجعة شفافة وموثقة.'
+      text: 'تلتزم حلال تشين™ بالتحسين المستمر لمنهجيتها من خلال التعاون مع علماء متخصصين وخبراء تقنية البلوكشين مع الحفاظ على عملية مراجعة شفافة وموثقة.'
     }
   ];
 
@@ -90,12 +90,12 @@ export const WhyTrustSection: React.FC = () => {
           <span>{lang === 'ar' ? 'الثقة والشفافية المؤسسية' : 'Institutional Trust & Governance'}</span>
         </div>
         <h2 className="text-2xl sm:text-4xl font-bold font-serif text-slate-900">
-          {lang === 'ar' ? 'لماذا تثق في حلال تشين؟' : 'Why Trust HalalChain?'}
+          {lang === 'ar' ? 'لماذا تثق في حلال تشين™؟' : 'Why Trust HalalChain™?'}
         </h2>
         <p className="text-sm text-slate-600 leading-relaxed">
           {lang === 'ar'
-            ? 'بُنيت إطار حلال تشين على الأدلة الرقمية الموثقة، والمراجعة المستقلة متعددة الطبقات، وحوكمة العلماء الشرعيين لضمان الشفافية المطلقة.'
-            : 'HalalChain is built on verifiable digital evidence, independent multi-tier evaluation, and scholar governance to deliver uncompromised Web3 clarity.'}
+            ? 'بُنيت إطار حلال تشين™ على الأدلة الرقمية الموثقة، والمراجعة المستقلة متعددة الطبقات، وحوكمة العلماء الشرعيين لضمان الشفافية المطلقة.'
+            : 'HalalChain™ is built on verifiable digital evidence, independent multi-tier evaluation, and scholar governance to deliver uncompromised Web3 clarity.'}
         </p>
       </div>
 

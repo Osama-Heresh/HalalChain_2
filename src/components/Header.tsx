@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-lg sm:text-xl font-bold tracking-tight text-white font-serif">
-                  HALAL<span className="text-amber-400">CHAIN</span>
+                  HALAL<span className="text-amber-400">CHAIN</span>™
                 </span>
                 <span className="text-[9px] sm:text-[10px] font-semibold tracking-wider text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 rounded">
                   PROD v2.1
