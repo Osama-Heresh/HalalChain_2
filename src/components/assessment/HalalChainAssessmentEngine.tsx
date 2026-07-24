@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   CertificationApplication,
@@ -46,7 +48,8 @@ import {
   FileCode,
   Check,
   Zap,
-  Info
+  Info,
+  Loader2
 } from 'lucide-react';
 
 interface HalalChainAssessmentEngineProps {
@@ -98,7 +101,7 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
       setTimeout(() => setExecutionLogMessage('Step 6/10: Scanning On-Chain Blockchain Wallet Concentration...'), 6000);
       setTimeout(() => setExecutionLogMessage('Step 7/10: Consolidating Technical & Governance Risk Findings...'), 7200);
       setTimeout(() => setExecutionLogMessage('Step 8/10: Mapping Findings to HalalChain Assessment Standards v2.1...'), 8400);
-      setTimeout(() => setExecutionLogMessage('Step 9/10: Generating Big Four Quality Draft Report with DRAFT Watermark...'), 9600);
+      setTimeout(() => setExecutionLogMessage('Step 9/10: Generating Enterprise Executive Draft Report with DRAFT Watermark...'), 9600);
 
       const res = await fetch('/api/assessment/execute-pipeline', {
         method: 'POST',
@@ -221,6 +224,8 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
     if (onRefreshData) onRefreshData();
   };
 
+  const [exportingPdf, setExportingPdf] = useState(false);
+
   const handleToggleWatermark = () => {
     const updated: AssessmentReportData = {
       ...assessment,
@@ -230,8 +235,83 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
     saveLocalAssessment(updated);
   };
 
-  const handlePrintPdf = () => {
-    window.print();
+  const handlePrintPdf = async () => {
+    if (exportingPdf) return;
+    setExportingPdf(true);
+
+    try {
+      const reportElement = document.getElementById('printable-assessment-report');
+      if (!reportElement) {
+        window.print();
+        setExportingPdf(false);
+        return;
+      }
+
+      // Scroll report into view briefly so layout calculations are exact
+      reportElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+
+      // Give images & custom fonts time to finish rendering
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const dataUrl = await toPng(reportElement, {
+        quality: 0.95,
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+        filter: (node) => {
+          if (
+            node instanceof HTMLElement &&
+            (node.classList.contains('export-ignore') || node.classList.contains('no-print'))
+          ) {
+            return false;
+          }
+          return true;
+        }
+      });
+
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pdfPageHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+      const imgWidth = pdfWidth;
+      const imgHeight = (img.height * pdfWidth) / img.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfPageHeight;
+
+      // Add additional pages if content spans multiple pages
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfPageHeight;
+      }
+
+      const cleanName = (assessment.companyName || 'Project').replace(/[^a-zA-Z0-9]/g, '_');
+      const watermarkTag = assessment.draftWatermark ? 'DRAFT' : 'FULL_FINAL';
+      const fileName = `HalalChain_Assessment_Report_${cleanName}_${watermarkTag}_${assessment.id}.pdf`;
+
+      pdf.save(fileName);
+    } catch (error) {
+      console.error('Error exporting PDF document:', error);
+      try {
+        window.print();
+      } catch (printErr) {
+        console.error('window.print fallback failed:', printErr);
+      }
+    } finally {
+      setExportingPdf(false);
+    }
   };
 
   const renderFullReportDocument = () => {
@@ -1203,9 +1283,9 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
           <div className="bg-[#0B132B] text-white p-6 rounded-3xl border border-amber-500/30 flex items-center justify-between flex-wrap gap-4 shadow-xl no-print">
             <div>
               <span className="text-xs font-bold text-amber-400 font-mono uppercase">STEP 9 OF 10</span>
-              <h3 className="text-xl font-bold font-serif text-amber-300">Big Four Enterprise Full Report Generator</h3>
+              <h3 className="text-xl font-bold font-serif text-amber-300">Enterprise Executive Assessment Report</h3>
               <p className="text-xs text-slate-300 font-mono">
-                PwC / Deloitte / EY / KPMG style consulting report. Displays mandatory DRAFT watermark until human signoffs complete.
+                Institutional-grade corporate advisory assessment report. Displays mandatory DRAFT watermark until human signoffs complete.
               </p>
             </div>
 
@@ -1229,10 +1309,20 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
 
               <button
                 onClick={handlePrintPdf}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold text-xs hover:from-amber-300 hover:to-amber-400 transition-all flex items-center gap-2 shadow cursor-pointer"
+                disabled={exportingPdf}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold text-xs hover:from-amber-300 hover:to-amber-400 transition-all flex items-center gap-2 shadow cursor-pointer disabled:opacity-50"
               >
-                <Printer className="w-4 h-4 text-slate-950" />
-                <span>Export / Print Full PDF</span>
+                {exportingPdf ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                    <span>Generating PDF...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="w-4 h-4 text-slate-950" />
+                    <span>Export / Print Full PDF</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1265,10 +1355,20 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
                 </button>
                 <button
                   onClick={handlePrintPdf}
-                  className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-bold text-xs hover:from-amber-300 hover:to-amber-500 transition-all shadow-lg flex items-center gap-2 cursor-pointer"
+                  disabled={exportingPdf}
+                  className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-bold text-xs hover:from-amber-300 hover:to-amber-500 transition-all shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <Printer className="w-4 h-4 text-slate-950" />
-                  <span>Print / Save PDF Report</span>
+                  {exportingPdf ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                      <span>Generating PDF...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Printer className="w-4 h-4 text-slate-950" />
+                      <span>Print / Save PDF Report</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -1377,10 +1477,20 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
 
                 <button
                   onClick={handlePrintPdf}
-                  className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-bold text-xs hover:from-amber-300 hover:to-amber-500 transition-all shadow-lg flex items-center gap-2 cursor-pointer"
+                  disabled={exportingPdf}
+                  className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-bold text-xs hover:from-amber-300 hover:to-amber-500 transition-all shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <Download className="w-4 h-4 text-slate-950" />
-                  <span>Export Final Assessment PDF Report</span>
+                  {exportingPdf ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                      <span>Generating PDF...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 text-slate-950" />
+                      <span>Export Final Assessment PDF Report</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>

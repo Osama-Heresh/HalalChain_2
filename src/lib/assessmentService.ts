@@ -63,7 +63,7 @@ export const ASSESSMENT_STEPS_META = [
   {
     number: 9,
     title: 'Draft Report Generator',
-    subtitle: 'Step 9: Big Four Report Generation',
+    subtitle: 'Step 9: Enterprise Executive Report Generation',
     description: 'Generate enterprise-grade draft assessment report with DRAFT watermark overlay and graphics.'
   },
   {
