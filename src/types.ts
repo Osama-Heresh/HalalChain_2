@@ -459,3 +459,165 @@ export interface CompanyWalletData {
   transactions: WalletTransaction[];
 }
 
+// ==================== HALALCHAIN ASSESSMENT ENGINE TYPES ====================
+
+export type AssessmentStepNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+
+export interface AssessmentStepInfo {
+  number: AssessmentStepNumber;
+  title: string;
+  subtitle: string;
+  description: string;
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Flagged';
+}
+
+export interface WhitepaperExtractionFact {
+  id: string;
+  sectionTitle: string;
+  keyFact: string;
+  details: string;
+  confidenceScore: number; // 0 - 100
+  evidenceQuote: string;
+  pageNumber: number;
+  paragraphNumber: number;
+  sourceUrl: string;
+  isHalalDecision: false; // Mandatory constraint: AI NEVER decides Halal/Haram!
+}
+
+export interface DiscrepancyItem {
+  id: string;
+  fieldTopic: string;
+  websiteClaim: string;
+  whitepaperFact: string;
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  explanation: string;
+  reviewerStatus: 'Pending Review' | 'Validated Discrepancy' | 'Cleared by Reviewer';
+  reviewerNote?: string;
+}
+
+export interface DetailedTokenomics {
+  totalSupply: string;
+  circulatingSupply: string;
+  maxSupply: string;
+  distributionBreakdown: {
+    investorsPct: number;
+    teamPct: number;
+    foundationPct: number;
+    treasuryPct: number;
+    publicPct: number;
+    stakingYieldPct: number;
+  };
+  inflationMechanism: string;
+  deflationBurnMechanism: string;
+  lockupPeriodMonths: number;
+  unlockSchedule: string;
+  emissionRateDescription: string;
+  yieldStakingMechanisms: string;
+  hasFixedInterestRisk: boolean;
+}
+
+export interface SmartContractSecurityScan {
+  compilerVersion: string;
+  isVerifiedCode: boolean;
+  ownershipType: 'Single Owner' | 'Multi-Sig Council' | 'DAO Governance' | 'Renounced' | 'Proxy Admin';
+  ownerAddress: string;
+  isUpgradeableProxy: boolean;
+  proxyImplementationAddress?: string;
+  hasMintFunction: boolean;
+  hasBurnFunction: boolean;
+  hasPauseFunction: boolean;
+  hasBlacklistFunction: boolean;
+  feeTaxPercentage: number;
+  reflectionMechanisms: string;
+  treasuryWallets: string[];
+  privilegedFunctions: string[];
+  codeLineReferences: { functionName: string; lineNo: number; description: string }[];
+  unlimitedMintRisk: boolean;
+  centralizationRisk: 'High' | 'Medium' | 'Low';
+}
+
+export interface OnChainBlockchainData {
+  topHoldersConcentrationPct: number;
+  treasuryWalletBalance: string;
+  treasuryMultiSigType: string;
+  liquidityLockDurationMonths: number;
+  liquidityLockProofUrl: string;
+  contractVerificationStatus: 'Verified on Etherscan/Explorer' | 'Unverified Bytecode Only';
+  contractAgeDays: number;
+  deployerWallet: string;
+  recentTxVolume24hUsd: number;
+}
+
+export interface RiskFindingItem {
+  id: string;
+  title: string;
+  category: 'Smart Contract' | 'Tokenomics' | 'Governance' | 'Business Model' | 'Blockchain Centralization';
+  severity: 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
+  evidenceQuote: string;
+  referenceLocation: string;
+  explanation: string;
+  reviewerStatus: 'Pending Review' | 'Validated' | 'Overridden / Cleared';
+  reviewerComment?: string;
+}
+
+export interface StandardsMappingItem {
+  id: string;
+  standardCode: string;
+  criterionTitle: string;
+  mappedFact: string;
+  evidenceSnippet: string;
+  assignedRole: 'tech_auditor' | 'business_analyst' | 'scholar' | 'qa' | 'pm';
+  classificationStatus: 'Tech Review Required' | 'Business Review Required' | 'Scholar Review Required' | 'QA Review Required' | 'Already Confirmed';
+  status: 'Draft' | 'Pending' | 'Confirmed' | 'Flagged';
+  reviewerNotes?: string;
+}
+
+export interface ReviewerSignoff {
+  reviewerRole: UserRole;
+  reviewerName: string;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Changes Requested';
+  signedAt?: string;
+  comment?: string;
+  digitalSignature?: string;
+}
+
+export interface AssessmentReportData {
+  id: string;
+  projectId: string;
+  companyName: string;
+  projectSymbol: string;
+  cmcUrl?: string;
+  coingeckoUrl?: string;
+  contractAddress?: string;
+  blockchain: string;
+  whitepaperUrl: string;
+  websiteUrl: string;
+  status: 'In Progress' | 'Draft Report Ready' | 'Under Multi-Role Review' | 'Final Approved';
+  currentStep: AssessmentStepNumber;
+  draftWatermark: boolean; // True by default!
+  finalCertificateDecision?: 'APPROVED_HALAL' | 'REJECTED_HARAM' | 'CONDITIONAL_APPROVAL' | 'PENDING';
+  certificateNumber?: string;
+  issueDate?: string;
+  verificationHash?: string;
+  
+  // Step Data
+  step1InfoCollection?: {
+    cmcData: any;
+    coingeckoData: any;
+    contractMetaData: any;
+    sourceUrlsLog: { field: string; value: string; sourceUrl: string }[];
+  };
+  step2WhitepaperFacts?: WhitepaperExtractionFact[];
+  step3Discrepancies?: DiscrepancyItem[];
+  step4Tokenomics?: DetailedTokenomics;
+  step5SmartContract?: SmartContractSecurityScan;
+  step6Blockchain?: OnChainBlockchainData;
+  step7Risks?: RiskFindingItem[];
+  step8StandardsMapping?: StandardsMappingItem[];
+  
+  // Human Review
+  humanReviewSignoffs: Record<string, ReviewerSignoff>;
+  auditTrail: AuditLogEntry[];
+}
+
+

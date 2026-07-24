@@ -39,6 +39,7 @@ import { IslamicPatternBg } from '../IslamicPatternBg';
 import { PMProjectHubView } from './PMProjectHubView';
 import { TaskDetailModal } from './TaskDetailModal';
 import { EmployeeWalletView } from './EmployeeWalletView';
+import { HalalChainAssessmentEngine } from '../assessment/HalalChainAssessmentEngine';
 
 import { safeFetch, getLocalTalentApps } from '../../lib/api';
 import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
@@ -624,85 +625,11 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
       {/* Tab 3: AI Engine */}
       {activeOpsTab === 'ai_engine' && (
-        <div className="bg-[#0B132B] text-white p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6 relative overflow-hidden">
-          <IslamicPatternBg />
-          <div className="relative z-10 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div>
-                <h3 className="text-xl font-bold font-serif text-amber-300">Centralized AI Automated Assessment Center</h3>
-                <p className="text-xs text-slate-300 font-mono">
-                  Runs automated whitepaper indexing, bytecode privilege scan, and Sharia findings generator for {selectedApp?.companyName}
-                </p>
-              </div>
-
-              <button
-                onClick={handleRunAiAssessment}
-                disabled={runningAi}
-                className="px-6 py-3 rounded-2xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all cursor-pointer shadow-lg flex items-center gap-2 disabled:opacity-50"
-              >
-                <Sparkles className="w-4 h-4 text-slate-950" />
-                <span>{runningAi ? 'Executing AI Engine...' : 'Run Automated AI Assessment'}</span>
-              </button>
-            </div>
-
-            {/* AI Results Output */}
-            {aiResult && (
-              <div className="space-y-6 pt-4 text-xs font-mono">
-                {/* Whitepaper Summary */}
-                <div className="bg-[#1C2541] p-6 rounded-2xl border border-amber-500/20 space-y-3">
-                  <h4 className="text-amber-400 font-bold text-sm uppercase">Whitepaper AI Analysis Summary</h4>
-                  <p className="text-slate-200 leading-relaxed">{aiResult.whitepaperSummary.purpose}</p>
-                  <div className="grid grid-cols-2 gap-4 text-slate-300 pt-2">
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">REVENUE SOURCES</span>
-                      <span>{aiResult.whitepaperSummary.revenueSources.join(', ')}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">TOKEN UTILITY</span>
-                      <span>{aiResult.whitepaperSummary.tokenUtility.join(', ')}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Smart Contract Privilege Analysis */}
-                <div className="bg-[#1C2541] p-6 rounded-2xl border border-amber-500/20 space-y-3">
-                  <h4 className="text-amber-400 font-bold text-sm uppercase">Smart Contract Bytecode Scan</h4>
-                  <div className="grid grid-cols-3 gap-4 text-slate-300">
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">VERIFIED SOURCE</span>
-                      <span className="text-emerald-400 font-bold">YES ✓</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">PAUSE FUNCTION</span>
-                      <span className="text-amber-300 font-bold">{aiResult.smartContractAnalysis.pauseFunction ? 'DETECTED' : 'NONE'}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">PRIVILEGED FUNCTIONS</span>
-                      <span>{aiResult.smartContractAnalysis.privilegedFunctions.join(', ')}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* AI Draft Findings */}
-                <div className="space-y-3">
-                  <h4 className="text-amber-400 font-bold text-sm uppercase">AI Generated Draft Findings</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {aiResult.aiDraftFindings.map((fnd: any) => (
-                      <div key={fnd.id} className="bg-[#1C2541] p-4 rounded-xl border border-amber-500/20 space-y-2">
-                        <div className="flex items-center justify-between text-[10px]">
-                          <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold">{fnd.category}</span>
-                          <span className="text-emerald-400 font-bold">Confidence: {fnd.confidenceScore}%</span>
-                        </div>
-                        <p className="text-slate-200">{fnd.description}</p>
-                        <div className="text-[10px] text-slate-400">Source: {fnd.evidenceSource}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <HalalChainAssessmentEngine
+          applications={applications}
+          currentUserRole={currentUserRole}
+          onRefreshData={onRefreshData}
+        />
       )}
 
       {/* Tab 4: Auditor Workspace */}

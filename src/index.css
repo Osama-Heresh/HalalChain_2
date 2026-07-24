@@ -12,6 +12,18 @@
     print-color-adjust: exact !important;
   }
 
+  /* Hide UI elements on print */
+  .print\:hidden,
+  .export-ignore,
+  header,
+  nav,
+  aside,
+  button,
+  select,
+  .no-print {
+    display: none !important;
+  }
+
   /* Unconstrain fixed overlays and modals on print */
   .fixed.inset-0 {
     position: static !important;
@@ -35,10 +47,6 @@
     height: auto !important;
   }
 
-  .print\:hidden, .export-ignore {
-    display: none !important;
-  }
-
   .shadow-2xl, .shadow-xl, .shadow-lg, .shadow-md, .shadow-sm {
     box-shadow: none !important;
   }
@@ -47,11 +55,20 @@
     border-radius: 0 !important;
   }
 
-  #printable-evaluation-report {
+  #printable-assessment-report {
     width: 100% !important;
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
     position: static !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+
+  .page-break-inside-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }
+
