@@ -35,7 +35,7 @@ export const VerificationView: React.FC<VerificationViewProps> = ({ initialQuery
         setVerifiedProject(data.project);
       } else {
         setErrorMsg(
-          data.message || (lang === 'ar' ? 'الشهادة غير موجودة في سجل حلال تشين.' : 'Certificate not found in HalalChain registry.')
+          data.message || (lang === 'ar' ? 'الشهادة غير موجودة في سجل حلال تشين™.' : 'Certificate not found in HalalChain™ registry.')
         );
       }
     } catch (err) {

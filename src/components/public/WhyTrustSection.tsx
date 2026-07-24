@@ -128,7 +128,7 @@ export const WhyTrustSection: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                <span>HalalChain Standard</span>
+                <span>HalalChain™ Standard</span>
                 <span className="text-emerald-700 font-semibold flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-emerald-600" />
                   Verified Protocol

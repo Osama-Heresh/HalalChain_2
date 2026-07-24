@@ -20,7 +20,7 @@ export const MethodologyView: React.FC = () => {
       num: '02',
       title: 'Centralized AI Automated Collection',
       role: 'Central AI Layer',
-      desc: 'HalalChain AI engine auto-crawls documentation, parses whitepaper sections, indexes tokenomics, and scans smart contract bytecode.'
+      desc: 'HalalChain™ AI engine auto-crawls documentation, parses whitepaper sections, indexes tokenomics, and scans smart contract bytecode.'
     },
     {
       num: '03',
@@ -50,7 +50,7 @@ export const MethodologyView: React.FC = () => {
       num: '07',
       title: 'Senior Scholar Review Panel',
       role: 'Sharia Scholar Board',
-      desc: 'Senior Sharia scholars review technical & business findings against AAOIFI Sharia Standards and HalalChain Standard v2.1 to issue formal judgments.'
+      desc: 'Senior Sharia scholars review technical & business findings against AAOIFI Sharia Standards and HalalChain™ Standard v2.1 to issue formal judgments.'
     },
     {
       num: '08',
@@ -83,7 +83,7 @@ export const MethodologyView: React.FC = () => {
       num: '02',
       title: 'الجمع الآلي بالذكاء الاصطناعي المركزي',
       role: 'طبقة الذكاء الاصطناعي',
-      desc: 'يقوم محرك حلال تشين بالزحف الآلي للوثائق، وتحليل الورقة البيضاء، وفهرسة اقتصاد الرمز، وفحص الشفرة البرمجية للعقود الذكية.'
+      desc: 'يقوم محرك حلال تشين™ بالزحف الآلي للوثائق، وتحليل الورقة البيضاء، وفهرسة اقتصاد الرمز، وفحص الشفرة البرمجية للعقود الذكية.'
     },
     {
       num: '03',
@@ -113,7 +113,7 @@ export const MethodologyView: React.FC = () => {
       num: '07',
       title: 'مراجعة علماء الشريعة',
       role: 'مجلس العلماء الشرعيين',
-      desc: 'يراجع كبار علماء الشريعة النتائج الفنية والتجارية وفق معايير أيوفي (AAOIFI) ومعيار حلال تشين v2.1 لإصدار القرار الشرعي الرسمي.'
+      desc: 'يراجع كبار علماء الشريعة النتائج الفنية والتجارية وفق معايير أيوفي (AAOIFI) ومعيار حلال تشين™ v2.1 لإصدار القرار الشرعي الرسمي.'
     },
     {
       num: '08',
@@ -131,7 +131,7 @@ export const MethodologyView: React.FC = () => {
       num: '10',
       title: 'الشهادة الرقمية والسجل العام',
       role: 'دفتر البلوكشين الموثق',
-      desc: 'إنشاء شهادة مشفرة مزودة برمز QR وتوقيع SHA-256، ونشرها مباشرة في سجل حلال تشين العام للمشاريع المعتمدة.'
+      desc: 'إنشاء شهادة مشفرة مزودة برمز QR وتوقيع SHA-256، ونشرها مباشرة في سجل حلال تشين™ العام للمشاريع المعتمدة.'
     }
   ];
 
@@ -143,15 +143,15 @@ export const MethodologyView: React.FC = () => {
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 text-xs font-mono font-medium border border-amber-500/20">
           <ShieldCheck className="w-4 h-4 text-amber-600" />
-          <span>{lang === 'ar' ? 'معيار منهجية حلال تشين v2.1' : 'HalalChain Methodology Standard v2.1'}</span>
+          <span>{lang === 'ar' ? 'معيار منهجية حلال تشين™ v2.1' : 'HalalChain™ Methodology Standard v2.1'}</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900">
           {lang === 'ar' ? 'منهجية التقييم الشرعي الشفافة المكونة من 10 مراحل' : 'Transparent 10-Stage Sharia Assessment Methodology'}
         </h1>
         <p className="text-sm text-slate-600 leading-relaxed">
           {lang === 'ar'
-            ? 'كل شهادة تصدرها حلال تشين مدعومة بأدلة فنية موثقة للعقود الذكية، وتحليل الورقة البيضاء، واعتماد مجلس العلماء.'
-            : 'Every certificate issued by HalalChain is supported by verifiable technical bytecode evidence, whitepaper analysis, and scholar board sign-off.'}
+            ? 'كل شهادة تصدرها حلال تشين™ مدعومة بأدلة فنية موثقة للعقود الذكية، وتحليل الورقة البيضاء، واعتماد مجلس العلماء.'
+            : 'Every certificate issued by HalalChain™ is supported by verifiable technical bytecode evidence, whitepaper analysis, and scholar board sign-off.'}
         </p>
       </div>
 
@@ -224,7 +224,7 @@ export const MethodologyView: React.FC = () => {
 
             <div className="relative z-10 pt-4 flex items-center justify-between text-xs font-mono text-amber-300/80">
               <span>{lang === 'ar' ? 'متوافق مع معيار v2.1' : 'Standard v2.1 Compliant'}</span>
-              <span>{lang === 'ar' ? 'سجل تدقيق حلال تشين' : 'HalalChain Audit Ledger'}</span>
+              <span>{lang === 'ar' ? 'سجل تدقيق حلال تشين™' : 'HalalChain™ Audit Ledger'}</span>
             </div>
           </div>
         </div>

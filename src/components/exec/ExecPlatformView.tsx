@@ -86,7 +86,7 @@ export const ExecPlatformView: React.FC = () => {
             <BarChart3 className="w-4 h-4 text-amber-400" />
             <span>Executive Management Platform</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif">HalalChain Executive Dashboard & AI Service Console</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif">HalalChain™ Executive Dashboard & AI Service Console</h1>
           <p className="text-xs text-slate-300 font-mono">Real-time business intelligence, AI token consumption meters, and global remote workforce management.</p>
         </div>
       </div>

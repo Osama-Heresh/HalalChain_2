@@ -275,7 +275,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
             <span>{lang === 'ar' ? 'نظام تشغيل العمليات والإدارة' : 'Operations Operating System'}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold font-serif">
-            {lang === 'ar' ? 'منصة العمليات والتدقيق الشرعي الرقمي' : 'HalalChain Remote Operations Platform'}
+            {lang === 'ar' ? 'منصة العمليات والتدقيق الشرعي الرقمي - حلال تشين™' : 'HalalChain™ Remote Operations Platform'}
           </h1>
           <p className="text-xs text-slate-300 font-mono">
             {lang === 'ar' ? 'دور الموظف النشط:' : 'Active Employee Role:'}{' '}

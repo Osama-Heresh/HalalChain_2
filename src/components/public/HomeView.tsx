@@ -115,7 +115,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               Featured Sharia Certified Web3 Projects
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              Top cryptocurrencies, RWA gold tokens, and DeFi protocols independently audited by HalalChain.
+              Top cryptocurrencies, RWA gold tokens, and DeFi protocols independently audited by HalalChain™.
             </p>
           </div>
           <button
@@ -199,7 +199,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="relative z-10 space-y-10">
           <div className="text-center max-w-3xl mx-auto space-y-2">
             <h2 className="text-2xl sm:text-3xl font-bold font-serif text-white">
-              The HalalChain Assessment Process
+              The HalalChain™ Assessment Process
             </h2>
             <p className="text-sm text-slate-300">
               An evidence-driven methodology combining automated AI analytics, smart contract bytecode verification, business analysis, and senior scholar approval.
@@ -233,7 +233,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
               <h3 className="font-bold text-base text-white">3. Senior Scholar Review</h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Sharia scholars review technical findings against AAOIFI and HalalChain Sharia Standard v2.1 to issue formal compliance decisions.
+                Sharia scholars review technical findings against AAOIFI and HalalChain™ Sharia Standard v2.1 to issue formal compliance decisions.
               </p>
             </div>
 
@@ -275,7 +275,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 Important Methodology Distinction: Technical Assessment vs Fatwa
               </h3>
               <p className="text-xs text-slate-700 leading-relaxed max-w-3xl">
-                HalalChain does not issue religious fatwas. HalalChain provides independent technical, economic, and Sharia compliance screening supported by documented evidence. Every conclusion is backed by verifiable smart contract bytecode analysis, whitepaper audits, and scholar review.
+                HalalChain™ does not issue religious fatwas. HalalChain™ provides independent technical, economic, and Sharia compliance screening supported by documented evidence. Every conclusion is backed by verifiable smart contract bytecode analysis, whitepaper audits, and scholar review.
               </p>
             </div>
           </div>

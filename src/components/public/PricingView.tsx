@@ -47,7 +47,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
         'Deep Bytecode & Privileged Function Audit',
         'Tokenomics & Yield Sustainability Analysis',
         'Senior Scholar Review Board Assessment',
-        'AAOIFI & HalalChain Standard v2.1 Compliance',
+        'AAOIFI & HalalChain™ Standard v2.1 Compliance',
         'Priority Technical Remediation Guidance',
         '3 Clarification Cycles Included',
         'Verification QR Code & Blockchain Hash'
@@ -94,7 +94,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
         'استخراج البيانات الآلي بالذكاء الاصطناعي للورقة البيضاء',
         'فحص الشفرة البرمجية الأساسية للعقد الذكي',
         'تدقيق إيرادات وتطبيقات المشروع التجارية',
-        'الإدراج في سجل حلال تشين العام',
+        'الإدراج في سجل حلال تشين™ العام',
         'شهادة رقمية قابلة للتحميل (PDF)',
         'دورة استيضاح واحدة متضمنة'
       ]
@@ -115,7 +115,7 @@ export const PricingView: React.FC<PricingViewProps> = ({ onApplyPackage }) => {
         'تدقيق عميق للشفرة البرمجية والدوال ذات الصلاحيات',
         'تحليل استدامة اقتصاد الرمز وعائدات الاستثمار',
         'تقييم من هيئة المستشارين الشرعيين',
-        'الامتثال لمعايير أيوفي ومعيار حلال تشين v2.1',
+        'الامتثال لمعايير أيوفي ومعيار حلال تشين™ v2.1',
         'توجيهات معالجة الملاحظات الفنية بأولوية',
         '3 دورات استيضاح متضمنة',
         'رمز QR والتوقيع المشفر للتحقق عبر البلوكشين'

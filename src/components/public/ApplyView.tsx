@@ -147,7 +147,7 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 text-xs font-mono font-medium border border-amber-500/20">
           <ShieldCheck className="w-4 h-4 text-amber-600" />
-          <span>{lang === 'ar' ? 'طلب الاعتماد الإلكتروني - حلال تشين' : 'HalalChain Online Application'}</span>
+          <span>{lang === 'ar' ? 'طلب الاعتماد الإلكتروني - حلال تشين™' : 'HalalChain™ Online Application'}</span>
         </div>
         <h1 className="text-3xl font-bold font-serif text-slate-900">
           {lang === 'ar' ? 'التقدم بطلب للحصول على الاعتماد الشرعي' : 'Apply for Sharia Certification'}
@@ -333,8 +333,8 @@ export const ApplyView: React.FC<ApplyViewProps> = ({
           />
           <label htmlFor="terms" className="text-xs text-slate-600 leading-relaxed">
             {lang === 'ar'
-              ? 'أؤكد أنني ممثل مخول للمشروع وأوافق على شروط وأحكام تقييم حلال تشين. لن يتم إصدار الشهادات إلا بعد تأكيد القسم المالي لدفع المبالغ المستحقة.'
-              : 'I confirm that I am an authorized representative of the project and agree to the HalalChain Assessment Terms & Conditions. Certificates will only be released following Finance confirmation of full payment.'}
+              ? 'أؤكد أنني ممثل مخول للمشروع وأوافق على شروط وأحكام تقييم حلال تشين™. لن يتم إصدار الشهادات إلا بعد تأكيد القسم المالي لدفع المبالغ المستحقة.'
+              : 'I confirm that I am an authorized representative of the project and agree to the HalalChain™ Assessment Terms & Conditions. Certificates will only be released following Finance confirmation of full payment.'}
           </label>
         </div>
 

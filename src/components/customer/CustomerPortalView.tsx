@@ -256,7 +256,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
                 <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />
                 <div>
                   <h4 className="text-sm font-bold font-serif text-amber-300">Centralized AI Automated Information Collection Active</h4>
-                  <p className="text-xs text-slate-300">HalalChain AI engine is crawling your whitepaper, contract bytecode, and tokenomics metrics...</p>
+                  <p className="text-xs text-slate-300">HalalChain™ AI engine is crawling your whitepaper, contract bytecode, and tokenomics metrics...</p>
                 </div>
               </div>
             </div>
@@ -387,7 +387,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
           <div className="flex items-center justify-between border-b pb-4">
             <div>
               <h3 className="text-base font-bold font-serif text-slate-900">Clarification & Communications Board</h3>
-              <p className="text-xs text-slate-500 font-mono">Direct secure messaging with HalalChain Auditors and Sharia Scholars</p>
+              <p className="text-xs text-slate-500 font-mono">Direct secure messaging with HalalChain™ Auditors and Sharia Scholars</p>
             </div>
             <span className="text-xs font-mono bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full font-semibold">
               Permanent Audit Logging Active

@@ -234,7 +234,7 @@ export const JoinTeamView: React.FC<JoinTeamViewProps> = ({ onApplicationSubmitt
             ) : (
               <>
                 Evaluate the Future of Halal Decentralized Finance <br />
-                <span className="text-amber-400">Join HalalChain's Expert Evaluation Team</span>
+                <span className="text-amber-400">Join HalalChain™'s Expert Evaluation Team</span>
               </>
             )}
           </h1>
@@ -307,7 +307,7 @@ export const JoinTeamView: React.FC<JoinTeamViewProps> = ({ onApplicationSubmitt
             <p className="text-sm text-slate-700 leading-relaxed border-t border-emerald-200 pt-4">
               {lang === 'ar'
                 ? `تم تسجيل طلب انضمامك إلى فريق التقييم بنجاح تحت الرقم المرجعي (${submittedApp.id}). تم إرسال تنبيه آلي عاجل إلى مدير المشاريع (Project Manager) لمراجعة سيرتك الذاتية ومؤهلاتك والاعتماد.`
-                : `Your evaluation team application has been successfully recorded with reference ID (${submittedApp.id}). An instant high-priority alert notification has been dispatched to the HalalChain Project Manager (PM) for review and recruitment approval.`}
+                : `Your evaluation team application has been successfully recorded with reference ID (${submittedApp.id}). An instant high-priority alert notification has been dispatched to the HalalChain™ Project Manager (PM) for review and recruitment approval.`}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white/80 p-4 rounded-2xl border border-emerald-200 text-xs">

@@ -11,9 +11,9 @@ export const ResourcesView: React.FC = () => {
     {
       title: 'Sharia Screening Criteria for Crypto Assets & Tokens (Standard v2.1)',
       date: 'July 2026',
-      author: 'HalalChain Research Council',
+      author: 'HalalChain™ Research Council',
       category: 'Standards & Governance',
-      summary: 'A detailed breakdown of HalalChain Standard v2.1 governing revenue sources, zero-usury staking, liquidity pool Mudarabah structures, and administrative privilege risk scoring.'
+      summary: 'A detailed breakdown of HalalChain™ Standard v2.1 governing revenue sources, zero-usury staking, liquidity pool Mudarabah structures, and administrative privilege risk scoring.'
     },
     {
       title: 'Real-World Assets (RWA) Tokenization & Sharia Sarf Exchange Rules',
@@ -35,9 +35,9 @@ export const ResourcesView: React.FC = () => {
     {
       title: 'معايير الفحص الشرعي للأصول الرقمية والرموز (معيار v2.1)',
       date: 'يوليو 2026',
-      author: 'مجلس أبحاث حلال تشين',
+      author: 'مجلس أبحاث حلال تشين™',
       category: 'المعايير والحوكمة',
-      summary: 'شرح تفصيلي لمعيار حلال تشين v2.1 الذي يحكم مصادر الإيرادات، والتحصيص الخالي من الربا، وهياكل المضاربة في مجمعات السيولة، وتقييم مخاطر الصلاحيات الإدارية.'
+      summary: 'شرح تفصيلي لمعيار حلال تشين™ v2.1 الذي يحكم مصادر الإيرادات، والتحصيص الخالي من الربا، وهياكل المضاربة في مجمعات السيولة، وتقييم مخاطر الصلاحيات الإدارية.'
     },
     {
       title: 'ترميز الأصول الحقيقية (RWA) وقواعد الصرف الشرعي',

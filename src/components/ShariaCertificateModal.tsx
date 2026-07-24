@@ -144,11 +144,11 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
 
   const shariaSummaryEn = isCertified
     ? (project as PublicCertifiedProject).shariaSummaryEn
-    : `Certified Sharia compliant by HalalChain Sharia Board after comprehensive technical bytecode analysis, tokenomics audit, and governance review under HalalChain Standard v2.1.`;
+    : `Certified Sharia compliant by HalalChain™ Sharia Board after comprehensive technical bytecode analysis, tokenomics audit, and governance review under HalalChain™ Standard v2.1.`;
 
   const shariaSummaryAr = isCertified
     ? (project as PublicCertifiedProject).shariaSummaryAr
-    : `معتمد ومصادق عليه بالامتثال التام للشريعة الإسلامية من قبل هيئة حلال تشين الشرعية الدولية بعد تدقيق البرمجيات والعقود الذكية واقتصاديات التوكن.`;
+    : `معتمد ومصادق عليه بالامتثال التام للشريعة الإسلامية من قبل هيئة حلال تشين™ الشرعية الدولية بعد تدقيق البرمجيات والعقود الذكية واقتصاديات التوكن.`;
 
   const handlePrint = async () => {
     setIsExporting(true);
