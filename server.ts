@@ -3,26 +3,42 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import {
-  INITIAL_CERTIFIED_PROJECTS,
-  INITIAL_LEADS,
-  INITIAL_APPLICATIONS,
-  INITIAL_AI_CONFIG,
-  INITIAL_AI_LOGS,
-  INITIAL_REMOTE_EMPLOYEES,
-  INITIAL_QUESTIONS_LIBRARY,
-  INITIAL_AUDIT_LOGS,
-  INITIAL_TALENT_APPLICATIONS,
-  INITIAL_PROJECT_TEAM_ASSIGNMENTS,
-  INITIAL_WORK_LOGS,
-  INITIAL_MEMBER_EVALUATIONS
-} from './src/data/mockData.js';
+  getSystemSettings,
+  updateSystemSettings,
+  getOperatingMode,
+  getCertifiedProjects,
+  addCertifiedProject,
+  getApplications,
+  addApplication,
+  updateApplication,
+  getLeads,
+  addLead,
+  getRemoteEmployees,
+  addRemoteEmployee,
+  getTalentApplications,
+  addTalentApplication,
+  updateTalentApplicationStatus,
+  getAuditLogs,
+  addAuditLog,
+  getAiLogs,
+  addAiLog,
+  getWorkLogs,
+  addWorkLog,
+  approveWorkLogsRelease,
+  getMemberEvaluations,
+  saveMemberEvaluation,
+  getProjectTeamAssignments,
+  saveProjectTeamAssignment,
+  getClarificationMessages,
+  addClarificationMessage,
+  getQuestionsLibrary,
+  seedDemoDataToFirestore
+} from './src/lib/firebaseService.js';
 import {
   PublicCertifiedProject,
   Lead,
   CertificationApplication,
-  AiConfig,
   AiServiceLog,
-  AuditLogEntry,
   ClarificationMessage,
   RemoteEmployee,
   TalentApplication,
@@ -31,48 +47,20 @@ import {
   MemberEvaluation
 } from './src/types.js';
 
-// In-Memory Database Stores
-let certifiedProjectsStore: PublicCertifiedProject[] = [...INITIAL_CERTIFIED_PROJECTS];
-let leadsStore: Lead[] = [...INITIAL_LEADS];
-let applicationsStore: CertificationApplication[] = [...INITIAL_APPLICATIONS];
-let aiConfigStore: AiConfig = { ...INITIAL_AI_CONFIG };
-let aiLogsStore: AiServiceLog[] = [...INITIAL_AI_LOGS];
-let auditLogsStore: AuditLogEntry[] = [...INITIAL_AUDIT_LOGS];
-let remoteEmployeesStore: RemoteEmployee[] = [...INITIAL_REMOTE_EMPLOYEES];
-let talentApplicationsStore: TalentApplication[] = [...INITIAL_TALENT_APPLICATIONS];
-let projectTeamAssignmentsStore: ProjectTeamAssignment[] = [...INITIAL_PROJECT_TEAM_ASSIGNMENTS];
-let workLogsStore: WorkLogEntry[] = [...INITIAL_WORK_LOGS];
-let memberEvaluationsStore: MemberEvaluation[] = [...INITIAL_MEMBER_EVALUATIONS];
-let clarificationMessagesStore: Record<string, ClarificationMessage[]> = {
-  'APP-2026-801': [
-    {
-      id: 'MSG-001',
-      projectId: 'APP-2026-801',
-      senderRole: 'scholar',
-      senderName: 'Sheikh Dr. Ali Al-Quradaghi',
-      timestamp: '2026-07-21T09:30:00Z',
-      message: 'Please provide clarification regarding the secondary liquidity yield distribution mechanism specified in Section 4.2 of your Whitepaper.',
-      isCustomerRead: true
-    },
-    {
-      id: 'MSG-002',
-      projectId: 'APP-2026-801',
-      senderRole: 'customer',
-      senderName: 'Ahmad Razak (Sovereign Sukuk)',
-      timestamp: '2026-07-21T11:15:00Z',
-      message: 'The secondary yield distribution strictly utilizes a Mudarabah ratio where 80% goes to capital providers and 20% to the fund manager. No guaranteed fixed interest returns exist.',
-      isCustomerRead: true
-    }
-  ]
-};
-
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json({ limit: '10mb' }));
 
-  // Centralized Gemini AI Client Helper
+  // Seed demo records into Firebase on server launch if needed
+  try {
+    await seedDemoDataToFirestore();
+  } catch (err) {
+    console.warn('Initial Firestore seeding check completed:', err);
+  }
+
+  // Helper for Gemini AI client
   function getGenAiClient() {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -88,38 +76,75 @@ async function startServer() {
     });
   }
 
-  // API Routes
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', app: 'HalalChain™ Enterprise Platform', time: new Date().toISOString() });
+  // Health API
+  app.get('/api/health', async (req, res) => {
+    const settings = await getSystemSettings();
+    res.json({
+      status: 'ok',
+      app: 'HALALCHAIN™ Platform',
+      mode: settings.mode,
+      time: new Date().toISOString()
+    });
+  });
+
+  // Operating Mode API (Single Configuration Setting)
+  app.get('/api/system/mode', async (req, res) => {
+    const settings = await getSystemSettings();
+    res.json({ mode: settings.mode, settings });
+  });
+
+  app.post('/api/system/mode', async (req, res) => {
+    const { mode } = req.body;
+    if (mode !== 'demo' && mode !== 'production') {
+      return res.status(400).json({ error: 'Invalid mode. Must be "demo" or "production"' });
+    }
+    const updated = await updateSystemSettings({ mode });
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: 'Administrator',
+      userRole: 'admin',
+      action: 'System Operating Mode Changed',
+      newValue: `Operating Mode switched to ${mode.toUpperCase()} MODE`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
+    res.json({ success: true, mode: updated.mode, settings: updated });
   });
 
   // Public Registry API
-  app.get(['/api/registry', '/api/certificates/registry'], (req, res) => {
-    res.json(certifiedProjectsStore);
+  app.get(['/api/registry', '/api/certificates/registry'], async (req, res) => {
+    const projects = await getCertifiedProjects();
+    res.json(projects);
   });
 
-  app.get('/api/certificates/verify/:id', (req, res) => {
-    const query = (req.params.id || '').toLowerCase().trim();
-    const found = certifiedProjectsStore.find(
+  app.get('/api/certificates/verify/:id', async (req, res) => {
+    const queryStr = (req.params.id || '').toLowerCase().trim();
+    const projects = await getCertifiedProjects();
+    const found = projects.find(
       (p) =>
-        p.certificateNumber.toLowerCase() === query ||
-        p.verificationHash.toLowerCase() === query ||
-        p.name.toLowerCase().includes(query) ||
-        p.symbol.toLowerCase() === query
+        p.certificateNumber.toLowerCase() === queryStr ||
+        p.verificationHash.toLowerCase() === queryStr ||
+        p.name.toLowerCase().includes(queryStr) ||
+        p.symbol.toLowerCase() === queryStr
     );
     if (found) {
       res.json({ verified: true, project: found });
     } else {
-      res.status(404).json({ verified: false, message: 'Certificate not found in HalalChain registry.' });
+      res.status(404).json({ verified: false, message: 'Certificate not found in HALALCHAIN™ registry.' });
     }
   });
 
   // CRM Leads API
-  app.get('/api/leads', (req, res) => {
-    res.json(leadsStore);
+  app.get('/api/leads', async (req, res) => {
+    const leads = await getLeads();
+    res.json(leads);
   });
 
-  app.post('/api/leads', (req, res) => {
+  app.post('/api/leads', async (req, res) => {
+    const mode = await getOperatingMode();
     const newLead: Lead = {
       id: `LEAD-${Date.now().toString().slice(-4)}`,
       companyName: req.body.companyName || 'New Project',
@@ -135,16 +160,19 @@ async function startServer() {
       notes: req.body.notes || 'Inbound request from public website',
       createdDate: new Date().toISOString().split('T')[0]
     };
-    leadsStore.unshift(newLead);
-    res.json(newLead);
+
+    const saved = await addLead(newLead, mode);
+    res.json(saved);
   });
 
   // Applications & Projects API
-  app.get('/api/applications', (req, res) => {
-    res.json(applicationsStore);
+  app.get('/api/applications', async (req, res) => {
+    const apps = await getApplications();
+    res.json(apps);
   });
 
-  app.post('/api/applications', (req, res) => {
+  app.post('/api/applications', async (req, res) => {
+    const mode = await getOperatingMode();
     const appData = req.body;
     const newApp: CertificationApplication = {
       id: `APP-2026-${Math.floor(100 + Math.random() * 900)}`,
@@ -176,10 +204,9 @@ async function startServer() {
       remainingAmount: appData.packageType === 'Starter' ? 2250 : appData.packageType === 'Enterprise' ? 9750 : 4900
     };
 
-    applicationsStore.unshift(newApp);
+    const saved = await addApplication(newApp, mode);
 
-    // Audit Log Entry
-    auditLogsStore.unshift({
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: newApp.representativeName,
@@ -189,29 +216,34 @@ async function startServer() {
       newValue: `Application ${newApp.applicationNumber} created`,
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
-    res.json(newApp);
+    res.json(saved);
   });
 
   // Advance Workflow Stage
-  app.post('/api/applications/:id/advance', (req, res) => {
+  app.post('/api/applications/:id/advance', async (req, res) => {
     const { id } = req.params;
     const { nextStage, reason, note, userName, userRole, autoConfirmPayment } = req.body;
+    const mode = await getOperatingMode();
 
-    const project = applicationsStore.find((a) => a.id === id);
+    const apps = await getApplications();
+    const project = apps.find((a) => a.id === id);
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    // Auto-confirm payment if PM or Finance forces certificate production or autoConfirmPayment is flag
+    const updates: Partial<CertificationApplication> = {};
+
     if (autoConfirmPayment || userRole === 'pm' || userRole === 'finance' || userRole === 'admin') {
+      updates.depositPaid = true;
+      updates.finalPaid = true;
+      updates.remainingAmount = 0;
       project.depositPaid = true;
       project.finalPaid = true;
       project.remainingAmount = 0;
     }
 
-    // Payment Lock Check: Cannot issue certificate or complete if final payment unpaid
     if ((nextStage === 'certificate_generation' || nextStage === 'published_registry') && !project.finalPaid) {
       return res.status(400).json({
         error: 'PAYMENT LOCK: Certificate cannot be issued until Finance confirms full final payment.'
@@ -219,15 +251,15 @@ async function startServer() {
     }
 
     const prevStage = project.stage;
+    updates.stage = nextStage;
     project.stage = nextStage;
 
-    // Save note to message thread if provided
+    await updateApplication(id, updates);
+
+    // Save note message
     const noteText = note || reason;
     if (noteText && noteText.trim()) {
-      if (!clarificationMessagesStore[id]) {
-        clarificationMessagesStore[id] = [];
-      }
-      clarificationMessagesStore[id].push({
+      await addClarificationMessage({
         id: `MSG-${Date.now().toString().slice(-4)}`,
         projectId: id,
         senderRole: userRole || 'scholar',
@@ -235,11 +267,12 @@ async function startServer() {
         timestamp: new Date().toISOString(),
         message: noteText.trim(),
         isCustomerRead: false
-      });
+      }, mode);
     }
 
     if (nextStage === 'published_registry') {
-      const existingCert = certifiedProjectsStore.find((p) => p.name.toLowerCase() === project.companyName.toLowerCase());
+      const existingCerts = await getCertifiedProjects();
+      const existingCert = existingCerts.find((p) => p.name.toLowerCase() === project.companyName.toLowerCase());
       if (!existingCert) {
         const newCert: PublicCertifiedProject = {
           id: `HC-2026-${Math.floor(100 + Math.random() * 900)}`,
@@ -257,16 +290,15 @@ async function startServer() {
           websiteUrl: project.websiteUrl,
           whitepaperUrl: project.whitepaperUrl,
           contractAddress: project.contractAddress,
-          shariaSummaryEn: `Certified Sharia compliant by HalalChain Sharia Board after comprehensive technical bytecode analysis and business model audit under HalalChain Standard v2.1.`,
-          shariaSummaryAr: `معتمد ومعان بالامتثال الشرعي من قبل المجلس الشرعي لحلال تشين بعد تحليل البرمجيات الشامل وتدقيق نموذج العمل.`,
+          shariaSummaryEn: `Certified Sharia compliant by HALALCHAIN™ Sharia Board after comprehensive technical bytecode analysis and business model audit under HALALCHAIN™ Standard v2.1.`,
+          shariaSummaryAr: `معتمد ومصادق عليه بالامتثال الشرعي من قبل المجلس الشرعي لحلال تشين™ بعد تحليل البرمجيات الشامل وتدقيق نموذج العمل.`,
           scholarSignatures: ['Sheikh Dr. Ali Al-Quradaghi', 'Dr. Nizam Yaquby'],
           verificationHash: `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`
         };
-        certifiedProjectsStore.unshift(newCert);
+        await addCertifiedProject(newCert, mode);
       }
     }
 
-    // Record Audit Log
     const actionLabel =
       nextStage === 'rejected'
         ? 'Application Rejected / Certificate Denied'
@@ -274,7 +306,7 @@ async function startServer() {
         ? 'Clarification Requested from Applicant'
         : 'Workflow Stage Changed';
 
-    auditLogsStore.unshift({
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: userName || 'Operations Employee',
@@ -286,34 +318,44 @@ async function startServer() {
       reason: noteText || 'Stage transition decision',
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
     res.json(project);
   });
 
-  // Payment Confirmation Endpoint (Deposit or Final)
-  app.post('/api/applications/:id/pay', (req, res) => {
+  // Payment Confirmation Endpoint
+  app.post('/api/applications/:id/pay', async (req, res) => {
     const { id } = req.params;
     const { paymentType, txHash } = req.body;
+    const mode = await getOperatingMode();
 
-    const project = applicationsStore.find((a) => a.id === id);
+    const apps = await getApplications();
+    const project = apps.find((a) => a.id === id);
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
+    const updates: Partial<CertificationApplication> = {};
+
     if (paymentType === 'deposit') {
+      updates.depositPaid = true;
       project.depositPaid = true;
       if (project.stage === 'waiting_deposit') {
+        updates.stage = 'project_created';
         project.stage = 'project_created';
       }
     } else if (paymentType === 'final') {
+      updates.finalPaid = true;
       project.finalPaid = true;
       if (project.stage === 'waiting_final_payment') {
+        updates.stage = 'certificate_generation';
         project.stage = 'certificate_generation';
       }
     }
 
-    auditLogsStore.unshift({
+    await updateApplication(id, updates);
+
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: 'Finance Officer',
@@ -323,20 +365,22 @@ async function startServer() {
       newValue: `Tx: ${txHash || 'OFFICIAL_BANK_RECEIPT_00293'}`,
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
     res.json(project);
   });
 
   // Clarifications / Messages API
-  app.get('/api/applications/:id/messages', (req, res) => {
+  app.get('/api/applications/:id/messages', async (req, res) => {
     const { id } = req.params;
-    res.json(clarificationMessagesStore[id] || []);
+    const msgs = await getClarificationMessages(id);
+    res.json(msgs);
   });
 
-  app.post('/api/applications/:id/messages', (req, res) => {
+  app.post('/api/applications/:id/messages', async (req, res) => {
     const { id } = req.params;
     const { senderRole, senderName, message } = req.body;
+    const mode = await getOperatingMode();
 
     const newMessage: ClarificationMessage = {
       id: `MSG-${Date.now().toString().slice(-4)}`,
@@ -348,39 +392,39 @@ async function startServer() {
       isCustomerRead: senderRole === 'customer'
     };
 
-    if (!clarificationMessagesStore[id]) {
-      clarificationMessagesStore[id] = [];
-    }
-    clarificationMessagesStore[id].push(newMessage);
-
-    res.json(newMessage);
+    const saved = await addClarificationMessage(newMessage, mode);
+    res.json(saved);
   });
 
-  // Centralized AI Infrastructure API Endpoints
-  app.get('/api/ai/config', (req, res) => {
-    res.json(aiConfigStore);
+  // Centralized AI Infrastructure API
+  app.get('/api/ai/config', async (req, res) => {
+    const settings = await getSystemSettings();
+    res.json(settings);
   });
 
-  app.post('/api/ai/config', (req, res) => {
-    aiConfigStore = { ...aiConfigStore, ...req.body };
-    res.json(aiConfigStore);
+  app.post('/api/ai/config', async (req, res) => {
+    const updated = await updateSystemSettings(req.body);
+    res.json(updated);
   });
 
-  app.get('/api/ai/logs', (req, res) => {
-    res.json(aiLogsStore);
+  app.get('/api/ai/logs', async (req, res) => {
+    const logs = await getAiLogs();
+    res.json(logs);
   });
 
-  // Centralized AI Service Layer Assessment Endpoint
+  // AI Assessment Endpoint
   app.post('/api/ai/assess', async (req, res) => {
     const startTime = Date.now();
     const { projectId, companyName, whitepaperText, contractAddress, blockchain } = req.body;
+    const mode = await getOperatingMode();
 
-    const selectedModel = aiConfigStore.taskModelMapping.whitepaper_analysis || 'gemini-3.6-flash';
+    const config = await getSystemSettings();
+    const selectedModel = config.taskModelMapping?.whitepaper_analysis || 'gemini-3.6-flash';
 
     try {
       const ai = getGenAiClient();
 
-      const prompt = `You are HalalChain's Centralized AI Sharia & Technical Assessment Engine.
+      const prompt = `You are HALALCHAIN™'s Centralized AI Sharia & Technical Assessment Engine.
 Analyze the following Web3 project details for Sharia compliance and technical vulnerability risks:
 Project Name: ${companyName}
 Blockchain: ${blockchain}
@@ -461,7 +505,6 @@ Respond in structured JSON format matching this schema:
         promptTokens = response.usageMetadata?.promptTokenCount || 1200;
         completionTokens = response.usageMetadata?.candidatesTokenCount || 450;
       } else {
-        // Fallback intelligent assessment response
         aiResultJson = {
           whitepaperSummary: {
             purpose: `Automated Sharia-compliant decentralized infrastructure for ${companyName}.`,
@@ -521,14 +564,13 @@ Respond in structured JSON format matching this schema:
       const totalTokens = promptTokens + completionTokens;
       const estimatedCost = (promptTokens * 0.0000005 + completionTokens * 0.0000015);
 
-      // Log AI Service Layer Request
       const newAiLog: AiServiceLog = {
         id: `AILOG-${Date.now().toString().slice(-4)}`,
         timestamp: new Date().toISOString(),
         project: companyName || 'Unknown Web3 Project',
         customer: companyName || 'Customer',
         feature: 'Centralized AI Automated Assessment',
-        aiProvider: aiConfigStore.activeProvider,
+        aiProvider: config.activeProvider,
         aiModel: selectedModel,
         requestTimeMs: responseTimeMs,
         tokenUsage: {
@@ -540,7 +582,7 @@ Respond in structured JSON format matching this schema:
         status: 'Success'
       };
 
-      aiLogsStore.unshift(newAiLog);
+      await addAiLog(newAiLog, mode);
 
       res.json({
         success: true,
@@ -554,26 +596,31 @@ Respond in structured JSON format matching this schema:
   });
 
   // Audit Logs API
-  app.get('/api/audit-logs', (req, res) => {
-    res.json(auditLogsStore);
+  app.get('/api/audit-logs', async (req, res) => {
+    const logs = await getAuditLogs();
+    res.json(logs);
   });
 
   // Questions Library API
-  app.get('/api/questions-library', (req, res) => {
-    res.json(INITIAL_QUESTIONS_LIBRARY);
+  app.get('/api/questions-library', async (req, res) => {
+    const questions = await getQuestionsLibrary();
+    res.json(questions);
   });
 
   // Remote Employees API
-  app.get('/api/employees', (req, res) => {
-    res.json(remoteEmployeesStore);
+  app.get('/api/employees', async (req, res) => {
+    const employees = await getRemoteEmployees();
+    res.json(employees);
   });
 
-  // Talent Applications API (Recruitment Portal)
-  app.get('/api/talent-applications', (req, res) => {
-    res.json(talentApplicationsStore);
+  // Talent Applications API
+  app.get('/api/talent-applications', async (req, res) => {
+    const apps = await getTalentApplications();
+    res.json(apps);
   });
 
-  app.post('/api/talent-applications', (req, res) => {
+  app.post('/api/talent-applications', async (req, res) => {
+    const mode = await getOperatingMode();
     const appData = req.body;
     const newTalentApp: TalentApplication = {
       id: `TAL-2026-${Math.floor(100 + Math.random() * 900)}`,
@@ -599,9 +646,9 @@ Respond in structured JSON format matching this schema:
       appliedDate: new Date().toISOString().split('T')[0]
     };
 
-    talentApplicationsStore.unshift(newTalentApp);
+    const saved = await addTalentApplication(newTalentApp, mode);
 
-    auditLogsStore.unshift({
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: newTalentApp.fullName,
@@ -610,27 +657,30 @@ Respond in structured JSON format matching this schema:
       newValue: `Application ${newTalentApp.id} for ${newTalentApp.role} (${newTalentApp.country})`,
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
-    res.json(newTalentApp);
+    res.json(saved);
   });
 
-  // PM Talent Application Approval / Rejection
-  app.post('/api/talent-applications/:id/review', (req, res) => {
+  // PM Talent Review
+  app.post('/api/talent-applications/:id/review', async (req, res) => {
     const { id } = req.params;
     const { status, notes, reviewerName } = req.body;
+    const mode = await getOperatingMode();
 
-    const talentApp = talentApplicationsStore.find((t) => t.id === id);
+    const apps = await getTalentApplications();
+    const talentApp = apps.find((t) => t.id === id);
     if (!talentApp) {
       return res.status(404).json({ error: 'Talent application not found' });
     }
 
+    await updateTalentApplicationStatus(id, status, notes);
     talentApp.status = status;
     talentApp.notes = notes || '';
 
     if (status === 'Approved') {
-      // Check if employee already exists in store
-      const existing = remoteEmployeesStore.find((e) => e.email === talentApp.email || e.name === talentApp.fullName);
+      const emps = await getRemoteEmployees();
+      const existing = emps.find((e) => e.email === talentApp.email || e.name === talentApp.fullName);
       if (!existing) {
         const newEmployee: RemoteEmployee = {
           id: `EMP-${Math.floor(100 + Math.random() * 900)}`,
@@ -655,11 +705,11 @@ Respond in structured JSON format matching this schema:
           cvFileName: talentApp.cvFileName,
           cvFileSize: talentApp.cvFileSize
         };
-        remoteEmployeesStore.push(newEmployee);
+        await addRemoteEmployee(newEmployee, mode);
       }
     }
 
-    auditLogsStore.unshift({
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: reviewerName || 'Omar Khayyam (PM)',
@@ -669,21 +719,24 @@ Respond in structured JSON format matching this schema:
       reason: notes || 'PM Recruitment Evaluation',
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
     res.json(talentApp);
   });
 
   // Project Team Assignments API
-  app.get('/api/projects/team-assignments', (req, res) => {
-    res.json(projectTeamAssignmentsStore);
+  app.get('/api/projects/team-assignments', async (req, res) => {
+    const assignments = await getProjectTeamAssignments();
+    res.json(assignments);
   });
 
-  app.post('/api/projects/:id/reassign-team', (req, res) => {
+  app.post('/api/projects/:id/reassign-team', async (req, res) => {
     const { id } = req.params;
     const { roleToReassign, newEmployeeId, newEmployeeName, reason, pmName } = req.body;
+    const mode = await getOperatingMode();
 
-    let assignment = projectTeamAssignmentsStore.find((a) => a.projectId === id);
+    const assignments = await getProjectTeamAssignments();
+    let assignment = assignments.find((a) => a.projectId === id);
     if (!assignment) {
       assignment = {
         projectId: id,
@@ -698,7 +751,6 @@ Respond in structured JSON format matching this schema:
         lastUpdated: new Date().toISOString().split('T')[0],
         reassignmentHistory: []
       };
-      projectTeamAssignmentsStore.push(assignment);
     }
 
     let previousMemberName = 'Unassigned';
@@ -730,7 +782,9 @@ Respond in structured JSON format matching this schema:
       reason: reason || 'PM project timeline optimization / performance swap'
     });
 
-    auditLogsStore.unshift({
+    const saved = await saveProjectTeamAssignment(assignment, mode);
+
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: pmName || 'Omar Khayyam (PM)',
@@ -742,27 +796,24 @@ Respond in structured JSON format matching this schema:
       reason: reason || 'Project performance optimization',
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
-    res.json(assignment);
+    res.json(saved);
   });
 
   // Team Member Performance Evaluations API
-  app.get('/api/evaluations', (req, res) => {
-    res.json(memberEvaluationsStore);
+  app.get('/api/evaluations', async (req, res) => {
+    const evals = await getMemberEvaluations();
+    res.json(evals);
   });
 
-  app.post('/api/evaluations', (req, res) => {
+  app.post('/api/evaluations', async (req, res) => {
     const evalData: MemberEvaluation = req.body;
-    const existingIdx = memberEvaluationsStore.findIndex((e) => e.employeeId === evalData.employeeId);
+    const mode = await getOperatingMode();
 
-    if (existingIdx >= 0) {
-      memberEvaluationsStore[existingIdx] = { ...memberEvaluationsStore[existingIdx], ...evalData };
-    } else {
-      memberEvaluationsStore.unshift(evalData);
-    }
+    const saved = await saveMemberEvaluation(evalData, mode);
 
-    auditLogsStore.unshift({
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: evalData.pmManualAssessment.evaluatorName || 'Omar Khayyam (PM Lead)',
@@ -771,17 +822,19 @@ Respond in structured JSON format matching this schema:
       newValue: `${evalData.employeeName} (${evalData.role}) Combined Score: ${evalData.finalCombinedScore}/100 [${evalData.ratingCategory}]`,
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
-    res.json(evalData);
+    res.json(saved);
   });
 
   // Payroll & Work Logs API
-  app.get('/api/payroll/work-logs', (req, res) => {
-    res.json(workLogsStore);
+  app.get('/api/payroll/work-logs', async (req, res) => {
+    const logs = await getWorkLogs();
+    res.json(logs);
   });
 
-  app.post('/api/payroll/work-logs', (req, res) => {
+  app.post('/api/payroll/work-logs', async (req, res) => {
+    const mode = await getOperatingMode();
     const { employeeId, employeeName, role, projectId, projectName, hoursWorked, hourlyRateUsd, taskDescription, performanceScore } = req.body;
 
     const newLog: WorkLogEntry = {
@@ -800,9 +853,9 @@ Respond in structured JSON format matching this schema:
       paymentStatus: 'Pending Approval'
     };
 
-    workLogsStore.unshift(newLog);
+    const saved = await addWorkLog(newLog, mode);
 
-    auditLogsStore.unshift({
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: newLog.employeeName,
@@ -812,33 +865,31 @@ Respond in structured JSON format matching this schema:
       newValue: `${newLog.hoursWorked} hrs @ $${newLog.hourlyRateUsd}/hr = $${newLog.totalPayUsd}`,
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
-    res.json(newLog);
+    res.json(saved);
   });
 
-  app.post('/api/payroll/approve-release', (req, res) => {
+  app.post('/api/payroll/approve-release', async (req, res) => {
     const { logIds, pmName } = req.body;
+    const mode = await getOperatingMode();
+
     if (Array.isArray(logIds)) {
-      workLogsStore.forEach((log) => {
-        if (logIds.includes(log.id)) {
-          log.paymentStatus = 'Approved for Release';
-        }
-      });
+      await approveWorkLogsRelease(logIds);
     }
 
-    auditLogsStore.unshift({
+    await addAuditLog({
       id: `AUDIT-${Date.now().toString().slice(-4)}`,
       timestamp: new Date().toISOString(),
       userName: pmName || 'Omar Khayyam (PM)',
       userRole: 'pm',
       action: 'Remote Payroll Release Approved',
-      newValue: `${logIds.length} work log entries approved for disbursement`,
+      newValue: `${logIds ? logIds.length : 0} work log entries approved for disbursement`,
       digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
       ipAddress: '127.0.0.1'
-    });
+    }, mode);
 
-    res.json({ success: true, count: logIds.length });
+    res.json({ success: true, count: logIds ? logIds.length : 0 });
   });
 
   // Vite Development / Production Middleware
@@ -857,7 +908,7 @@ Respond in structured JSON format matching this schema:
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`HalalChain™ Enterprise Server running on http://0.0.0.0:${PORT}`);
+    console.log(`HALALCHAIN™ Platform Server running on http://0.0.0.0:${PORT}`);
   });
 }
 

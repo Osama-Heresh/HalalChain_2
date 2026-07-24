@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthModal } from './components/auth/AuthModal';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 
@@ -45,15 +47,27 @@ import {
 
 const MainContent: React.FC = () => {
   const { dir } = useLanguage();
+  const { currentUser, isAuthModalOpen, closeAuthModal } = useAuth();
 
-  const [activePlatformView, setActivePlatformView] = useState<PlatformView>('public_website');
+  const [activePlatformView, setActivePlatformView] = useState<PlatformView>('exec_platform');
   const [publicSubView, setPublicSubView] = useState<PublicSubView>('home');
-  const [currentUserRole, setCurrentUserRole] = useState<UserRole>('customer');
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole>('exec');
+
+  // Sync auth context user state with app view and role
+  useEffect(() => {
+    if (currentUser) {
+      setCurrentUserRole(currentUser.role);
+      if (currentUser.targetPlatform) {
+        setActivePlatformView(currentUser.targetPlatform);
+      }
+    }
+  }, [currentUser]);
 
   const [verifyCertQuery, setVerifyCertQuery] = useState('');
   const [selectedApplyPackage, setSelectedApplyPackage] = useState('Professional');
 
   // Application State - Guaranteed fallback to initial data so 0 counts never happen
+  const [systemMode, setSystemMode] = useState<'demo' | 'production'>('demo');
   const [applications, setApplications] = useState<CertificationApplication[]>(() => getLocalApps());
   const [certifiedProjects, setCertifiedProjects] = useState<PublicCertifiedProject[]>(() => getLocalCertifiedProjects());
   const [leads, setLeads] = useState<Lead[]>(() => getLocalLeads());
@@ -100,6 +114,11 @@ const MainContent: React.FC = () => {
 
   const refreshData = async () => {
     try {
+      const modeRes = await fetch('/api/system/mode').then(r => r.json()).catch(() => ({ mode: 'demo' }));
+      if (modeRes && modeRes.mode) {
+        setSystemMode(modeRes.mode);
+      }
+
       const [appsData, registryData, leadsData, auditData] = await Promise.all([
         safeFetch('/api/applications', 'apps', INITIAL_APPLICATIONS),
         safeFetch('/api/registry', 'registry', INITIAL_CERTIFIED_PROJECTS),
@@ -114,6 +133,11 @@ const MainContent: React.FC = () => {
     } catch (err) {
       console.warn('Running with client-side state', err);
     }
+  };
+
+  const handleModeChange = (newMode: 'demo' | 'production') => {
+    setSystemMode(newMode);
+    refreshData();
   };
 
   useEffect(() => {
@@ -148,6 +172,7 @@ const MainContent: React.FC = () => {
         setActivePublicTab={(tab) => setPublicSubView(tab as PublicSubView)}
         currentUserRole={currentUserRole}
         setCurrentUserRole={handleUserRoleChange}
+        systemMode={systemMode}
       />
 
       <main className="flex-grow">
@@ -211,13 +236,24 @@ const MainContent: React.FC = () => {
         )}
 
         {/* PLATFORM 4: EXECUTIVE PLATFORM */}
-        {activePlatformView === 'exec_platform' && <ExecPlatformView />}
+        {activePlatformView === 'exec_platform' && (
+          <ExecPlatformView
+            systemMode={systemMode}
+            onModeChange={handleModeChange}
+          />
+        )}
       </main>
 
       <Footer setPublicSubView={(sub) => {
         setActivePlatformView('public_website');
         setPublicSubView(sub);
       }} />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        onSelectPlatformView={(view) => setActivePlatformView(view)}
+      />
     </div>
   );
 };
@@ -225,7 +261,9 @@ const MainContent: React.FC = () => {
 export default function App() {
   return (
     <LanguageProvider>
-      <MainContent />
+      <AuthProvider>
+        <MainContent />
+      </AuthProvider>
     </LanguageProvider>
   );
 }

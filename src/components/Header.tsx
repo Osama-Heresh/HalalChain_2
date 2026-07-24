@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { PlatformTab, UserRole } from '../types';
-import { ShieldCheck, Globe, User, Briefcase, BarChart3, ChevronDown, Menu, X } from 'lucide-react';
+import { ShieldCheck, Globe, User, Briefcase, BarChart3, ChevronDown, Menu, X, KeyRound, LogOut, Sparkles } from 'lucide-react';
 import { NotificationCenter } from './NotificationCenter';
 
 interface HeaderProps {
@@ -11,6 +12,8 @@ interface HeaderProps {
   setActivePublicTab: (tab: string) => void;
   currentUserRole: UserRole;
   setCurrentUserRole: (r: UserRole) => void;
+  systemMode?: 'demo' | 'production';
+  onOpenAuthModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,10 +22,25 @@ export const Header: React.FC<HeaderProps> = ({
   activePublicTab,
   setActivePublicTab,
   currentUserRole,
-  setCurrentUserRole
+  setCurrentUserRole,
+  systemMode = 'demo',
+  onOpenAuthModal
 }) => {
   const { lang, toggleLang, t } = useLanguage();
+  const { currentUser, openAuthModal, logout, updateCurrentRole } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const rolesList: { role: UserRole; name: string }[] = [
+    { role: 'exec', name: 'General Manager (Exec)' },
+    { role: 'sales', name: 'Sales Manager' },
+    { role: 'pm', name: 'Project Manager' },
+    { role: 'tech_auditor', name: 'Technical Reviewer' },
+    { role: 'business_analyst', name: 'Business Reviewer' },
+    { role: 'scholar', name: 'Sharia Scholar' },
+    { role: 'qa', name: 'Quality Assurance' },
+    { role: 'finance', name: 'Finance Officer' },
+    { role: 'customer', name: 'Customer / Applicant' }
+  ];
 
   const publicNavItems = [
     { id: 'home', labelKey: 'public.home' },
@@ -34,20 +52,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'resources', labelKey: 'public.resources' },
     { id: 'apply', labelKey: 'public.apply' },
     { id: 'join_team', labelKey: 'public.joinTeam' }
-  ];
-
-  const rolesList: { role: UserRole; name: string }[] = [
-    { role: 'customer', name: 'Customer (Applicant)' },
-    { role: 'marketing', name: 'Marketing Specialist' },
-    { role: 'sales', name: 'Sales Executive' },
-    { role: 'pm', name: 'Project Manager' },
-    { role: 'tech_auditor', name: 'Blockchain Tech Auditor' },
-    { role: 'business_analyst', name: 'Business Analyst' },
-    { role: 'scholar', name: 'Senior Sharia Scholar' },
-    { role: 'qa', name: 'Quality Assurance Officer' },
-    { role: 'finance', name: 'Finance Officer' },
-    { role: 'exec', name: 'Executive Leader' },
-    { role: 'admin', name: 'System Administrator' }
   ];
 
   return (
@@ -76,6 +80,13 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
                 <span className="text-[9px] sm:text-[10px] font-semibold tracking-wider text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 rounded">
                   PROD v2.1
+                </span>
+                <span className={`text-[9px] sm:text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded border font-mono ${
+                  systemMode === 'demo'
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                }`}>
+                  {systemMode === 'demo' ? 'DEMO MODE' : 'PRODUCTION MODE'}
                 </span>
               </div>
               <p className="text-[9px] sm:text-[10px] text-amber-300/80 tracking-widest font-mono uppercase truncate max-w-[160px] sm:max-w-none">
@@ -132,35 +143,94 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Right Actions: Language Switcher, Role Selector, & Mobile Toggle */}
+          {/* Right Actions: Auth User Profile, Language Switcher & Mobile Toggle */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Role Switcher Dropdown */}
+            {/* Enterprise Auth Profile Button & Quick Menu */}
             <div className="relative group">
-              <div className="flex items-center gap-1.5 sm:gap-2 bg-[#1C2541] border border-amber-500/30 text-amber-300 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:border-amber-400 transition-colors">
-                <User className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span className="max-w-[100px] sm:max-w-none truncate font-mono text-[11px] sm:text-xs">
-                  {rolesList.find((r) => r.role === currentUserRole)?.name.split(' ')[0] || currentUserRole}
-                </span>
-                <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
-              </div>
-              <div className="absolute right-0 top-full mt-1 w-60 bg-[#1C2541] border border-amber-500/30 rounded-xl shadow-2xl p-2 hidden group-hover:block z-50">
-                <div className="text-[10px] uppercase font-mono text-slate-400 px-2 py-1 mb-1 border-b border-white/10">
-                  Switch User / Employee Role
+              <button
+                onClick={openAuthModal}
+                className="flex items-center gap-2 bg-[#1C2541] border border-amber-500/40 hover:border-amber-400 text-white px-2.5 sm:px-3 py-1.5 rounded-xl text-xs cursor-pointer transition-all shadow-md group-hover:bg-[#253259]"
+              >
+                {currentUser?.avatarUrl ? (
+                  <img
+                    src={currentUser.avatarUrl}
+                    alt={currentUser.displayName}
+                    className="w-5 h-5 rounded-full border border-amber-400 object-cover shrink-0"
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-amber-400 shrink-0" />
+                )}
+                <div className="text-left hidden sm:block">
+                  <div className="text-[11px] font-bold font-mono text-amber-300 leading-none truncate max-w-[120px]">
+                    {currentUser?.displayName || 'Sign In'}
+                  </div>
+                  <div className="text-[9px] font-mono text-slate-400 leading-tight truncate max-w-[120px]">
+                    {currentUser?.title?.split('&')[0] || (currentUserRole ? currentUserRole.toUpperCase() : 'Guest')}
+                  </div>
                 </div>
-                {rolesList.map((r) => (
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              </button>
+
+              <div className="absolute right-0 top-full mt-1 w-72 bg-[#0B132B] border border-amber-500/40 rounded-2xl shadow-2xl p-3 hidden group-hover:block z-50 font-mono text-xs text-white">
+                <div className="flex items-center justify-between pb-2 border-b border-white/10 text-[10px] uppercase text-slate-400">
+                  <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Firebase Authenticated
+                  </span>
+                  <span className="text-amber-300 font-bold">{currentUser?.role.toUpperCase()}</span>
+                </div>
+
+                <div className="py-2.5 px-1 space-y-1">
+                  <div className="font-bold text-sm text-white">{currentUser?.displayName}</div>
+                  <div className="text-[11px] text-amber-300/90">{currentUser?.title}</div>
+                  <div className="text-[10px] text-slate-400">{currentUser?.email}</div>
+                </div>
+
+                <div className="pt-2 border-t border-white/10 space-y-1">
                   <button
-                    key={r.role}
-                    onClick={() => setCurrentUserRole(r.role)}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                      currentUserRole === r.role
-                        ? 'bg-amber-500/20 text-amber-300 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                    }`}
+                    onClick={openAuthModal}
+                    className="w-full text-left px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs transition-colors flex items-center justify-between cursor-pointer border border-amber-500/30"
                   >
-                    {r.name}
-                    {currentUserRole === r.role && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                    <span className="flex items-center gap-2">
+                      <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                      Switch Account / Demo Sign In
+                    </span>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   </button>
-                ))}
+
+                  <div className="text-[10px] uppercase font-mono text-slate-400 pt-2 pb-1 px-1">
+                    Quick Role Switcher:
+                  </div>
+                  {rolesList.map((r) => (
+                    <button
+                      key={r.role}
+                      onClick={() => {
+                        updateCurrentRole(r.role);
+                        setCurrentUserRole(r.role);
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] transition-colors flex items-center justify-between cursor-pointer ${
+                        currentUserRole === r.role || currentUser?.role === r.role
+                          ? 'bg-amber-500/20 text-amber-300 font-semibold'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <span>{r.name}</span>
+                      {(currentUserRole === r.role || currentUser?.role === r.role) && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      )}
+                    </button>
+                  ))}
+
+                  {currentUser && (
+                    <button
+                      onClick={logout}
+                      className="w-full mt-2 text-left px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs transition-colors flex items-center justify-between cursor-pointer border border-rose-500/30"
+                    >
+                      <span>Sign Out</span>
+                      <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
