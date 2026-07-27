@@ -615,6 +615,8 @@ export interface AssessmentReportData {
     coingeckoData: any;
     contractMetaData: any;
     sourceUrlsLog: { field: string; value: string; sourceUrl: string }[];
+    integrationsStatus?: { name: string; status: string; message: string; timestamp: string }[];
+    extractedWhitepaper?: { pdfUrl: string; extractedText: string; pageCount: number; sections: any[]; status: string; message: string };
   };
   step2WhitepaperFacts?: WhitepaperExtractionFact[];
   step3Discrepancies?: DiscrepancyItem[];
