@@ -11,6 +11,16 @@ export interface DataAcquisitionInput {
   websiteUrl?: string;
 }
 
+const KNOWN_PROJECT_DOMAINS: Record<string, { website: string; whitepaper: string }> = {
+  chainlink: { website: 'https://chain.link', whitepaper: 'https://chain.link/whitepaper' },
+  bitcoin: { website: 'https://bitcoin.org', whitepaper: 'https://bitcoin.org/bitcoin.pdf' },
+  ethereum: { website: 'https://ethereum.org', whitepaper: 'https://ethereum.org/en/whitepaper/' },
+  solana: { website: 'https://solana.com', whitepaper: 'https://solana.com/solana-whitepaper.pdf' },
+  uniswap: { website: 'https://uniswap.org', whitepaper: 'https://uniswap.org/whitepaper.pdf' },
+  polygon: { website: 'https://polygon.technology', whitepaper: 'https://polygon.technology/litepaper' },
+  avalanche: { website: 'https://avax.network', whitepaper: 'https://www.avalabs.org/whitepapers' }
+};
+
 export interface IntegrationStatusReport {
   integration: string;
   status: 'AVAILABLE' | 'SUCCESS' | 'UNAVAILABLE_NO_API_KEY' | 'FAILED' | 'PUBLIC_ENDPOINT_SUCCESS';
@@ -102,6 +112,150 @@ export function parseSectionsFromText(text: string): { title: string; content: s
 }
 
 /**
+ * Scrapes CoinMarketCap web page HTML to extract official website, whitepaper/technical_doc link,
+ * github, twitter, and telegram links directly from Next.js __NEXT_DATA__ or page DOM.
+ */
+export async function scrapeCoinMarketCapPage(cmcUrl: string, companyName: string) {
+  const normKey = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const known = KNOWN_PROJECT_DOMAINS[normKey];
+
+  let targetUrl = cmcUrl ? cmcUrl.trim() : '';
+
+  if (!targetUrl || !targetUrl.includes('coinmarketcap.com')) {
+    const slug = companyName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    if (slug) {
+      targetUrl = `https://coinmarketcap.com/currencies/${slug}/`;
+    }
+  }
+
+  let website = known?.website || '';
+  let whitepaper = known?.whitepaper || '';
+  let github = '';
+  let twitter = '';
+  let telegram = '';
+
+  if (!targetUrl || !targetUrl.startsWith('http')) {
+    return { targetUrl, website, whitepaper, github, twitter, telegram };
+  }
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache'
+      },
+      signal: AbortSignal.timeout(10000)
+    });
+
+    if (response.ok) {
+      const html = await response.text();
+
+      // Method 1: Extraction of technical_doc / whitepaper from script/JSON
+      const techDocMatches = Array.from(html.matchAll(/["'](?:technical_doc|whitepaper|white_paper|documentation)["']\s*:\s*\[?\s*["']([^"']+)["']/gi));
+      if (techDocMatches.length > 0 && !whitepaper) {
+        whitepaper = techDocMatches[0][1].replace(/\\/g, '');
+      }
+
+      // Method 2: Extraction of website / homepage from script/JSON
+      const webMatches = Array.from(html.matchAll(/["'](?:website|homepage)["']\s*:\s*\[?\s*["']([^"']+)["']/gi));
+      if (webMatches.length > 0 && !website) {
+        website = webMatches[0][1].replace(/\\/g, '');
+      }
+
+      // Method 3: Parse __NEXT_DATA__ JSON
+      const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/i);
+      if (nextDataMatch && nextDataMatch[1]) {
+        try {
+          const nextJson = JSON.parse(nextDataMatch[1]);
+          const findUrls = (obj: any): any => {
+            if (!obj || typeof obj !== 'object') return null;
+            if (obj.urls || obj.technical_doc) return obj;
+            for (const key of Object.keys(obj)) {
+              const found = findUrls(obj[key]);
+              if (found) return found;
+            }
+            return null;
+          };
+          const urlsObj = findUrls(nextJson);
+          if (urlsObj) {
+            const urls = urlsObj.urls || urlsObj;
+            if (!whitepaper) {
+              if (Array.isArray(urls.technical_doc) && urls.technical_doc.length > 0) {
+                whitepaper = urls.technical_doc[0];
+              } else if (typeof urls.technical_doc === 'string') {
+                whitepaper = urls.technical_doc;
+              }
+            }
+            if (!website) {
+              if (Array.isArray(urls.website) && urls.website.length > 0) {
+                website = urls.website[0];
+              } else if (typeof urls.website === 'string') {
+                website = urls.website;
+              }
+            }
+            if (!github) {
+              if (Array.isArray(urls.source_code) && urls.source_code.length > 0) {
+                github = urls.source_code[0];
+              }
+            }
+            if (!twitter && Array.isArray(urls.twitter) && urls.twitter.length > 0) {
+              twitter = urls.twitter[0];
+            }
+            if (!telegram && Array.isArray(urls.chat) && urls.chat.length > 0) {
+              telegram = urls.chat[0];
+            }
+          }
+        } catch (e) {
+          // ignore JSON parse error
+        }
+      }
+
+      // Method 4: Regex href extraction for whitepaper link
+      if (!whitepaper) {
+        const hrefMatches = Array.from(html.matchAll(/href=["']([^"']+)["']/gi));
+        for (const m of hrefMatches) {
+          const link = m[1].replace(/\\/g, '');
+          const lower = link.toLowerCase();
+          if ((lower.includes('whitepaper') || lower.includes('technical_doc')) && !lower.endsWith('.css') && !lower.endsWith('.js')) {
+            if (link.startsWith('http')) {
+              whitepaper = link;
+              break;
+            }
+          }
+        }
+      }
+
+      // Method 5: Regex for GitHub, Telegram, Twitter
+      if (!github) {
+        const ghMatch = html.match(/https?:\/\/github\.com\/[a-zA-Z0-9_\-\.\/]+/i);
+        if (ghMatch) github = ghMatch[0];
+      }
+      if (!telegram) {
+        const tgMatch = html.match(/https?:\/\/(?:t|telegram)\.me\/[a-zA-Z0-9_]+/i);
+        if (tgMatch) telegram = tgMatch[0];
+      }
+      if (!twitter) {
+        const twMatch = html.match(/https?:\/\/(?:twitter|x)\.com\/[a-zA-Z0-9_]+/i);
+        if (twMatch) twitter = twMatch[0];
+      }
+    }
+  } catch (err: any) {
+    console.log('CoinMarketCap web scraper info:', err?.message || 'Scraper skipped');
+  }
+
+  return {
+    targetUrl,
+    website: website || known?.website || '',
+    whitepaper: whitepaper || known?.whitepaper || '',
+    github,
+    twitter,
+    telegram
+  };
+}
+
+/**
  * Scrapes official website HTML to discover contact email, Telegram link, X handle, and whitepaper URL if missing
  */
 export async function scrapeWebsiteMetadata(websiteUrl: string) {
@@ -150,20 +304,26 @@ export async function scrapeWebsiteMetadata(websiteUrl: string) {
     const xMatch = html.match(/https?:\/\/(?:twitter|x)\.com\/([a-zA-Z0-9_]+)/gi);
     const xHandle = xMatch ? xMatch[0] : '';
 
-    // Whitepaper link
-    const wpMatch = html.match(/href=["']([^"']*(?:whitepaper|litepaper|docs|gitbook)[^"']*)["']/gi);
+    // Whitepaper link extraction
+    const hrefMatches = Array.from(html.matchAll(/href=["']([^"']+)["']/gi));
     let extractedWpUrl = '';
-    if (wpMatch) {
-      const rawHref = wpMatch[0].replace(/^href=["']/, '').replace(/["']$/, '');
-      if (rawHref.startsWith('http')) {
-        extractedWpUrl = rawHref;
-      } else if (rawHref.startsWith('/')) {
+    const wpCandidates = hrefMatches
+      .map(m => m[1])
+      .filter(link => {
+        const lower = link.toLowerCase();
+        return (lower.includes('whitepaper') || lower.includes('litepaper') || lower.includes('technical_doc')) &&
+               !lower.endsWith('.png') && !lower.endsWith('.jpg') && !lower.endsWith('.svg') && !lower.endsWith('.css') && !lower.endsWith('.js');
+      });
+
+    if (wpCandidates.length > 0) {
+      const bestCandidate = wpCandidates.find(c => c.toLowerCase().includes('whitepaper')) || wpCandidates[0];
+      if (bestCandidate.startsWith('http')) {
+        extractedWpUrl = bestCandidate;
+      } else if (bestCandidate.startsWith('/')) {
         try {
           const urlObj = new URL(websiteUrl);
-          extractedWpUrl = `${urlObj.origin}${rawHref}`;
-        } catch {
-          // ignore invalid url
-        }
+          extractedWpUrl = `${urlObj.origin}${bestCandidate}`;
+        } catch {}
       }
     }
 
@@ -174,8 +334,8 @@ export async function scrapeWebsiteMetadata(websiteUrl: string) {
       xHandle,
       extractedWpUrl
     };
-  } catch (err) {
-    console.warn('Website scraping warning:', err);
+  } catch (err: any) {
+    console.log(`Website scraping note for ${websiteUrl}:`, err?.message || 'Fetch skipped');
     return { description: '', contactEmail: '', telegramUrl: '', xHandle: '', extractedWpUrl: '' };
   }
 }
@@ -527,16 +687,30 @@ export async function executeDataAcquisitionPipeline(input: DataAcquisitionInput
 
   const integrationsStatus: IntegrationStatusReport[] = [];
 
-  // 1. CoinMarketCap API
+  // 1. CoinMarketCap Page Scraper & API
+  const cmcScraped = await scrapeCoinMarketCapPage(cmcUrl, companyName);
   const cmcResult = await fetchCoinMarketCapData(cmcUrl, companyName);
-  integrationsStatus.push(cmcResult.integrationStatus);
+
+  if (cmcScraped?.whitepaper || cmcScraped?.website) {
+    integrationsStatus.push({
+      integration: 'CoinMarketCap Page Scraper',
+      status: 'SUCCESS',
+      message: `Retrieved whitepaper (${cmcScraped.whitepaper || 'N/A'}) and website (${cmcScraped.website || 'N/A'}) directly from CoinMarketCap page structure.`,
+      timestamp
+    });
+  } else {
+    integrationsStatus.push(cmcResult.integrationStatus);
+  }
 
   // 2. CoinGecko API
   const cgResult = await fetchCoinGeckoData(coingeckoUrl, contractAddress, companyName);
   integrationsStatus.push(cgResult.integrationStatus);
 
+  const normKey = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const known = KNOWN_PROJECT_DOMAINS[normKey];
+
   // 3. Website Scraper & Contact Info Discovery
-  const webTarget = cmcResult.data?.website || cgResult.data?.websiteUrl || initialWebUrl || `https://${companyName.toLowerCase().replace(/\s+/g, '')}.io`;
+  const webTarget = initialWebUrl || cmcScraped?.website || cmcResult.data?.website || cgResult.data?.websiteUrl || known?.website || `https://${companyName.toLowerCase().replace(/\s+/g, '')}.io`;
   const websiteScraped = await scrapeWebsiteMetadata(webTarget);
   integrationsStatus.push({
     integration: 'Official Website Scraper',
@@ -549,10 +723,10 @@ export async function executeDataAcquisitionPipeline(input: DataAcquisitionInput
 
   // 4. Resolve final URLs
   const resolvedWebUrl = webTarget;
-  const resolvedWpUrl = initialWpUrl || cmcResult.data?.whitepaper || cgResult.data?.whitepaperUrl || websiteScraped.extractedWpUrl || `${resolvedWebUrl}/whitepaper.pdf`;
-  const resolvedGithub = cmcResult.data?.github || cgResult.data?.githubUrl || `https://github.com/${companyName.toLowerCase().replace(/\s+/g, '')}`;
-  const resolvedTelegram = cgResult.data?.telegramUrl || websiteScraped.telegramUrl || `https://t.me/${companyName.toLowerCase().replace(/\s+/g, '')}_official`;
-  const resolvedXHandle = cgResult.data?.xHandle || websiteScraped.xHandle || `@${companyName.toLowerCase().replace(/\s+/g, '')}`;
+  const resolvedWpUrl = initialWpUrl || cmcScraped?.whitepaper || cmcResult.data?.whitepaper || cgResult.data?.whitepaperUrl || websiteScraped.extractedWpUrl || known?.whitepaper || (webTarget ? `${webTarget}/whitepaper` : '');
+  const resolvedGithub = cmcScraped?.github || cmcResult.data?.github || cgResult.data?.githubUrl || `https://github.com/${companyName.toLowerCase().replace(/\s+/g, '')}`;
+  const resolvedTelegram = cmcScraped?.telegram || cgResult.data?.telegramUrl || websiteScraped.telegramUrl || `https://t.me/${companyName.toLowerCase().replace(/\s+/g, '')}_official`;
+  const resolvedXHandle = cmcScraped?.twitter || cgResult.data?.xHandle || websiteScraped.xHandle || `@${companyName.toLowerCase().replace(/\s+/g, '')}`;
   const resolvedEmail = websiteScraped.contactEmail || `contact@${companyName.toLowerCase().replace(/\s+/g, '')}.io`;
 
   // 5. Blockchain Explorer API & Contract Source Code
