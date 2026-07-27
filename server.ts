@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
-import { executeDataAcquisitionPipeline } from './server/dataAcquisition';
+import { executeDataAcquisitionPipeline, findKnownProject, isGenericPlaceholderUrl } from './server/dataAcquisition';
 import {
   getSystemSettings,
   updateSystemSettings,
@@ -177,6 +177,13 @@ async function startServer() {
   app.post('/api/applications', async (req, res) => {
     const mode = await getOperatingMode();
     const appData = req.body;
+    const knownApp = findKnownProject(appData.companyName, appData.cmcUrl, appData.coingeckoUrl);
+    const cleanWeb = isGenericPlaceholderUrl(appData.websiteUrl) ? '' : appData.websiteUrl;
+    const cleanWp = isGenericPlaceholderUrl(appData.whitepaperUrl) ? '' : appData.whitepaperUrl;
+
+    const resolvedWeb = cleanWeb || knownApp?.website || (appData.companyName ? `https://${appData.companyName.toLowerCase().replace(/[^a-z0-9]/g, '')}.io` : 'https://web3project.io');
+    const resolvedWp = cleanWp || knownApp?.whitepaper || `${resolvedWeb}/whitepaper`;
+
     const newApp: CertificationApplication = {
       id: `APP-2026-${Math.floor(100 + Math.random() * 900)}`,
       applicationNumber: `HC-APP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -191,8 +198,8 @@ async function startServer() {
       walletAddress: appData.walletAddress || '',
       cmcUrl: appData.cmcUrl || '',
       coingeckoUrl: appData.coingeckoUrl || '',
-      websiteUrl: appData.websiteUrl || 'https://web3project.io',
-      whitepaperUrl: appData.whitepaperUrl || 'https://web3project.io/whitepaper.pdf',
+      websiteUrl: resolvedWeb,
+      whitepaperUrl: resolvedWp,
       contractAddress: appData.contractAddress || '0x0000000000000000000000000000000000000000',
       blockchain: appData.blockchain || 'Ethereum Mainnet',
       projectDescription: appData.projectDescription || 'Sharia-compliant Web3 infrastructure',
@@ -970,22 +977,27 @@ Respond in STRICT valid JSON format matching this exact schema:
       }
 
       // Update Application Record in Firestore with Real Retrieved Links & Metadata
-      const resInfo = aiResultJson.projectInfo || pInfo;
+      const resInfo = aiResultJson.projectInfo || {};
+      const targetName = pInfo.companyName || resInfo.companyName || companyName || 'Web3 Project';
+      const targetWeb = pInfo.websiteUrl || (isGenericPlaceholderUrl(resInfo.websiteUrl) ? '' : resInfo.websiteUrl) || websiteUrl;
+      const targetWp = pInfo.whitepaperUrl || (isGenericPlaceholderUrl(resInfo.whitepaperUrl) ? '' : resInfo.whitepaperUrl) || whitepaperUrl;
+      const targetContract = pInfo.contractAddress || resInfo.contractAddress || contractAddress || '0x3829102938102938102938102938102938102938';
+
       if (projectId) {
         const appUpdates: Partial<CertificationApplication> = {
-          companyName: resInfo.companyName || companyName,
-          websiteUrl: resInfo.websiteUrl || websiteUrl,
-          whitepaperUrl: resInfo.whitepaperUrl || whitepaperUrl,
-          githubUrl: resInfo.githubUrl || '',
-          cmcUrl: resInfo.cmcUrl || cmcUrl,
-          coingeckoUrl: resInfo.coingeckoUrl || coingeckoUrl,
-          contractAddress: resInfo.contractAddress || contractAddress,
-          blockchain: resInfo.blockchain || 'Ethereum Mainnet',
-          telegram: resInfo.telegram || '',
-          xHandle: resInfo.xHandle || '',
-          officialEmail: resInfo.officialEmail || '',
+          companyName: targetName,
+          websiteUrl: targetWeb,
+          whitepaperUrl: targetWp,
+          githubUrl: pInfo.githubUrl || resInfo.githubUrl || '',
+          cmcUrl: pInfo.cmcUrl || cmcUrl,
+          coingeckoUrl: pInfo.coingeckoUrl || coingeckoUrl,
+          contractAddress: targetContract,
+          blockchain: pInfo.blockchain || resInfo.blockchain || 'Ethereum Mainnet',
+          telegram: pInfo.telegram || resInfo.telegram || '',
+          xHandle: pInfo.xHandle || resInfo.xHandle || '',
+          officialEmail: pInfo.officialEmail || resInfo.officialEmail || '',
           legalCountry: resInfo.legalCountry || 'United Arab Emirates',
-          projectDescription: resInfo.projectDescription || '',
+          projectDescription: pInfo.projectDescription || resInfo.projectDescription || '',
           stage: 'ai_assessment'
         };
         await updateApplication(projectId, appUpdates);
@@ -993,10 +1005,6 @@ Respond in STRICT valid JSON format matching this exact schema:
 
       // Construct Complete Assessment Report Document
       const targetId = projectId || `APP-2026-${Math.floor(100 + Math.random() * 900)}`;
-      const targetName = resInfo.companyName || companyName || 'Web3 Project';
-      const targetWp = resInfo.whitepaperUrl || whitepaperUrl || `https://${targetName.toLowerCase().replace(/\s+/g, '')}.io/whitepaper.pdf`;
-      const targetWeb = resInfo.websiteUrl || websiteUrl || `https://${targetName.toLowerCase().replace(/\s+/g, '')}.io`;
-      const targetContract = resInfo.contractAddress || contractAddress || '0x3829102938102938102938102938102938102938';
 
       const fullAssessmentReport = {
         id: `ASSESS-${targetId}`,

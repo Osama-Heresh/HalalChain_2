@@ -11,15 +11,53 @@ export interface DataAcquisitionInput {
   websiteUrl?: string;
 }
 
-const KNOWN_PROJECT_DOMAINS: Record<string, { website: string; whitepaper: string }> = {
+export const KNOWN_PROJECT_DOMAINS: Record<string, { website: string; whitepaper: string }> = {
   chainlink: { website: 'https://chain.link', whitepaper: 'https://chain.link/whitepaper' },
   bitcoin: { website: 'https://bitcoin.org', whitepaper: 'https://bitcoin.org/bitcoin.pdf' },
   ethereum: { website: 'https://ethereum.org', whitepaper: 'https://ethereum.org/en/whitepaper/' },
   solana: { website: 'https://solana.com', whitepaper: 'https://solana.com/solana-whitepaper.pdf' },
   uniswap: { website: 'https://uniswap.org', whitepaper: 'https://uniswap.org/whitepaper.pdf' },
   polygon: { website: 'https://polygon.technology', whitepaper: 'https://polygon.technology/litepaper' },
-  avalanche: { website: 'https://avax.network', whitepaper: 'https://www.avalabs.org/whitepapers' }
+  avalanche: { website: 'https://avax.network', whitepaper: 'https://www.avalabs.org/whitepapers' },
+  cardano: { website: 'https://cardano.org', whitepaper: 'https://cardano.org/research/' },
+  polkadot: { website: 'https://polkadot.network', whitepaper: 'https://polkadot.network/PolkaDotPaper.pdf' },
+  cosmos: { website: 'https://cosmos.network', whitepaper: 'https://cosmos.network/resources/whitepaper' },
+  near: { website: 'https://near.org', whitepaper: 'https://near.org/papers/the-official-near-white-paper' },
+  sui: { website: 'https://sui.io', whitepaper: 'https://sui.io/whitepaper' },
+  aptos: { website: 'https://aptosfoundation.org', whitepaper: 'https://aptosfoundation.org/whitepaper' },
+  arbitrum: { website: 'https://arbitrum.io', whitepaper: 'https://developer.arbitrum.io/' },
+  optimism: { website: 'https://optimism.io', whitepaper: 'https://optimism.io/' },
+  aave: { website: 'https://aave.com', whitepaper: 'https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper.pdf' },
+  maker: { website: 'https://makerdao.com', whitepaper: 'https://makerdao.com/en/whitepaper' },
+  lido: { website: 'https://lido.fi', whitepaper: 'https://lido.fi/static/Lido:Ethereum-Liquid-Staking.pdf' }
 };
+
+export function findKnownProject(companyName?: string, cmcUrl?: string, coingeckoUrl?: string) {
+  const nameLower = (companyName || '').toLowerCase();
+  const cmcLower = (cmcUrl || '').toLowerCase();
+  const cgLower = (coingeckoUrl || '').toLowerCase();
+
+  for (const [key, val] of Object.entries(KNOWN_PROJECT_DOMAINS)) {
+    if ((nameLower && nameLower.includes(key)) || (cmcLower && cmcLower.includes(key)) || (cgLower && cgLower.includes(key))) {
+      return val;
+    }
+  }
+  return undefined;
+}
+
+export function isGenericPlaceholderUrl(url?: string): boolean {
+  if (!url) return true;
+  const lower = url.trim().toLowerCase();
+  return (
+    lower.includes('web3project.io') ||
+    lower.includes('chainlink.io') ||
+    lower.endsWith('.io/whitepaper.pdf') ||
+    lower.endsWith('.io/whitepaper') ||
+    lower === '#' ||
+    lower === 'about:blank' ||
+    lower === ''
+  );
+}
 
 export interface IntegrationStatusReport {
   integration: string;
@@ -116,8 +154,7 @@ export function parseSectionsFromText(text: string): { title: string; content: s
  * github, twitter, and telegram links directly from Next.js __NEXT_DATA__ or page DOM.
  */
 export async function scrapeCoinMarketCapPage(cmcUrl: string, companyName: string) {
-  const normKey = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const known = KNOWN_PROJECT_DOMAINS[normKey];
+  const known = findKnownProject(companyName, cmcUrl);
 
   let targetUrl = cmcUrl ? cmcUrl.trim() : '';
 
@@ -682,8 +719,14 @@ export async function executeDataAcquisitionPipeline(input: DataAcquisitionInput
   const cmcUrl = input.cmcUrl || '';
   const coingeckoUrl = input.coingeckoUrl || '';
   const contractAddress = input.contractAddress || '';
-  const initialWpUrl = input.whitepaperUrl || '';
-  const initialWebUrl = input.websiteUrl || '';
+
+  const rawWpInput = isGenericPlaceholderUrl(input.whitepaperUrl) ? '' : (input.whitepaperUrl || '').trim();
+  const rawWebInput = isGenericPlaceholderUrl(input.websiteUrl) ? '' : (input.websiteUrl || '').trim();
+
+  const known = findKnownProject(companyName, cmcUrl, coingeckoUrl);
+
+  const initialWpUrl = rawWpInput || known?.whitepaper || '';
+  const initialWebUrl = rawWebInput || known?.website || '';
 
   const integrationsStatus: IntegrationStatusReport[] = [];
 
@@ -706,11 +749,8 @@ export async function executeDataAcquisitionPipeline(input: DataAcquisitionInput
   const cgResult = await fetchCoinGeckoData(coingeckoUrl, contractAddress, companyName);
   integrationsStatus.push(cgResult.integrationStatus);
 
-  const normKey = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const known = KNOWN_PROJECT_DOMAINS[normKey];
-
   // 3. Website Scraper & Contact Info Discovery
-  const webTarget = initialWebUrl || cmcScraped?.website || cmcResult.data?.website || cgResult.data?.websiteUrl || known?.website || `https://${companyName.toLowerCase().replace(/\s+/g, '')}.io`;
+  const webTarget = initialWebUrl || cmcScraped?.website || cmcResult.data?.website || cgResult.data?.websiteUrl || `https://${companyName.toLowerCase().replace(/\s+/g, '')}.io`;
   const websiteScraped = await scrapeWebsiteMetadata(webTarget);
   integrationsStatus.push({
     integration: 'Official Website Scraper',
@@ -723,7 +763,7 @@ export async function executeDataAcquisitionPipeline(input: DataAcquisitionInput
 
   // 4. Resolve final URLs
   const resolvedWebUrl = webTarget;
-  const resolvedWpUrl = initialWpUrl || cmcScraped?.whitepaper || cmcResult.data?.whitepaper || cgResult.data?.whitepaperUrl || websiteScraped.extractedWpUrl || known?.whitepaper || (webTarget ? `${webTarget}/whitepaper` : '');
+  const resolvedWpUrl = initialWpUrl || cmcScraped?.whitepaper || cmcResult.data?.whitepaper || cgResult.data?.whitepaperUrl || websiteScraped.extractedWpUrl || (webTarget ? `${webTarget}/whitepaper` : '');
   const resolvedGithub = cmcScraped?.github || cmcResult.data?.github || cgResult.data?.githubUrl || `https://github.com/${companyName.toLowerCase().replace(/\s+/g, '')}`;
   const resolvedTelegram = cmcScraped?.telegram || cgResult.data?.telegramUrl || websiteScraped.telegramUrl || `https://t.me/${companyName.toLowerCase().replace(/\s+/g, '')}_official`;
   const resolvedXHandle = cmcScraped?.twitter || cgResult.data?.xHandle || websiteScraped.xHandle || `@${companyName.toLowerCase().replace(/\s+/g, '')}`;
