@@ -801,6 +801,7 @@ Respond in STRICT valid JSON format matching this exact schema:
 
       if (process.env.GEMINI_API_KEY) {
         try {
+          // Attempt 1: Call with Search Grounding
           const response = await ai.models.generateContent({
             model: selectedModel,
             contents: pipelinePrompt,
@@ -809,14 +810,31 @@ Respond in STRICT valid JSON format matching this exact schema:
             }
           });
           const text = response.text || '{}';
-          // Clean JSON formatting if wrapped in code blocks
           const cleanedText = text.replace(/^```json/m, '').replace(/^```/m, '').trim();
           const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
           aiResultJson = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(cleanedText);
           promptTokens = response.usageMetadata?.promptTokenCount || 1500;
           completionTokens = response.usageMetadata?.candidatesTokenCount || 850;
-        } catch (genAiErr) {
-          console.warn('Gemini Search Grounding execution fallback:', genAiErr);
+        } catch (firstErr: any) {
+          // Attempt 2: Fallback call without Search Grounding (in case Google Search tool hits quota/429)
+          try {
+            const response = await ai.models.generateContent({
+              model: selectedModel,
+              contents: pipelinePrompt,
+              config: {
+                responseMimeType: 'application/json'
+              }
+            });
+            const text = response.text || '{}';
+            const cleanedText = text.replace(/^```json/m, '').replace(/^```/m, '').trim();
+            const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+            aiResultJson = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(cleanedText);
+            promptTokens = response.usageMetadata?.promptTokenCount || 1500;
+            completionTokens = response.usageMetadata?.candidatesTokenCount || 850;
+          } catch (retryErr: any) {
+            const errMsg = retryErr?.message || firstErr?.message || 'Gemini API limit reached';
+            console.warn(`[HALALCHAIN Assessment Engine] Gemini API call deferred to dynamic generator (${errMsg.substring(0, 100)}...)`);
+          }
         }
       }
 
