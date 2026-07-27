@@ -648,3 +648,45 @@ export async function getQuestionsLibrary(mode?: SystemOperatingMode): Promise<Q
   const currentMode = mode || (await getOperatingMode());
   return getCollectionDocs<QuestionLibraryItem>('questionsLibrary', currentMode);
 }
+
+// ==================== ASSESSMENT REPORTS ====================
+
+export async function getAssessmentReport(
+  projectId: string,
+  mode?: SystemOperatingMode
+): Promise<any | null> {
+  try {
+    const docRef = doc(db, 'assessments', projectId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data();
+    }
+  } catch (err) {
+    console.warn('Error reading assessment from Firestore:', err);
+  }
+  return null;
+}
+
+export async function saveAssessmentReport(
+  assessmentData: any,
+  mode?: SystemOperatingMode
+): Promise<any> {
+  const currentMode = mode || (await getOperatingMode());
+  const isDemoRecord = currentMode === 'demo';
+
+  const docData = {
+    ...assessmentData,
+    isDemo: isDemoRecord,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    const docId = assessmentData.projectId || assessmentData.id;
+    if (docId) {
+      await setDoc(doc(db, 'assessments', docId), docData, { merge: true });
+    }
+  } catch (err) {
+    console.error('Error saving assessment to Firestore:', err);
+  }
+  return docData;
+}

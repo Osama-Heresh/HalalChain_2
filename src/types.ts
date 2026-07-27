@@ -159,6 +159,15 @@ export interface CertificationApplication {
   totalFee: number;
   depositAmount: number;
   remainingAmount: number;
+  priority?: 'Low' | 'Medium' | 'High' | 'Urgent';
+  notes?: string;
+  assignedReviewers?: {
+    tech_auditor?: string;
+    scholar?: string;
+    business_analyst?: string;
+    qa?: string;
+    pm?: string;
+  };
 }
 
 export interface AiExtractionResult {

@@ -55,18 +55,26 @@ import {
 interface HalalChainAssessmentEngineProps {
   applications: CertificationApplication[];
   currentUserRole: UserRole;
+  initialProjectId?: string;
   onRefreshData?: () => void;
 }
 
 export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProps> = ({
   applications,
   currentUserRole,
+  initialProjectId,
   onRefreshData
 }) => {
   const { lang, t } = useLanguage();
   const [selectedProjectId, setSelectedProjectId] = useState<string>(
-    applications[0]?.id || 'APP-2026-801'
+    initialProjectId || applications[0]?.id || 'APP-2026-801'
   );
+
+  useEffect(() => {
+    if (initialProjectId) {
+      setSelectedProjectId(initialProjectId);
+    }
+  }, [initialProjectId]);
 
   const selectedApp =
     applications.find((a) => a.id === selectedProjectId) || applications[0];
@@ -81,27 +89,45 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
 
   // Sync assessment when selected project changes
   useEffect(() => {
+    let isCancelled = false;
     if (selectedProjectId) {
-      const loaded = getLocalAssessment(selectedProjectId, selectedApp);
-      setAssessment(loaded);
+      // First try local storage for instant render
+      const loadedLocal = getLocalAssessment(selectedProjectId, selectedApp);
+      setAssessment(loadedLocal);
+
+      // Then fetch remote from server/Firestore to ensure fresh live data
+      fetch(`/api/assessment/${selectedProjectId}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((serverData) => {
+          if (!isCancelled && serverData && serverData.step2WhitepaperFacts) {
+            setAssessment(serverData);
+            saveLocalAssessment(serverData);
+          }
+        })
+        .catch((err) => {
+          console.warn('Server assessment read fallback to local:', err);
+        });
     }
+    return () => {
+      isCancelled = true;
+    };
   }, [selectedProjectId, selectedApp]);
 
   const handleRunFullPipeline = async () => {
     if (!selectedApp) return;
     setIsExecutingPipeline(true);
-    setExecutionLogMessage('Step 1/10: Initiating Project Information Collection...');
+    setExecutionLogMessage('Step 1/10: Retrieving Official Project Info from CoinMarketCap & Explorer...');
 
     try {
-      // Simulate real step updates sequentially for maximum fidelity
-      setTimeout(() => setExecutionLogMessage('Step 2/10: Analyzing Whitepaper & Extracting Fact Claims...'), 1200);
-      setTimeout(() => setExecutionLogMessage('Step 3/10: Scanning Website & Detecting Copy Discrepancies...'), 2400);
-      setTimeout(() => setExecutionLogMessage('Step 4/10: Auditing Tokenomics & Supply Lockup Schedules...'), 3600);
-      setTimeout(() => setExecutionLogMessage('Step 5/10: Inspecting Smart Contract Bytecode & Privilege Functions...'), 4800);
-      setTimeout(() => setExecutionLogMessage('Step 6/10: Scanning On-Chain Blockchain Wallet Concentration...'), 6000);
-      setTimeout(() => setExecutionLogMessage('Step 7/10: Consolidating Technical & Governance Risk Findings...'), 7200);
-      setTimeout(() => setExecutionLogMessage('Step 8/10: Mapping Findings to HalalChain Assessment Standards v2.1...'), 8400);
-      setTimeout(() => setExecutionLogMessage('Step 9/10: Generating Enterprise Executive Draft Report with DRAFT Watermark...'), 9600);
+      // Step updates
+      setTimeout(() => setExecutionLogMessage('Step 2/10: Extracting Fact Claims & Whitepaper Quotes...'), 1200);
+      setTimeout(() => setExecutionLogMessage('Step 3/10: Cross-Checking Website Marketing vs Whitepaper...'), 2400);
+      setTimeout(() => setExecutionLogMessage('Step 4/10: Auditing Tokenomics, Lockup & Yield Mechanics...'), 3600);
+      setTimeout(() => setExecutionLogMessage('Step 5/10: Scanning Smart Contract Bytecode & Multi-Sig Owners...'), 4800);
+      setTimeout(() => setExecutionLogMessage('Step 6/10: Verifying On-Chain Wallet Concentration & Age...'), 6000);
+      setTimeout(() => setExecutionLogMessage('Step 7/10: Consolidating Technical & Sharia Risk Findings...'), 7200);
+      setTimeout(() => setExecutionLogMessage('Step 8/10: Mapping Evidence to AAOIFI & HalalChain v2.1 Standards...'), 8400);
+      setTimeout(() => setExecutionLogMessage('Step 9/10: Creating Enterprise Draft Report with DRAFT Watermark...'), 9600);
 
       const res = await fetch('/api/assessment/execute-pipeline', {
         method: 'POST',
@@ -118,23 +144,43 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
       });
 
       const data = await res.json();
-      if (res.ok && data.extracted) {
-        const ext = data.extracted;
-        const updated: AssessmentReportData = {
-          ...assessment,
-          status: 'Draft Report Ready',
-          currentStep: 9,
-          draftWatermark: true,
-          step2WhitepaperFacts: ext.extractedFacts || assessment.step2WhitepaperFacts,
-          step3Discrepancies: ext.discrepancies || assessment.step3Discrepancies,
-          step4Tokenomics: ext.tokenomics || assessment.step4Tokenomics,
-          step5SmartContract: ext.smartContractScan || assessment.step5SmartContract,
-          step7Risks: ext.riskFindings || assessment.step7Risks,
-          step8StandardsMapping: ext.standardsMapping || assessment.step8StandardsMapping
-        };
-        setAssessment(updated);
-        saveLocalAssessment(updated);
-        setActiveStep(9);
+      if (res.ok) {
+        if (data.assessment) {
+          setAssessment(data.assessment);
+          saveLocalAssessment(data.assessment);
+          setActiveStep(9);
+        } else if (data.extracted) {
+          const ext = data.extracted;
+          const pInfo = ext.projectInfo || {};
+          const updated: AssessmentReportData = {
+            ...assessment,
+            status: 'Draft Report Ready',
+            currentStep: 9,
+            draftWatermark: true,
+            step1InfoCollection: {
+              ...assessment.step1InfoCollection,
+              sourceUrlsLog: [
+                { field: 'Official Website', value: pInfo.websiteUrl || selectedApp.websiteUrl, sourceUrl: pInfo.websiteUrl || selectedApp.websiteUrl },
+                { field: 'Whitepaper / Documentation', value: pInfo.whitepaperUrl || selectedApp.whitepaperUrl, sourceUrl: pInfo.whitepaperUrl || selectedApp.whitepaperUrl },
+                { field: 'GitHub Repository', value: pInfo.githubUrl || 'N/A', sourceUrl: pInfo.githubUrl || 'N/A' },
+                { field: 'Block Explorer Contract', value: pInfo.explorerUrl || `https://etherscan.io/address/${selectedApp.contractAddress}`, sourceUrl: pInfo.explorerUrl || `https://etherscan.io/address/${selectedApp.contractAddress}` },
+                { field: 'CoinMarketCap Link', value: pInfo.cmcUrl || selectedApp.cmcUrl || 'N/A', sourceUrl: pInfo.cmcUrl || selectedApp.cmcUrl || 'N/A' },
+                { field: 'Telegram Group', value: pInfo.telegram || 'N/A', sourceUrl: pInfo.telegram || 'N/A' },
+                { field: 'Twitter / X Handle', value: pInfo.xHandle || 'N/A', sourceUrl: pInfo.xHandle || 'N/A' },
+                { field: 'Contact Email', value: pInfo.officialEmail || 'N/A', sourceUrl: `mailto:${pInfo.officialEmail}` }
+              ]
+            },
+            step2WhitepaperFacts: ext.extractedFacts || assessment.step2WhitepaperFacts,
+            step3Discrepancies: ext.discrepancies || assessment.step3Discrepancies,
+            step4Tokenomics: ext.tokenomics || assessment.step4Tokenomics,
+            step5SmartContract: ext.smartContractScan || assessment.step5SmartContract,
+            step7Risks: ext.riskFindings || assessment.step7Risks,
+            step8StandardsMapping: ext.standardsMapping || assessment.step8StandardsMapping
+          };
+          setAssessment(updated);
+          saveLocalAssessment(updated);
+          setActiveStep(9);
+        }
       }
     } catch (err) {
       console.error('Pipeline execution failed:', err);

@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { IslamicPatternBg } from '../IslamicPatternBg';
 import { PMProjectHubView } from './PMProjectHubView';
+import { ProjectsManagementView } from './ProjectsManagementView';
 import { TaskDetailModal } from './TaskDetailModal';
 import { EmployeeWalletView } from './EmployeeWalletView';
 import { HalalChainAssessmentEngine } from '../assessment/HalalChainAssessmentEngine';
@@ -354,7 +355,8 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
               activeOpsTab === 'pm' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <span>{lang === 'ar' ? 'مركز إدارة المشاريع' : 'PM Project Hub'}</span>
+            <Briefcase className="w-3.5 h-3.5 text-amber-400" />
+            <span>{lang === 'ar' ? 'المشاريع' : 'Projects'}</span>
             <span className="bg-slate-200 text-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
               {applications.length}
             </span>
@@ -611,14 +613,13 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
         </div>
       )}
 
-      {/* Tab 2: PM Hub */}
+      {/* Tab 2: Projects Module */}
       {activeOpsTab === 'pm' && (
-        <PMProjectHubView
+        <ProjectsManagementView
           applications={applications}
-          onUpdateApplicationStage={(appId, stage) => {
-            const target = applications.find((a) => a.id === appId);
-            if (target) handleAdvanceStage(stage, target);
-          }}
+          leads={leads}
+          currentUserRole={currentUserRole}
+          onRefreshData={onRefreshData}
           onOpenTaskModal={(app) => setActiveTaskForModal(app)}
         />
       )}
