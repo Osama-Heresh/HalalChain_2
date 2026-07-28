@@ -690,3 +690,74 @@ export async function saveAssessmentReport(
   }
   return docData;
 }
+
+// ==================== EVIDENCE DOSSIERS & KNOWLEDGE REPOSITORY ====================
+
+export async function getEvidenceDossier(
+  projectId: string,
+  mode?: SystemOperatingMode
+): Promise<any | null> {
+  try {
+    const docRef = doc(db, 'evidenceDossiers', projectId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data();
+    }
+  } catch (err) {
+    console.warn('Error reading evidence dossier from Firestore:', err);
+  }
+  return null;
+}
+
+export async function saveEvidenceDossier(
+  dossierData: any,
+  mode?: SystemOperatingMode
+): Promise<any> {
+  const currentMode = mode || (await getOperatingMode());
+  const isDemoRecord = currentMode === 'demo';
+
+  const docData = {
+    ...dossierData,
+    isDemo: isDemoRecord,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    const docId = dossierData.projectId || dossierData.id;
+    if (docId) {
+      await setDoc(doc(db, 'evidenceDossiers', docId), docData, { merge: true });
+    }
+  } catch (err) {
+    console.error('Error saving evidence dossier to Firestore:', err);
+  }
+  return docData;
+}
+
+export async function getKnowledgeRepository(
+  mode?: SystemOperatingMode
+): Promise<any[]> {
+  const currentMode = mode || (await getOperatingMode());
+  return getCollectionDocs<any>('knowledgeRepository', currentMode);
+}
+
+export async function saveKnowledgeFinding(
+  finding: any,
+  mode?: SystemOperatingMode
+): Promise<any> {
+  const currentMode = mode || (await getOperatingMode());
+  const isDemoRecord = currentMode === 'demo';
+
+  const docData = {
+    ...finding,
+    isDemo: isDemoRecord,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    await setDoc(doc(db, 'knowledgeRepository', finding.id), docData, { merge: true });
+  } catch (err) {
+    console.error('Error saving knowledge finding to Firestore:', err);
+  }
+  return docData;
+}
+

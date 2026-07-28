@@ -3,6 +3,7 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import { executeDataAcquisitionPipeline, findKnownProject, isGenericPlaceholderUrl } from './server/dataAcquisition';
+import { runEvidenceExtractionEngine } from './server/aiExtractionEngine';
 import {
   getSystemSettings,
   updateSystemSettings,
@@ -35,7 +36,11 @@ import {
   getQuestionsLibrary,
   seedDemoDataToFirestore,
   getAssessmentReport,
-  saveAssessmentReport
+  saveAssessmentReport,
+  getEvidenceDossier,
+  saveEvidenceDossier,
+  getKnowledgeRepository,
+  saveKnowledgeFinding
 } from './src/lib/firebaseService.js';
 import {
   PublicCertifiedProject,
@@ -1114,6 +1119,106 @@ Respond in STRICT valid JSON format matching this exact schema:
       console.error('HALALCHAIN Assessment Pipeline Error:', err);
       res.status(500).json({ error: err.message || 'Pipeline execution failed' });
     }
+  });
+
+  // ==================== EVIDENCE-BASED AI EXTRACTION ENGINE API ====================
+
+  app.post('/api/ai-extraction/extract', async (req, res) => {
+    try {
+      const mode = await getOperatingMode();
+      const settings = await getSystemSettings();
+      const selectedModel = settings.defaultModel || 'gemini-3.6-flash';
+
+      const input = req.body;
+      const dossier = await runEvidenceExtractionEngine(input, selectedModel);
+
+      // Save Evidence Dossier to Firestore
+      await saveEvidenceDossier(dossier, mode);
+
+      // Save extracted findings into Knowledge Repository as approved/extracted records
+      if (dossier.evidenceRegister && dossier.evidenceRegister.length > 0) {
+        for (const ev of dossier.evidenceRegister) {
+          const knowledgeFinding = {
+            id: `KF-${ev.evidenceId}-${dossier.projectId}`,
+            projectId: dossier.projectId,
+            projectName: dossier.executiveProfile.projectName,
+            category: dossier.executiveProfile.category,
+            findingTopic: ev.sectionName,
+            extractedStatement: ev.supportingQuote,
+            supportingQuote: ev.supportingQuote,
+            sourceDocument: ev.sourceDocument,
+            pageNumber: ev.pageNumber,
+            sectionName: ev.sectionName,
+            confidenceScore: ev.confidenceScore,
+            approvalStatus: 'Approved',
+            approvedBy: 'HALALCHAIN Automated AI Extraction Engine',
+            approvedAt: new Date().toISOString(),
+            tags: [dossier.executiveProfile.category, ev.sourceDocument, 'AI Extracted']
+          };
+          await saveKnowledgeFinding(knowledgeFinding, mode);
+        }
+      }
+
+      await addAuditLog({
+        id: `AUDIT-${Date.now().toString().slice(-4)}`,
+        timestamp: new Date().toISOString(),
+        userName: 'Evidence-Based AI Extraction Engine',
+        userRole: 'admin',
+        projectId: dossier.projectId,
+        action: 'Evidence Dossier Generated & Knowledge Repository Updated',
+        newValue: `Dossier compiled with ${dossier.qualityControl.evidenceCount} evidence items and ${dossier.qualityControl.reviewerQuestionsCount} reviewer questions`,
+        digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+        ipAddress: '127.0.0.1'
+      }, mode);
+
+      res.json({ success: true, dossier });
+    } catch (err: any) {
+      console.error('AI Extraction Engine Error:', err);
+      res.status(500).json({ error: err.message || 'Extraction execution failed' });
+    }
+  });
+
+  app.get('/api/ai-extraction/dossier/:projectId', async (req, res) => {
+    const { projectId } = req.params;
+    const mode = await getOperatingMode();
+    const dossier = await getEvidenceDossier(projectId, mode);
+    if (!dossier) {
+      return res.status(404).json({ error: 'Evidence dossier not found for project' });
+    }
+    res.json(dossier);
+  });
+
+  // ==================== KNOWLEDGE REPOSITORY API ====================
+
+  app.get('/api/knowledge-repository', async (req, res) => {
+    const mode = await getOperatingMode();
+    const findings = await getKnowledgeRepository(mode);
+    res.json(findings);
+  });
+
+  app.post('/api/knowledge-repository/findings', async (req, res) => {
+    const mode = await getOperatingMode();
+    const findingData = req.body;
+    const newFinding = {
+      id: findingData.id || `KF-${Date.now().toString().slice(-6)}`,
+      projectId: findingData.projectId || 'APP-GENERAL',
+      projectName: findingData.projectName || 'General Protocol',
+      category: findingData.category || 'Infrastructure',
+      findingTopic: findingData.findingTopic || 'Token Utility',
+      extractedStatement: findingData.extractedStatement || '',
+      supportingQuote: findingData.supportingQuote || '',
+      sourceDocument: findingData.sourceDocument || 'Whitepaper PDF',
+      pageNumber: findingData.pageNumber || 1,
+      sectionName: findingData.sectionName || 'General',
+      confidenceScore: findingData.confidenceScore || 95,
+      approvalStatus: findingData.approvalStatus || 'Approved',
+      approvedBy: findingData.approvedBy || 'Sharia Review Board',
+      approvedAt: new Date().toISOString(),
+      tags: findingData.tags || ['Verified']
+    };
+
+    const saved = await saveKnowledgeFinding(newFinding, mode);
+    res.json(saved);
   });
 
   // Audit Logs API

@@ -11,8 +11,10 @@ import {
   DiscrepancyItem,
   RiskFindingItem,
   StandardsMappingItem,
-  ReviewerSignoff
+  ReviewerSignoff,
+  EvidenceDossierReport
 } from '../../types';
+import { BigFourDossierView } from './BigFourDossierView';
 import {
   ASSESSMENT_STEPS_META,
   getLocalAssessment,
@@ -90,7 +92,12 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
   const [showVersionHistory, setShowVersionHistory] = useState<boolean>(false);
   const [copyHashSuccess, setCopyHashSuccess] = useState<boolean>(false);
 
-  // Sync assessment when selected project changes
+  // Evidence-Based AI Extraction Engine States
+  const [mainViewTab, setMainViewTab] = useState<'pipeline' | 'dossier'>('dossier');
+  const [evidenceDossier, setEvidenceDossier] = useState<EvidenceDossierReport | null>(null);
+  const [isExtractingDossier, setIsExtractingDossier] = useState<boolean>(false);
+
+  // Sync assessment & evidence dossier when selected project changes
   useEffect(() => {
     let isCancelled = false;
     if (selectedProjectId) {
@@ -98,7 +105,7 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
       const loadedLocal = getLocalAssessment(selectedProjectId, selectedApp);
       setAssessment(loadedLocal);
 
-      // Then fetch remote from server/Firestore to ensure fresh live data
+      // Fetch remote assessment from server/Firestore
       fetch(`/api/assessment/${selectedProjectId}`)
         .then((res) => (res.ok ? res.json() : null))
         .then((serverData) => {
@@ -110,11 +117,54 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
         .catch((err) => {
           console.warn('Server assessment read fallback to local:', err);
         });
+
+      // Fetch remote evidence dossier from server/Firestore
+      fetch(`/api/ai-extraction/dossier/${selectedProjectId}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((dossierData) => {
+          if (!isCancelled && dossierData) {
+            setEvidenceDossier(dossierData);
+          }
+        })
+        .catch((err) => {
+          console.warn('Evidence dossier read error:', err);
+        });
     }
     return () => {
       isCancelled = true;
     };
   }, [selectedProjectId, selectedApp]);
+
+  const handleRunEvidenceExtraction = async () => {
+    if (!selectedApp) return;
+    setIsExtractingDossier(true);
+    try {
+      const res = await fetch('/api/ai-extraction/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: selectedApp.id,
+          companyName: selectedApp.companyName,
+          cmcUrl: selectedApp.cmcUrl,
+          coingeckoUrl: selectedApp.coingeckoUrl,
+          contractAddress: selectedApp.contractAddress,
+          whitepaperUrl: selectedApp.whitepaperUrl,
+          websiteUrl: selectedApp.websiteUrl
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.dossier) {
+          setEvidenceDossier(data.dossier);
+          setMainViewTab('dossier');
+        }
+      }
+    } catch (err) {
+      console.error('Error running evidence extraction:', err);
+    } finally {
+      setIsExtractingDossier(false);
+    }
+  };
 
   const handleRunFullPipeline = async () => {
     if (!selectedApp) return;
@@ -810,16 +860,56 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
         </div>
       </div>
 
-      {/* Pipeline 10-Step Visual Tracker Tabs */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-md space-y-3">
-        <div className="flex items-center justify-between px-2">
-          <h2 className="text-xs font-bold font-mono text-slate-500 uppercase tracking-wider">
-            10-Step Assessment Pipeline Steps
-          </h2>
-          <span className="text-xs font-bold font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-            Current Status: {assessment.status}
-          </span>
-        </div>
+      {/* Main View Mode Selector Tabs */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-200 dark:bg-slate-800 rounded-2xl">
+        <button
+          onClick={() => setMainViewTab('dossier')}
+          className={`flex-1 py-3 px-4 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all ${
+            mainViewTab === 'dossier'
+              ? 'bg-slate-900 text-white shadow-md'
+              : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <FileText className="w-4 h-4 text-emerald-400" />
+          <span>Evidence-Based AI Extraction Engine (Big Four Dossier)</span>
+        </button>
+
+        <button
+          onClick={() => setMainViewTab('pipeline')}
+          className={`flex-1 py-3 px-4 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all ${
+            mainViewTab === 'pipeline'
+              ? 'bg-slate-900 text-white shadow-md'
+              : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Layers className="w-4 h-4 text-amber-400" />
+          <span>Interactive 10-Step Assessment Pipeline</span>
+        </button>
+      </div>
+
+      {/* VIEW MODE 1: Big Four Dossier View */}
+      {mainViewTab === 'dossier' && (
+        <BigFourDossierView
+          application={selectedApp}
+          dossier={evidenceDossier}
+          currentUserRole={currentUserRole}
+          isExtracting={isExtractingDossier}
+          onRunExtraction={handleRunEvidenceExtraction}
+        />
+      )}
+
+      {/* VIEW MODE 2: Interactive 10-Step Pipeline */}
+      {mainViewTab === 'pipeline' && (
+        <div className="space-y-8">
+          <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-md space-y-3">
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-xs font-bold font-mono text-slate-500 uppercase tracking-wider">
+                10-Step Assessment Pipeline Steps
+              </h2>
+              <span className="text-xs font-bold font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                Current Status: {assessment.status}
+              </span>
+            </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2 font-mono text-[11px]">
           {ASSESSMENT_STEPS_META.map((step) => {
@@ -1861,6 +1951,8 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
             </div>
             {renderFullReportDocument()}
           </div>
+        </div>
+      )}
         </div>
       )}
     </div>

@@ -669,4 +669,220 @@ export interface AssessmentReportData {
   auditTrail: AuditLogEntry[];
 }
 
+// ==================== EVIDENCE-BASED AI EXTRACTION ENGINE TYPES ====================
+
+export type ProjectCategoryClassification =
+  | 'Layer 1'
+  | 'Layer 2'
+  | 'Infrastructure'
+  | 'Oracle'
+  | 'AI'
+  | 'Gaming'
+  | 'RWA'
+  | 'Stablecoin'
+  | 'DEX'
+  | 'Lending'
+  | 'Payments'
+  | 'Identity'
+  | 'DePIN'
+  | 'NFT'
+  | 'DAO'
+  | 'Other';
+
+export interface EvidenceItem {
+  evidenceId: string; // e.g. "EV-028"
+  sourceDocument: 'Whitepaper PDF' | 'Litepaper' | 'Official Website' | 'Technical Documentation' | 'GitHub Repository' | 'Verified Smart Contract' | 'Blockchain Metadata' | 'Token Metadata' | 'CoinMarketCap' | 'CoinGecko' | string;
+  pageNumber?: number | null;
+  sectionName: string;
+  paragraphNumber?: number | null;
+  supportingQuote: string;
+  confidenceScore: number; // e.g. 98%
+}
+
+export interface ExecutiveProfile {
+  projectName: string;
+  ticker: string;
+  blockchain: string;
+  category: ProjectCategoryClassification;
+  launchDate: string;
+  companyFoundation: string;
+  website: string;
+  whitepaperVersion: string;
+  documentLanguage: string;
+  numberOfPages: number;
+}
+
+export interface BusinessModelAnalysis {
+  businessPurpose: string;
+  targetMarket: string;
+  products: string[];
+  services: string[];
+  revenueModel: string;
+  customerSegments: string[];
+  economicActivities: string[];
+  categoryClassification: ProjectCategoryClassification;
+  evidence: EvidenceItem[];
+}
+
+export interface TokenDistributionBreakdown {
+  label: string;
+  percentage: number;
+}
+
+export interface TokenAnalysis {
+  purpose: string;
+  utility: string[];
+  governance: string;
+  gas: string;
+  payment: string;
+  rewards: string;
+  staking: string;
+  treasury: string;
+  accessRights: string;
+  distribution: TokenDistributionBreakdown[];
+  supplyModel: string;
+  inflation: string;
+  deflation: string;
+  burning: string;
+  minting: string;
+  vesting: string;
+  evidence: EvidenceItem[];
+}
+
+export interface GovernanceAnalysis {
+  governanceType: 'DAO' | 'Foundation' | 'Company Controlled' | 'Hybrid';
+  votingMechanisms: string;
+  treasuryControl: string;
+  multiSigSetup: string;
+  emergencyPowers: string;
+  upgradeAuthority: string;
+  evidence: EvidenceItem[];
+}
+
+export interface FinancialFeatureItem {
+  id: string;
+  featureName:
+    | 'Trading'
+    | 'Margin'
+    | 'Derivatives'
+    | 'Leverage'
+    | 'Borrowing'
+    | 'Lending'
+    | 'Interest'
+    | 'Yield'
+    | 'Farming'
+    | 'Liquidity Mining'
+    | 'Synthetic Assets'
+    | 'Perpetuals'
+    | 'Collateral'
+    | 'Stablecoins'
+    | string;
+  description: string;
+  isDetected: boolean;
+  evidence: EvidenceItem;
+}
+
+export interface TechnicalFeatureItem {
+  id: string;
+  featureName:
+    | 'Consensus'
+    | 'Validators'
+    | 'Nodes'
+    | 'Cross-chain'
+    | 'Bridge'
+    | 'Oracle'
+    | 'Zero Knowledge'
+    | 'Rollups'
+    | 'Privacy'
+    | 'Smart Contracts'
+    | string;
+  details: string;
+  evidence: EvidenceItem;
+}
+
+export interface RiskIndicator {
+  id: string;
+  flag:
+    | 'Potential Interest Mechanism'
+    | 'Potential Lending Function'
+    | 'Potential Derivatives'
+    | 'Complex Treasury'
+    | 'Centralized Governance'
+    | 'Upgradeable Contracts'
+    | 'Unlimited Mint'
+    | string;
+  description: string;
+  severity: 'Attention' | 'Moderate' | 'High';
+  evidence: EvidenceItem;
+}
+
+export interface ReviewerQuestionItem {
+  id: string;
+  question: string;
+  targetAspect: string;
+  reviewerRole: 'tech_auditor' | 'business_analyst' | 'scholar';
+  evidenceRefId?: string;
+}
+
+export interface ReviewerQuestions {
+  technicalQuestions: ReviewerQuestionItem[];
+  businessQuestions: ReviewerQuestionItem[];
+  scholarQuestions: ReviewerQuestionItem[];
+}
+
+export interface QualityControlMetrics {
+  documentsProcessedCount: number;
+  pagesReadCount: number;
+  evidenceCount: number;
+  findingsCount: number;
+  reviewerQuestionsCount: number;
+  extractionConfidence: number; // 0 - 100
+  missingInformation: string[];
+}
+
+export interface CollectedDocumentItem {
+  docType: string;
+  fileName: string;
+  status: 'COLLECTED' | 'PROCESSED' | 'MISSING' | 'FALLBACK';
+  sourceUrl: string;
+  pageCount?: number;
+}
+
+export interface EvidenceDossierReport {
+  id: string;
+  projectId: string;
+  extractedAt: string;
+  executiveProfile: ExecutiveProfile;
+  businessModel: BusinessModelAnalysis;
+  tokenAnalysis: TokenAnalysis;
+  governanceAnalysis: GovernanceAnalysis;
+  financialFeatures: FinancialFeatureItem[];
+  technicalFeatures: TechnicalFeatureItem[];
+  riskIndicators: RiskIndicator[];
+  reviewerQuestions: ReviewerQuestions;
+  qualityControl: QualityControlMetrics;
+  evidenceRegister: EvidenceItem[];
+  documentsCollected: CollectedDocumentItem[];
+  assessmentCompletenessPct: number;
+}
+
+export interface KnowledgeRepositoryFinding {
+  id: string;
+  projectId: string;
+  projectName: string;
+  category: string;
+  findingTopic: string;
+  extractedStatement: string;
+  supportingQuote: string;
+  sourceDocument: string;
+  pageNumber?: number | null;
+  sectionName?: string;
+  confidenceScore: number;
+  approvalStatus: 'Approved' | 'Pending Review';
+  approvedBy: string;
+  approvedAt: string;
+  tags: string[];
+}
+
+
 
