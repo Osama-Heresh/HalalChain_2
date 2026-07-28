@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { FileText, Download, FileSpreadsheet, Sparkles, BarChart3, Printer, CheckCircle2 } from 'lucide-react';
-import { EnterpriseReportExport } from '../../types';
+import { FileText, Download, FileSpreadsheet, Sparkles, BarChart3, Printer, CheckCircle2, Loader2 } from 'lucide-react';
+import { exportReport } from '../../lib/reportEngine';
+import { buildExecutiveReportOptions } from '../../lib/reportGenerators';
 
 export const EnterpriseReportsView: React.FC = () => {
   const [selectedReportType, setSelectedReportType] = useState<string>('marketing_performance');
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const REPORT_TYPES = [
     { id: 'marketing_performance', title: 'Marketing Performance & Prospect Yield' },
@@ -17,9 +19,19 @@ export const EnterpriseReportsView: React.FC = () => {
     { id: 'renewal_forecast', title: 'Annual Certificate Renewal Forecast' }
   ];
 
-  const handleExport = (format: 'PDF' | 'Excel' | 'CSV') => {
-    setExportSuccess(`Report successfully generated and downloaded as ${format}!`);
-    setTimeout(() => setExportSuccess(null), 4000);
+  const handleExport = async (format: 'PDF' | 'Excel' | 'CSV') => {
+    setIsExporting(true);
+    try {
+      const opts = buildExecutiveReportOptions(selectedReportType);
+      opts.format = format;
+      await exportReport(opts);
+      setExportSuccess(`Report successfully generated and exported as ${format}!`);
+      setTimeout(() => setExportSuccess(null), 4000);
+    } catch (err: any) {
+      console.error('Export error:', err);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (

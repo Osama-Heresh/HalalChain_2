@@ -18,9 +18,14 @@ import {
   MessageSquare,
   ArrowRight,
   TrendingUp,
-  Building2
+  Building2,
+  Printer,
+  FileSpreadsheet,
+  Download
 } from 'lucide-react';
 import { MarketingProspectRecord, EmailHistoryEntry, SmartMarketingQueueItem, UserRole } from '../../types';
+import { exportReport } from '../../lib/reportEngine';
+import { buildMarketingReportOptions } from '../../lib/reportGenerators';
 
 interface SmartMarketingCRMViewProps {
   currentUserRole?: UserRole;
@@ -163,6 +168,20 @@ export const SmartMarketingCRMView: React.FC<SmartMarketingCRMViewProps> = ({
       p.country.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleExportReport = async (format: 'PDF' | 'Excel' | 'CSV') => {
+    if (!prospects || prospects.length === 0) {
+      alert('No report data available to export.');
+      return;
+    }
+    try {
+      const opts = buildMarketingReportOptions(prospects);
+      opts.format = format;
+      await exportReport(opts);
+    } catch (err) {
+      console.error('Marketing report export error:', err);
+    }
+  };
+
   return (
     <div className="space-y-6">
       
@@ -181,32 +200,59 @@ export const SmartMarketingCRMView: React.FC<SmartMarketingCRMViewProps> = ({
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-800/90 p-1.5 rounded-2xl border border-slate-700 text-xs font-bold">
-          <button
-            onClick={() => setActiveTab('queue')}
-            className={`px-3.5 py-2 rounded-xl transition-all ${
-              activeTab === 'queue' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Smart Queue
-          </button>
-          <button
-            onClick={() => setActiveTab('prospects')}
-            className={`px-3.5 py-2 rounded-xl transition-all ${
-              activeTab === 'prospects' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Prospect Database
-          </button>
-          <button
-            onClick={() => setActiveTab('email_history')}
-            className={`px-3.5 py-2 rounded-xl transition-all ${
-              activeTab === 'email_history' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Outreach Log ({emailHistory.length})
-          </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Export Actions */}
+          <div className="flex items-center gap-1.5 bg-slate-800/90 p-1.5 rounded-2xl border border-slate-700 text-xs font-bold">
+            <button
+              onClick={() => handleExportReport('PDF')}
+              className="px-2.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-1 transition-all"
+              title="Export PDF"
+            >
+              <Printer className="w-3.5 h-3.5" /> PDF
+            </button>
+            <button
+              onClick={() => handleExportReport('Excel')}
+              className="px-2.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white flex items-center gap-1 transition-all"
+              title="Export Excel"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+            </button>
+            <button
+              onClick={() => handleExportReport('CSV')}
+              className="px-2.5 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white flex items-center gap-1 transition-all"
+              title="Export CSV"
+            >
+              <Download className="w-3.5 h-3.5" /> CSV
+            </button>
+          </div>
+
+          {/* Tab Switcher */}
+          <div className="flex items-center gap-1.5 bg-slate-800/90 p-1.5 rounded-2xl border border-slate-700 text-xs font-bold">
+            <button
+              onClick={() => setActiveTab('queue')}
+              className={`px-3.5 py-2 rounded-xl transition-all ${
+                activeTab === 'queue' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Smart Queue
+            </button>
+            <button
+              onClick={() => setActiveTab('prospects')}
+              className={`px-3.5 py-2 rounded-xl transition-all ${
+                activeTab === 'prospects' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Prospect Database
+            </button>
+            <button
+              onClick={() => setActiveTab('email_history')}
+              className={`px-3.5 py-2 rounded-xl transition-all ${
+                activeTab === 'email_history' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Outreach Log ({emailHistory.length})
+            </button>
+          </div>
         </div>
       </div>
 

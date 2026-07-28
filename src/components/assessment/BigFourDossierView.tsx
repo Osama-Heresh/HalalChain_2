@@ -7,6 +7,8 @@ import {
 } from '../../types';
 import { EvidenceInspectorModal } from './EvidenceInspectorModal';
 import { KnowledgeRepositoryModal } from './KnowledgeRepositoryModal';
+import { exportReport } from '../../lib/reportEngine';
+import { buildProjectAssessmentReportOptions } from '../../lib/reportGenerators';
 import {
   Sparkles,
   FileText,
@@ -28,7 +30,8 @@ import {
   BookOpen,
   ArrowRight,
   Info,
-  Loader2
+  Loader2,
+  FileSpreadsheet
 } from 'lucide-react';
 
 interface BigFourDossierViewProps {
@@ -49,9 +52,19 @@ export const BigFourDossierView: React.FC<BigFourDossierViewProps> = ({
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null);
   const [isKnowledgeRepoOpen, setIsKnowledgeRepoOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'dossier' | 'evidence' | 'questions'>('dossier');
+  const [isExporting, setIsExporting] = useState<boolean>(false);
 
-  const handlePrint = () => {
-    window.print();
+  const handleExport = async (format: 'PDF' | 'Excel' | 'CSV' | 'Print') => {
+    setIsExporting(true);
+    try {
+      const opts = buildProjectAssessmentReportOptions(application, dossier);
+      opts.format = format;
+      await exportReport(opts);
+    } catch (err) {
+      console.error('Export error:', err);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -82,21 +95,37 @@ export const BigFourDossierView: React.FC<BigFourDossierViewProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
           <button
             onClick={() => setIsKnowledgeRepoOpen(true)}
-            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors"
+            className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors"
           >
             <Database className="w-3.5 h-3.5 text-emerald-400" />
             Knowledge Repository
           </button>
 
           <button
-            onClick={handlePrint}
-            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors"
+            onClick={() => handleExport('PDF')}
+            disabled={isExporting}
+            className="px-3 py-2 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-1.5 transition-colors disabled:opacity-50"
           >
-            <Printer className="w-3.5 h-3.5" />
-            Print / PDF Export
+            <Printer className="w-3.5 h-3.5" /> PDF
+          </button>
+
+          <button
+            onClick={() => handleExport('Excel')}
+            disabled={isExporting}
+            className="px-3 py-2 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white flex items-center gap-1.5 transition-colors disabled:opacity-50"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+          </button>
+
+          <button
+            onClick={() => handleExport('CSV')}
+            disabled={isExporting}
+            className="px-3 py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+          >
+            <Download className="w-3.5 h-3.5" /> CSV
           </button>
 
           <button

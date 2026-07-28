@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { useLanguage } from '../../context/LanguageContext';
+import { exportReport } from '../../lib/reportEngine';
+import { buildProjectAssessmentReportOptions } from '../../lib/reportGenerators';
 import {
   CertificationApplication,
   AssessmentReportData,
@@ -339,75 +341,15 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
     setExportingPdf(true);
 
     try {
-      const reportElement = document.getElementById('printable-assessment-report');
-      if (!reportElement) {
-        window.print();
-        setExportingPdf(false);
-        return;
+      const opts = buildProjectAssessmentReportOptions(selectedApp, evidenceDossier);
+      opts.format = 'PDF';
+      if (assessment.draftWatermark) {
+        opts.watermarkText = 'DRAFT - NOT FOR OFFICIAL RELEASE';
       }
-
-      // Scroll report into view briefly so layout calculations are exact
-      reportElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-
-      // Give images & custom fonts time to finish rendering
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const dataUrl = await toPng(reportElement, {
-        quality: 0.95,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        filter: (node) => {
-          if (
-            node instanceof HTMLElement &&
-            (node.classList.contains('export-ignore') || node.classList.contains('no-print'))
-          ) {
-            return false;
-          }
-          return true;
-        }
-      });
-
-      const img = new Image();
-      img.src = dataUrl;
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
-      const pdfPageHeight = pdf.internal.pageSize.getHeight(); // 297mm
-
-      const imgWidth = pdfWidth;
-      const imgHeight = (img.height * pdfWidth) / img.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add first page
-      pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfPageHeight;
-
-      // Add additional pages if content spans multiple pages
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfPageHeight;
-      }
-
-      const cleanName = (assessment.companyName || 'Project').replace(/[^a-zA-Z0-9]/g, '_');
-      const watermarkTag = assessment.draftWatermark ? 'DRAFT' : 'FULL_FINAL';
-      const fileName = `HalalChain_Assessment_Report_${cleanName}_${watermarkTag}_${assessment.id}.pdf`;
-
-      pdf.save(fileName);
+      await exportReport(opts);
     } catch (error) {
-      console.error('Error exporting PDF document:', error);
-      try {
-        window.print();
-      } catch (printErr) {
-        console.error('window.print fallback failed:', printErr);
-      }
+      console.error('Error generating PDF report:', error);
+      window.print();
     } finally {
       setExportingPdf(false);
     }
