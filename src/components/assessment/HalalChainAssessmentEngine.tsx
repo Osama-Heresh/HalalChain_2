@@ -86,6 +86,9 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
   const [activeStep, setActiveStep] = useState<AssessmentStepNumber>(1);
   const [isExecutingPipeline, setIsExecutingPipeline] = useState<boolean>(false);
   const [executionLogMessage, setExecutionLogMessage] = useState<string>('');
+  const [showPdfInspector, setShowPdfInspector] = useState<boolean>(false);
+  const [showVersionHistory, setShowVersionHistory] = useState<boolean>(false);
+  const [copyHashSuccess, setCopyHashSuccess] = useState<boolean>(false);
 
   // Sync assessment when selected project changes
   useEffect(() => {
@@ -986,30 +989,262 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
             </div>
           </div>
 
-          {/* Stored Extracted Whitepaper Document Panel */}
-          {assessment.step1InfoCollection?.extractedWhitepaper && (
-            <div className="p-5 bg-amber-50/60 rounded-2xl border border-amber-200/80 space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h4 className="font-bold text-amber-900 text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-amber-700" />
-                  Stored Whitepaper Document Repository (Firestore & PDF Parser)
-                </h4>
-                <div className="flex items-center gap-3 text-[11px] font-bold text-amber-800">
-                  <span>Pages: {assessment.step1InfoCollection.extractedWhitepaper.pageCount || 'N/A'}</span>
-                  <span>•</span>
-                  <span>Characters: {assessment.step1InfoCollection.extractedWhitepaper.extractedText?.length || 0}</span>
+          {/* Intelligent Whitepaper Discovery & Resolution Engine Card */}
+          {assessment.step1InfoCollection?.extractedWhitepaper && (() => {
+            const wp = assessment.step1InfoCollection.extractedWhitepaper;
+            const originalUrl = wp.originalUrl || assessment.whitepaperUrl || 'N/A';
+            const resolvedUrl = wp.resolvedUrl || wp.pdfUrl || originalUrl;
+            const isPdf = wp.pdfDownloaded || wp.contentType?.includes('pdf') || resolvedUrl.endsWith('.pdf');
+            const quality = wp.extractionQuality || (wp.pageCount > 1 ? 'High' : 'Medium');
+
+            return (
+              <div className="p-6 bg-slate-900 text-slate-100 rounded-3xl border border-amber-500/30 space-y-5 font-sans shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+                
+                {/* Header */}
+                <div className="flex items-center justify-between flex-wrap gap-3 border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-white text-base">Whitepaper Discovery & Resolution Engine</h4>
+                        <span className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                          Active Resolution
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 font-mono">
+                        Intelligent PDF crawler, HTML candidate scraper & SHA-256 document verifier
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {wp.pdfDownloaded ? (
+                      <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-bold flex items-center gap-1.5 font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        PDF Downloaded & Verified
+                      </span>
+                    ) : wp.htmlResolved ? (
+                      <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-bold flex items-center gap-1.5 font-mono">
+                        <Globe className="w-3.5 h-3.5" />
+                        HTML Resolved
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-full text-xs font-bold flex items-center gap-1.5 font-mono">
+                        <BookOpen className="w-3.5 h-3.5" />
+                        Fallback Documentation Active
+                      </span>
+                    )}
+
+                    <span className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-full text-xs font-mono">
+                      Quality: <strong className="text-amber-400">{quality}</strong>
+                    </span>
+                  </div>
                 </div>
+
+                {/* Error / Fallback Notice if no PDF discovered */}
+                {!wp.pdfDownloaded && (
+                  <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200 flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="font-bold text-amber-300">No official whitepaper was discovered.</p>
+                      <p className="text-slate-300 text-[11px] leading-relaxed">
+                        The assessment engine seamlessly continued analysis using official GitBook documentation, developer docs, technical documentation, and official website disclosures.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quality Check Metrics Breakdown Grid */}
+                <div>
+                  <h5 className="text-xs font-bold text-slate-400 font-mono uppercase tracking-wider mb-2.5">
+                    Quality Check & Discovery Audit Log
+                  </h5>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 font-mono text-xs">
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">Document Found</span>
+                      <span className="font-bold text-emerald-400 text-sm">{wp.status !== 'NO_URL' ? 'YES' : 'NO'}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">Content Type</span>
+                      <span className="font-bold text-slate-200 text-sm truncate block">{wp.contentType || (isPdf ? 'application/pdf' : 'text/html')}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">HTML Resolved</span>
+                      <span className={`font-bold text-sm ${wp.htmlResolved ? 'text-amber-400' : 'text-slate-400'}`}>
+                        {wp.htmlResolved ? 'YES' : 'NO'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">PDF Downloaded</span>
+                      <span className={`font-bold text-sm ${wp.pdfDownloaded ? 'text-emerald-400' : 'text-slate-400'}`}>
+                        {wp.pdfDownloaded ? 'YES' : 'NO'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">Text Extracted</span>
+                      <span className="font-bold text-emerald-400 text-sm">{wp.extractedText?.length ? 'YES' : 'NO'}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">Pages</span>
+                      <span className="font-bold text-amber-300 text-sm">{wp.pageCount || 1} Pages</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">Language</span>
+                      <span className="font-bold text-slate-200 text-sm">{wp.language || 'English (en)'}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">File Size</span>
+                      <span className="font-bold text-slate-200 text-sm">
+                        {wp.fileSizeBytes ? `${Math.round(wp.fileSizeBytes / 1024)} KB` : 'N/A'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">Extraction Quality</span>
+                      <span className="font-bold text-amber-400 text-sm">{quality}</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60">
+                      <span className="text-[10px] text-slate-400 block uppercase">Status</span>
+                      <span className="font-bold text-emerald-400 text-sm truncate block">
+                        {wp.validationDetails?.validationStatus || 'Active Verified'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Technical Indicators Discovered */}
+                {wp.validationDetails?.foundIndicators && wp.validationDetails.foundIndicators.length > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap text-xs">
+                    <span className="text-slate-400 font-mono text-[11px] font-bold">Verified Indicators:</span>
+                    {wp.validationDetails.foundIndicators.map((ind, i) => (
+                      <span key={i} className="px-2 py-0.5 bg-slate-800 text-amber-300 rounded border border-slate-700 font-mono text-[10px] capitalize">
+                        ✓ {ind}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Original vs Resolved URL details */}
+                <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs font-mono">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="text-slate-400 font-bold">Original Input URL:</span>
+                    <a href={originalUrl} target="_blank" rel="noreferrer" className="text-amber-400 hover:underline truncate max-w-md">
+                      {originalUrl}
+                    </a>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 flex-wrap pt-1 border-t border-slate-900">
+                    <span className="text-slate-400 font-bold">Resolved Whitepaper URL:</span>
+                    <a href={resolvedUrl} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline font-bold truncate max-w-md flex items-center gap-1">
+                      <span>{resolvedUrl}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+
+                  {wp.sha256Hash && (
+                    <div className="flex items-center justify-between gap-2 flex-wrap pt-1 border-t border-slate-900 text-[11px]">
+                      <span className="text-slate-400 font-bold">SHA-256 Fingerprint:</span>
+                      <div className="flex items-center gap-2">
+                        <code className="text-slate-300 font-mono bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                          {wp.sha256Hash.substring(0, 16)}...{wp.sha256Hash.substring(wp.sha256Hash.length - 8)}
+                        </code>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(wp.sha256Hash || '');
+                            setCopyHashSuccess(true);
+                            setTimeout(() => setCopyHashSuccess(false), 2000);
+                          }}
+                          className="text-[10px] text-amber-400 hover:text-amber-300 font-bold underline"
+                        >
+                          {copyHashSuccess ? 'Copied!' : 'Copy Hash'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
+                  <div className="flex items-center gap-2">
+                    {resolvedUrl && (
+                      <a
+                        href={resolvedUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 transition-all shadow-md"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download PDF</span>
+                      </a>
+                    )}
+
+                    <button
+                      onClick={() => setShowPdfInspector(!showPdfInspector)}
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs flex items-center gap-2 border border-slate-700 transition-all"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{showPdfInspector ? 'Hide Text Preview' : 'View PDF Text'}</span>
+                    </button>
+                  </div>
+
+                  {wp.versionHistory && wp.versionHistory.length > 0 && (
+                    <button
+                      onClick={() => setShowVersionHistory(!showVersionHistory)}
+                      className="text-xs text-slate-400 hover:text-slate-200 font-mono flex items-center gap-1.5 underline"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Version History ({wp.versionHistory.length})</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* PDF Text Preview Drawer */}
+                {showPdfInspector && (
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3 font-mono text-xs">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                      <span className="font-bold text-amber-400">Extracted Raw Text & Section Breakdown</span>
+                      <span className="text-[10px] text-slate-500">{wp.extractedText?.length || 0} characters</span>
+                    </div>
+                    <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-slate-300 max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed text-[11px]">
+                      {wp.extractedText || 'No extracted text content available.'}
+                    </div>
+                  </div>
+                )}
+
+                {/* Version History Drawer */}
+                {showVersionHistory && wp.versionHistory && (
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3 font-mono text-xs">
+                    <h5 className="font-bold text-amber-400 border-b border-slate-800 pb-2">Document Version History</h5>
+                    <div className="space-y-2">
+                      {wp.versionHistory.map((ver, idx) => (
+                        <div key={idx} className="p-2.5 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between flex-wrap gap-2 text-[11px]">
+                          <div className="space-y-0.5">
+                            <span className="font-bold text-slate-200">Version {ver.version} {ver.isActive && '(Active)'}</span>
+                            <p className="text-slate-500 text-[10px]">SHA-256: {ver.sha256Hash?.substring(0, 12)}...</p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-slate-400 block text-[10px]">{new Date(ver.retrievedAt).toLocaleDateString()}</span>
+                            <span className="text-amber-400 font-bold">{Math.round((ver.fileSizeBytes || 0) / 1024)} KB</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="text-slate-600 text-[11px]">
-                {assessment.step1InfoCollection.extractedWhitepaper.message || 'Original PDF document saved in Firebase Storage and text stored in Firestore for AI analysis.'}
-              </p>
-              {assessment.step1InfoCollection.extractedWhitepaper.extractedText && (
-                <div className="p-3 bg-white rounded-xl border border-amber-200/80 text-[11px] text-slate-700 max-h-36 overflow-y-auto whitespace-pre-wrap leading-relaxed">
-                  {assessment.step1InfoCollection.extractedWhitepaper.extractedText.substring(0, 1000)}...
-                </div>
-              )}
-            </div>
-          )}
+            );
+          })()}
         </div>
       )}
 

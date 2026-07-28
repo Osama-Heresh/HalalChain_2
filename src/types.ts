@@ -590,6 +590,44 @@ export interface ReviewerSignoff {
   digitalSignature?: string;
 }
 
+export interface WhitepaperVersionItem {
+  version: number;
+  sha256Hash: string;
+  retrievedAt: string;
+  pdfUrl: string;
+  fileSizeBytes: number;
+  isActive: boolean;
+}
+
+export interface ExtractedWhitepaperData {
+  status: 'FOUND' | 'FALLBACK_DOCS' | 'NOT_FOUND' | 'SUCCESS' | 'HTTP_ERROR' | 'NO_URL';
+  message: string;
+  originalUrl?: string;
+  resolvedUrl?: string;
+  pdfUrl: string;
+  extractedText: string;
+  pageCount: number;
+  fileSizeBytes: number;
+  sha256Hash?: string;
+  retrievalDate?: string;
+  httpStatus?: number;
+  contentType?: string;
+  htmlResolved?: boolean;
+  pdfDownloaded?: boolean;
+  textExtracted?: boolean;
+  language?: string;
+  extractionQuality?: 'High' | 'Medium' | 'Low' | 'Fallback';
+  validationDetails?: {
+    isValidWhitepaper: boolean;
+    validationScore: number;
+    validationStatus: string;
+    foundIndicators: string[];
+    rejectedReason?: string;
+  };
+  sections: { title: string; content: string }[];
+  versionHistory?: WhitepaperVersionItem[];
+}
+
 export interface AssessmentReportData {
   id: string;
   projectId: string;
@@ -616,7 +654,7 @@ export interface AssessmentReportData {
     contractMetaData: any;
     sourceUrlsLog: { field: string; value: string; sourceUrl: string }[];
     integrationsStatus?: { name: string; status: string; message: string; timestamp: string }[];
-    extractedWhitepaper?: { pdfUrl: string; extractedText: string; pageCount: number; sections: any[]; status: string; message: string };
+    extractedWhitepaper?: ExtractedWhitepaperData;
   };
   step2WhitepaperFacts?: WhitepaperExtractionFact[];
   step3Discrepancies?: DiscrepancyItem[];
