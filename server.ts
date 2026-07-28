@@ -40,7 +40,19 @@ import {
   getEvidenceDossier,
   saveEvidenceDossier,
   getKnowledgeRepository,
-  saveKnowledgeFinding
+  saveKnowledgeFinding,
+  getMasterProjects,
+  saveMasterProject,
+  checkDuplicateProject,
+  getProjectTaskLock,
+  acquireProjectTaskLock,
+  releaseProjectTaskLock,
+  getMarketingProspects,
+  saveMarketingProspect,
+  getEmailHistory,
+  addEmailEntry,
+  getSystemAlerts,
+  markAlertRead
 } from './src/lib/firebaseService.js';
 import {
   PublicCertifiedProject,
@@ -1516,6 +1528,87 @@ Respond in STRICT valid JSON format matching this exact schema:
     }, mode);
 
     res.json({ success: true, count: logIds ? logIds.length : 0 });
+  });
+
+  // ==================== ENTERPRISE OPERATIONS PLATFORM REST APIS ====================
+
+  // Master Registry API
+  app.get('/api/master-registry', async (req, res) => {
+    const projects = await getMasterProjects();
+    res.json(projects);
+  });
+
+  app.post('/api/master-registry', async (req, res) => {
+    const mode = await getOperatingMode();
+    const record = req.body;
+    const saved = await saveMasterProject(record, mode);
+    res.json(saved);
+  });
+
+  // Automatic Duplicate Detection API
+  app.post('/api/duplicate-check', async (req, res) => {
+    const checkInput = req.body;
+    const result = await checkDuplicateProject(checkInput);
+    res.json(result);
+  });
+
+  // Project Task Lock API
+  app.get('/api/project-locks/:projectId', async (req, res) => {
+    const lock = await getProjectTaskLock(req.params.projectId);
+    res.json(lock || { isLocked: false });
+  });
+
+  app.post('/api/project-locks/acquire', async (req, res) => {
+    const { projectId, taskId, userName, userRole, finishInMinutes } = req.body;
+    const lock = await acquireProjectTaskLock(projectId, taskId, userName, userRole, finishInMinutes || 60);
+    res.json(lock);
+  });
+
+  app.post('/api/project-locks/release', async (req, res) => {
+    const { projectId } = req.body;
+    await releaseProjectTaskLock(projectId);
+    res.json({ success: true, isLocked: false });
+  });
+
+  // Marketing CRM Prospects API
+  app.get('/api/marketing/prospects', async (req, res) => {
+    const prospects = await getMarketingProspects();
+    res.json(prospects);
+  });
+
+  app.post('/api/marketing/prospects', async (req, res) => {
+    const mode = await getOperatingMode();
+    const prospect = req.body;
+    const saved = await saveMarketingProspect(prospect, mode);
+    res.json(saved);
+  });
+
+  // Marketing Email History API
+  app.get('/api/marketing/emails', async (req, res) => {
+    const { prospectId } = req.query;
+    const history = await getEmailHistory(prospectId as string);
+    res.json(history);
+  });
+
+  app.post('/api/marketing/emails', async (req, res) => {
+    const mode = await getOperatingMode();
+    const entry = req.body;
+    const saved = await addEmailEntry(entry, mode);
+    res.json(saved);
+  });
+
+  // System Alerts API
+  app.get('/api/alerts', async (req, res) => {
+    const alerts = await getSystemAlerts();
+    res.json(alerts);
+  });
+
+  app.post('/api/alerts/read', async (req, res) => {
+    const { alertId } = req.body;
+    if (alertId) {
+      await markAlertRead(alertId);
+    }
+    res.json({ success: true });
   });
 
   // Vite Development / Production Middleware

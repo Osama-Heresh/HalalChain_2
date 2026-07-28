@@ -41,7 +41,15 @@ import {
   ProjectTeamAssignment,
   WorkLogEntry,
   MemberEvaluation,
-  QuestionLibraryItem
+  QuestionLibraryItem,
+  MasterProjectRecord,
+  DuplicateCheckRequest,
+  DuplicateCheckResult,
+  DuplicateMatchDetail,
+  ProjectTaskLock,
+  MarketingProspectRecord,
+  EmailHistoryEntry,
+  SystemAlertItem
 } from '../types';
 
 // Initialize Firebase App and Firestore Database
@@ -760,4 +768,318 @@ export async function saveKnowledgeFinding(
   }
   return docData;
 }
+
+// ==================== ENTERPRISE OPERATIONS FIRESTORE SERVICES ====================
+
+// 1. Master Project Registry & Lifecycle
+export async function getMasterProjects(mode?: SystemOperatingMode): Promise<MasterProjectRecord[]> {
+  const currentMode = mode || (await getOperatingMode());
+  const records = await getCollectionDocs<MasterProjectRecord>('masterRegistry', currentMode);
+
+  if (records.length === 0) {
+    // Generate default master records from applications
+    const apps = await getApplications(currentMode);
+    const demoMasterRecords: MasterProjectRecord[] = apps.map((app, idx) => {
+      const hcId = `HC-2026-${String(idx + 1).padStart(6, '0')}`;
+      return {
+        id: hcId,
+        projectId: app.id,
+        projectName: app.companyName || 'Haqq Protocol',
+        tokenSymbol: app.blockchain ? app.blockchain.substring(0, 4).toUpperCase() : 'ISLM',
+        coinMarketCapId: undefined,
+        coinGeckoId: undefined,
+        contractAddress: app.contractAddress || `0x${Math.random().toString(16).substring(2, 42)}`,
+        officialWebsite: 'https://official.io',
+        companyName: app.companyName || 'Haqq Network Inc.',
+        country: 'United Arab Emirates',
+        city: 'Dubai',
+        currentStatus: app.stage || 'Under Shariah Assessment',
+        lifecycleStage: 'Assessment',
+        certificateStatus: app.stage === 'certificate_generation' || app.stage === 'published_registry' || app.stage === 'completed' ? 'Active' : 'Pending',
+        assessmentVersion: 'v2.4 Enterprise',
+        lastAssessmentDate: new Date().toISOString().split('T')[0],
+        renewalDate: new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
+        assignedTeams: ['Technical Shariah Audit Team A', 'Islamic Finance Risk Advisory'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    });
+    return demoMasterRecords;
+  }
+  return records;
+}
+
+export async function saveMasterProject(
+  record: MasterProjectRecord,
+  mode?: SystemOperatingMode
+): Promise<MasterProjectRecord> {
+  const currentMode = mode || (await getOperatingMode());
+  const isDemoRecord = currentMode === 'demo';
+
+  const docData = {
+    ...record,
+    isDemo: isDemoRecord,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    await setDoc(doc(db, 'masterRegistry', record.id), docData, { merge: true });
+  } catch (err) {
+    console.error('Error saving master project to Firestore:', err);
+  }
+  return docData;
+}
+
+// 2. Duplicate Check
+export async function checkDuplicateProject(
+  input: DuplicateCheckRequest,
+  mode?: SystemOperatingMode
+): Promise<DuplicateCheckResult> {
+  const currentMode = mode || (await getOperatingMode());
+  const masterList = await getMasterProjects(currentMode);
+
+  const matches: DuplicateMatchDetail[] = [];
+  let existingRecord: MasterProjectRecord | undefined = undefined;
+
+  for (const master of masterList) {
+    if (input.coinMarketCapId && master.coinMarketCapId?.toLowerCase() === input.coinMarketCapId.toLowerCase()) {
+      matches.push({
+        field: 'CoinMarketCap ID',
+        value: input.coinMarketCapId,
+        matchedProjectId: master.projectId,
+        matchedProjectName: master.projectName,
+        halalChainId: master.id
+      });
+      existingRecord = master;
+    }
+    if (input.coinGeckoId && master.coinGeckoId?.toLowerCase() === input.coinGeckoId.toLowerCase()) {
+      matches.push({
+        field: 'CoinGecko ID',
+        value: input.coinGeckoId,
+        matchedProjectId: master.projectId,
+        matchedProjectName: master.projectName,
+        halalChainId: master.id
+      });
+      existingRecord = master;
+    }
+    if (input.contractAddress && master.contractAddress?.toLowerCase() === input.contractAddress.toLowerCase()) {
+      matches.push({
+        field: 'Contract Address',
+        value: input.contractAddress,
+        matchedProjectId: master.projectId,
+        matchedProjectName: master.projectName,
+        halalChainId: master.id
+      });
+      existingRecord = master;
+    }
+    if (input.website && master.officialWebsite?.toLowerCase() === input.website.toLowerCase()) {
+      matches.push({
+        field: 'Website URL',
+        value: input.website,
+        matchedProjectId: master.projectId,
+        matchedProjectName: master.projectName,
+        halalChainId: master.id
+      });
+      existingRecord = master;
+    }
+    if (input.projectName && master.projectName.toLowerCase() === input.projectName.toLowerCase()) {
+      matches.push({
+        field: 'Project Name',
+        value: input.projectName,
+        matchedProjectId: master.projectId,
+        matchedProjectName: master.projectName,
+        halalChainId: master.id
+      });
+      existingRecord = master;
+    }
+  }
+
+  return {
+    isDuplicate: matches.length > 0,
+    matches,
+    existingRecord
+  };
+}
+
+// 3. Project Task Locking
+export async function getProjectTaskLock(projectId: string): Promise<ProjectTaskLock | null> {
+  try {
+    const docRef = doc(db, 'projectTaskLocks', projectId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as ProjectTaskLock;
+    }
+  } catch (err) {
+    console.warn('Task lock read error:', err);
+  }
+  return null;
+}
+
+export async function acquireProjectTaskLock(
+  projectId: string,
+  taskId: string,
+  userName: string,
+  userRole: string,
+  finishInMinutes: number = 60
+): Promise<ProjectTaskLock> {
+  const lockData: ProjectTaskLock = {
+    projectId,
+    taskId,
+    lockedBy: userName,
+    lockedByRole: userRole,
+    lockedAt: new Date().toISOString(),
+    expectedFinish: new Date(Date.now() + finishInMinutes * 60000).toISOString(),
+    isLocked: true
+  };
+  try {
+    await setDoc(doc(db, 'projectTaskLocks', projectId), lockData);
+  } catch (err) {
+    console.error('Task lock acquire error:', err);
+  }
+  return lockData;
+}
+
+export async function releaseProjectTaskLock(projectId: string): Promise<void> {
+  try {
+    await setDoc(doc(db, 'projectTaskLocks', projectId), { isLocked: false, lockedBy: '', lockedAt: '' });
+  } catch (err) {
+    console.error('Task lock release error:', err);
+  }
+}
+
+// 4. Marketing CRM Prospects & Email History
+export async function getMarketingProspects(mode?: SystemOperatingMode): Promise<MarketingProspectRecord[]> {
+  const currentMode = mode || (await getOperatingMode());
+  const prospects = await getCollectionDocs<MarketingProspectRecord>('marketingProspects', currentMode);
+
+  if (prospects.length === 0) {
+    // Generate high quality demo prospects
+    const masterProjects = await getMasterProjects(currentMode);
+    return masterProjects.map((m, idx) => ({
+      id: `PROSPECT-${m.id}`,
+      masterId: m.id,
+      companyName: m.companyName,
+      website: m.officialWebsite || 'https://official.io',
+      generalEmail: `info@${(m.projectName || 'crypto').toLowerCase().replace(/[^a-z0-9]/g, '')}.io`,
+      supportEmail: `support@${(m.projectName || 'crypto').toLowerCase().replace(/[^a-z0-9]/g, '')}.io`,
+      partnershipEmail: `partners@${(m.projectName || 'crypto').toLowerCase().replace(/[^a-z0-9]/g, '')}.io`,
+      bdEmail: `bd@${(m.projectName || 'crypto').toLowerCase().replace(/[^a-z0-9]/g, '')}.io`,
+      mediaEmail: `media@${(m.projectName || 'crypto').toLowerCase().replace(/[^a-z0-9]/g, '')}.io`,
+      contactFormUrl: `${m.officialWebsite || 'https://official.io'}/contact`,
+      officialPhone: '+971 4 800 4252',
+      mailingAddress: 'Level 24, Al Khatem Tower, ADGM, Abu Dhabi, UAE',
+      country: m.country || 'United Arab Emirates',
+      city: m.city || 'Dubai',
+      xTwitter: `https://x.com/${m.tokenSymbol.toLowerCase()}_official`,
+      telegram: `https://t.me/${m.tokenSymbol.toLowerCase()}_community`,
+      discord: `https://discord.gg/${m.tokenSymbol.toLowerCase()}`,
+      linkedIn: `https://linkedin.com/company/${m.projectName.toLowerCase().replace(/\s+/g, '-')}`,
+      githubOrg: `https://github.com/${m.tokenSymbol.toLowerCase()}-protocol`,
+      coinMarketCapLink: `https://coinmarketcap.com/currencies/${m.projectName.toLowerCase().replace(/\s+/g, '-')}`,
+      coinGeckoLink: `https://coingecko.com/en/coins/${m.projectName.toLowerCase().replace(/\s+/g, '-')}`,
+      assessmentStatus: m.currentStatus,
+      certificateStatus: m.certificateStatus,
+      marketCapUSD: 150000000 + idx * 50000000,
+      contactCompletenessPct: 95,
+      smartRankScore: 88 - idx * 5,
+      lastContactedAt: idx % 2 === 0 ? new Date(Date.now() - idx * 86400000).toISOString() : undefined,
+      invitationSent: idx % 2 === 0,
+      assignedRep: 'Marketing BD Manager',
+      createdAt: new Date().toISOString()
+    }));
+  }
+  return prospects;
+}
+
+export async function saveMarketingProspect(
+  prospect: MarketingProspectRecord,
+  mode?: SystemOperatingMode
+): Promise<MarketingProspectRecord> {
+  const currentMode = mode || (await getOperatingMode());
+  const isDemoRecord = currentMode === 'demo';
+  const docData = { ...prospect, isDemo: isDemoRecord };
+  try {
+    await setDoc(doc(db, 'marketingProspects', prospect.id), docData, { merge: true });
+  } catch (err) {
+    console.error('Error saving marketing prospect:', err);
+  }
+  return docData;
+}
+
+export async function getEmailHistory(prospectId?: string, mode?: SystemOperatingMode): Promise<EmailHistoryEntry[]> {
+  const currentMode = mode || (await getOperatingMode());
+  const allEntries = await getCollectionDocs<EmailHistoryEntry>('emailHistory', currentMode);
+  if (prospectId) {
+    return allEntries.filter((e) => e.prospectId === prospectId || e.masterId === prospectId);
+  }
+  return allEntries;
+}
+
+export async function addEmailEntry(
+  entry: EmailHistoryEntry,
+  mode?: SystemOperatingMode
+): Promise<EmailHistoryEntry> {
+  const currentMode = mode || (await getOperatingMode());
+  const docData = { ...entry, isDemo: currentMode === 'demo' };
+  try {
+    await setDoc(doc(db, 'emailHistory', entry.id), docData);
+  } catch (err) {
+    console.error('Error adding email history entry:', err);
+  }
+  return docData;
+}
+
+// 5. System Alerts
+export async function getSystemAlerts(mode?: SystemOperatingMode): Promise<SystemAlertItem[]> {
+  const currentMode = mode || (await getOperatingMode());
+  const alerts = await getCollectionDocs<SystemAlertItem>('systemAlerts', currentMode);
+
+  if (alerts.length === 0) {
+    return [
+      {
+        id: 'ALT-101',
+        type: 'cert_expiring',
+        severity: 'high',
+        projectId: 'APP-101',
+        projectName: 'Haqq Network (ISLM)',
+        message: 'Shariah Certificate renewal due in 14 days.',
+        timestamp: new Date().toISOString(),
+        assignedTo: 'Compliance Manager',
+        isRead: false
+      },
+      {
+        id: 'ALT-102',
+        type: 'high_priority_prospect',
+        severity: 'medium',
+        projectId: 'APP-102',
+        projectName: 'Islamic Coin Protocol',
+        message: 'High market cap prospect ($350M) detected on CoinMarketCap without active Shariah audit.',
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        assignedTo: 'Marketing BD Lead',
+        isRead: false
+      },
+      {
+        id: 'ALT-103',
+        type: 'whitepaper_changed',
+        severity: 'info',
+        projectId: 'APP-103',
+        projectName: 'Halal Pay (HPAY)',
+        message: 'Whitepaper GitHub commit updated. AI re-extraction recommended.',
+        timestamp: new Date(Date.now() - 7200000).toISOString(),
+        assignedTo: 'Lead Technical Auditor',
+        isRead: false
+      }
+    ];
+  }
+  return alerts;
+}
+
+export async function markAlertRead(alertId: string): Promise<void> {
+  try {
+    await setDoc(doc(db, 'systemAlerts', alertId), { isRead: true }, { merge: true });
+  } catch (err) {
+    console.error('Error marking alert read:', err);
+  }
+}
+
 

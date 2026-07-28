@@ -884,5 +884,261 @@ export interface KnowledgeRepositoryFinding {
   tags: string[];
 }
 
+// ==================== ENTERPRISE OPERATIONS PLATFORM TYPES ====================
+
+export type LifecycleStageEnum =
+  | 'Prospect'
+  | 'Marketing'
+  | 'Sales'
+  | 'Customer'
+  | 'Assessment'
+  | 'Technical Review'
+  | 'Business Review'
+  | 'Scholar Review'
+  | 'QA Review'
+  | 'Certificate Issued'
+  | 'Public Registry'
+  | 'Annual Monitoring'
+  | 'Renewal';
+
+export interface StageAuditLogItem {
+  id: string;
+  date: string;
+  user: string;
+  userRole?: string;
+  action: string;
+  comment?: string;
+}
+
+export interface LifecycleStageTrackerInfo {
+  stage: LifecycleStageEnum;
+  assignedUser?: string;
+  assignedUserRole?: string;
+  startDate?: string;
+  completionDate?: string;
+  expectedCompletion?: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'blocked';
+  comments?: string;
+  auditLog: StageAuditLogItem[];
+}
+
+export interface MasterProjectRecord {
+  id: string; // HalalChain Unique ID e.g. HC-2026-000001
+  projectId: string;
+  projectName: string;
+  tokenSymbol: string;
+  coinMarketCapId?: string;
+  coinGeckoId?: string;
+  contractAddress?: string;
+  officialWebsite?: string;
+  companyName: string;
+  country: string;
+  city?: string;
+  currentStatus: string;
+  lifecycleStage: LifecycleStageEnum;
+  certificateStatus: 'Pending' | 'Active' | 'Expired' | 'Under Review' | 'Revoked';
+  assessmentVersion: string;
+  lastAssessmentDate?: string;
+  renewalDate?: string;
+  assignedTeams: string[];
+  stages?: Partial<Record<LifecycleStageEnum, LifecycleStageTrackerInfo>>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectTaskLock {
+  projectId: string;
+  taskId: string;
+  lockedBy: string; // User Name
+  lockedByRole: string;
+  lockedAt: string; // ISO date string
+  expectedFinish: string; // ISO date string
+  isLocked: boolean;
+}
+
+export interface DuplicateCheckRequest {
+  coinMarketCapId?: string;
+  coinGeckoId?: string;
+  contractAddress?: string;
+  website?: string;
+  githubUrl?: string;
+  whitepaperHash?: string;
+  projectName?: string;
+  tokenSymbol?: string;
+}
+
+export interface DuplicateMatchDetail {
+  field: string;
+  value: string;
+  matchedProjectId: string;
+  matchedProjectName: string;
+  halalChainId: string;
+}
+
+export interface DuplicateCheckResult {
+  isDuplicate: boolean;
+  matches: DuplicateMatchDetail[];
+  existingRecord?: MasterProjectRecord;
+}
+
+export interface MarketingProspectRecord {
+  id: string;
+  masterId: string; // e.g. HC-2026-000001
+  companyName: string;
+  website: string;
+  generalEmail: string;
+  supportEmail: string;
+  partnershipEmail: string;
+  bdEmail: string;
+  mediaEmail: string;
+  contactFormUrl: string;
+  officialPhone: string;
+  mailingAddress: string;
+  country: string;
+  city: string;
+  xTwitter: string;
+  telegram: string;
+  discord: string;
+  linkedIn: string;
+  githubOrg: string;
+  coinMarketCapLink: string;
+  coinGeckoLink: string;
+  assessmentStatus: string;
+  certificateStatus: string;
+  marketCapUSD?: number;
+  contactCompletenessPct: number;
+  smartRankScore: number; // calculated priority ranking score
+  lastContactedAt?: string;
+  invitationSent: boolean;
+  assignedRep?: string;
+  createdAt: string;
+}
+
+export interface EmailHistoryEntry {
+  id: string;
+  prospectId: string;
+  masterId: string;
+  employeeName: string;
+  date: string;
+  time: string;
+  emailTemplate: string;
+  recipient: string;
+  subject: string;
+  deliveryStatus: 'Delivered' | 'Opened' | 'Bounced' | 'Pending';
+  replyStatus: 'No Reply' | 'Replied' | 'Unsubscribed' | 'Interested';
+  nextFollowUpDate: string;
+}
+
+export interface SmartMarketingQueueItem {
+  prospect: MarketingProspectRecord;
+  rankPriority: number;
+  reason: string;
+  suggestedAction: string;
+}
+
+export interface ProjectIntelligenceReport {
+  projectId: string;
+  halalChainId: string;
+  projectName: string;
+  tokenSymbol: string;
+  projectCompletenessPct: number;
+  crmStatus: string;
+  contactInfoCompletenessPct: number;
+  marketingStatus: string;
+  salesStatus: string;
+  customerStatus: string;
+  assessmentProgressPct: number;
+  documentsCollectedCount: number;
+  documentsRequiredCount: number;
+  whitepaperStatus: 'Missing' | 'Collected' | 'Verified' | 'Updated';
+  websiteStatus: 'Active' | 'Offline' | 'Under Review';
+  githubStatus: 'Active' | 'Inactive' | 'No Repo';
+  smartContractStatus: 'Verified' | 'Unverified' | 'Audited' | 'High Risk';
+  evidenceCount: number;
+  aiFindingsCount: number;
+  aiConfidencePct: number;
+  technicalReviewStatus: 'Pending' | 'In Progress' | 'Approved' | 'Revision Required';
+  businessReviewStatus: 'Pending' | 'In Progress' | 'Approved' | 'Revision Required';
+  scholarReviewStatus: 'Pending' | 'In Progress' | 'Approved' | 'Revision Required';
+  qaReviewStatus: 'Pending' | 'In Progress' | 'Approved' | 'Revision Required';
+  certificateStatus: string;
+  registryStatus: 'Published' | 'Unpublished' | 'Pending';
+  renewalStatus: 'Up-to-Date' | 'Due Soon' | 'Expired';
+  overallCompletionPct: number;
+}
+
+export interface OperationsKPIOverview {
+  totalProspects: number;
+  neverContacted: number;
+  contacted: number;
+  waitingForReply: number;
+  positiveResponses: number;
+  negativeResponses: number;
+  qualifiedLeads: number;
+  activeCustomers: number;
+  projectsInProgress: number;
+  projectsWaitingReview: number;
+  certificatesIssued: number;
+  certificatesExpiringSoon: number;
+  projectsBlocked: number;
+  averageAssessmentDays: number;
+  averageAiConfidencePct: number;
+  employeeUtilizationPct: number;
+  departmentWorkloadPct: number;
+  revenuePipelineUSD: number;
+  upcomingRenewalsCount: number;
+}
+
+export interface WorkloadManagementEntry {
+  employeeId: string;
+  employeeName: string;
+  role: string;
+  currentAssignmentsCount: number;
+  estimatedRemainingHours: number;
+  weeklyCapacityHours: number;
+  capacityUtilizationPct: number;
+  assignedProjects: Array<{ projectId: string; projectName: string; deadline: string; stage: string }>;
+}
+
+export interface SystemAlertItem {
+  id: string;
+  type:
+    | 'task_overdue'
+    | 'customer_waiting'
+    | 'reviewer_inactive'
+    | 'cert_expiring'
+    | 'whitepaper_changed'
+    | 'contract_changed'
+    | 'github_updated'
+    | 'assessment_blocked'
+    | 'customer_replied'
+    | 'high_priority_prospect';
+  severity: 'high' | 'medium' | 'info';
+  projectId?: string;
+  projectName: string;
+  message: string;
+  timestamp: string;
+  assignedTo: string;
+  isRead: boolean;
+}
+
+export interface EnterpriseReportExport {
+  reportType:
+    | 'marketing_performance'
+    | 'sales_performance'
+    | 'reviewer_productivity'
+    | 'assessment_turnaround'
+    | 'certificate_statistics'
+    | 'customer_satisfaction'
+    | 'revenue_report'
+    | 'renewal_forecast';
+  title: string;
+  generatedAt: string;
+  generatedBy: string;
+  summaryMetrics: Record<string, any>;
+  dataRows: Array<Record<string, any>>;
+}
+
+
 
 

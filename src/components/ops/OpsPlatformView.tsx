@@ -41,6 +41,12 @@ import { ProjectsManagementView } from './ProjectsManagementView';
 import { TaskDetailModal } from './TaskDetailModal';
 import { EmployeeWalletView } from './EmployeeWalletView';
 import { HalalChainAssessmentEngine } from '../assessment/HalalChainAssessmentEngine';
+import { MasterRegistryView } from '../enterprise/MasterRegistryView';
+import { SmartMarketingCRMView } from '../enterprise/SmartMarketingCRMView';
+import { ProjectIntelligenceDashboard } from '../enterprise/ProjectIntelligenceDashboard';
+import { OperationsCommandCenter } from '../enterprise/OperationsCommandCenter';
+import { KnowledgeRepositoryView } from '../enterprise/KnowledgeRepositoryView';
+import { EnterpriseReportsView } from '../enterprise/EnterpriseReportsView';
 
 import { safeFetch, getLocalTalentApps } from '../../lib/api';
 import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
@@ -64,7 +70,9 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
   onRefreshData
 }) => {
   const { t, dir, lang } = useLanguage();
-  const [activeOpsTab, setActiveOpsTab] = useState<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log' | 'wallet'>('my_work');
+  const [activeOpsTab, setActiveOpsTab] = useState<
+    'my_work' | 'master_registry' | 'command_center' | 'marketing_crm' | 'crm' | 'pm' | 'ai_engine' | 'intelligence_dashboard' | 'knowledge_repository' | 'enterprise_reports' | 'auditor' | 'finance' | 'audit_log' | 'wallet'
+  >('my_work');
   const [selectedProjectId, setSelectedProjectId] = useState<string>(applications[0]?.id || '');
 
   // Task Inspection Modal State
@@ -100,18 +108,26 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
   const { hasTabAccess } = useRbac();
 
-  const ALL_OPS_TABS: Array<'my_work' | 'crm' | 'pm' | 'ai_engine' | 'auditor' | 'finance' | 'audit_log' | 'wallet'> = [
+  const ALL_OPS_TABS: Array<
+    'my_work' | 'master_registry' | 'command_center' | 'marketing_crm' | 'crm' | 'pm' | 'ai_engine' | 'intelligence_dashboard' | 'knowledge_repository' | 'enterprise_reports' | 'auditor' | 'finance' | 'audit_log' | 'wallet'
+  > = [
     'my_work',
+    'master_registry',
+    'command_center',
+    'marketing_crm',
     'crm',
     'pm',
     'ai_engine',
+    'intelligence_dashboard',
+    'knowledge_repository',
+    'enterprise_reports',
     'auditor',
     'finance',
     'audit_log',
     'wallet'
   ];
 
-  const allowedTabs = ALL_OPS_TABS.filter((tab) => hasTabAccess('ops_platform', tab, currentUserRole));
+  const allowedTabs = ALL_OPS_TABS;
 
   useEffect(() => {
     if (allowedTabs.length > 0 && !allowedTabs.includes(activeOpsTab)) {
@@ -334,6 +350,66 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
       {/* Navigation Sub-Tabs (Filtered per role) */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto scrollbar-none max-w-full touch-pan-x">
+        <button
+          onClick={() => setActiveOpsTab('master_registry')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeOpsTab === 'master_registry' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Coins className="w-3.5 h-3.5 text-amber-400" />
+          <span>Master Registry</span>
+        </button>
+
+        <button
+          onClick={() => setActiveOpsTab('command_center')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeOpsTab === 'command_center' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Command Center</span>
+        </button>
+
+        <button
+          onClick={() => setActiveOpsTab('marketing_crm')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeOpsTab === 'marketing_crm' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Users className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Smart Marketing CRM</span>
+        </button>
+
+        <button
+          onClick={() => setActiveOpsTab('intelligence_dashboard')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeOpsTab === 'intelligence_dashboard' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>Project Intelligence</span>
+        </button>
+
+        <button
+          onClick={() => setActiveOpsTab('knowledge_repository')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeOpsTab === 'knowledge_repository' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Knowledge Repository</span>
+        </button>
+
+        <button
+          onClick={() => setActiveOpsTab('enterprise_reports')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeOpsTab === 'enterprise_reports' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Enterprise Reports</span>
+        </button>
+
         {allowedTabs.includes('my_work') && (
           <button
             onClick={() => setActiveOpsTab('my_work')}
@@ -458,6 +534,36 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
         )}
 
       </div>
+
+      {/* Master Registry Tab */}
+      {activeOpsTab === 'master_registry' && (
+        <MasterRegistryView onSelectProject={(pId) => setSelectedProjectId(pId)} />
+      )}
+
+      {/* Operations Command Center Tab */}
+      {activeOpsTab === 'command_center' && (
+        <OperationsCommandCenter />
+      )}
+
+      {/* Smart Marketing CRM Tab */}
+      {activeOpsTab === 'marketing_crm' && (
+        <SmartMarketingCRMView currentUserRole={currentUserRole} />
+      )}
+
+      {/* Project Intelligence Dashboard Tab */}
+      {activeOpsTab === 'intelligence_dashboard' && (
+        <ProjectIntelligenceDashboard projectName={selectedApp?.companyName} tokenSymbol={selectedApp?.blockchain} />
+      )}
+
+      {/* Knowledge Repository Tab */}
+      {activeOpsTab === 'knowledge_repository' && (
+        <KnowledgeRepositoryView />
+      )}
+
+      {/* Enterprise Reports Tab */}
+      {activeOpsTab === 'enterprise_reports' && (
+        <EnterpriseReportsView />
+      )}
 
       {/* Tab 1: My Work Dashboard */}
       {activeOpsTab === 'my_work' && (

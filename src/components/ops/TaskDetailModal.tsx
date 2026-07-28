@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CertificationApplication, UserRole, ClarificationMessage, WorkflowStage } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { ShariaCertificateModal } from '../ShariaCertificateModal';
+import { ProjectLockingBanner } from '../enterprise/ProjectLockingBanner';
 import {
   X,
   ExternalLink,
@@ -225,6 +226,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
         {/* Modal Body */}
         <div className="p-6 space-y-6 font-mono text-xs text-slate-800 overflow-y-auto">
+          {/* Automatic Task Locking Banner */}
+          <ProjectLockingBanner
+            projectId={application.id}
+            taskId={application.applicationNumber}
+            currentUserRole={currentUserRole}
+            currentUserName={`Staff Reviewer (${currentUserRole.toUpperCase()})`}
+            onLockChanged={onRefreshData}
+          />
+
           {feedbackMsg && (
             <div
               className={`p-4 rounded-xl text-xs font-semibold border flex items-center gap-2 ${
