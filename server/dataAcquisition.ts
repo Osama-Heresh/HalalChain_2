@@ -1,7 +1,69 @@
 // @ts-ignore
 import * as pdfParseImport from 'pdf-parse';
 import crypto from 'crypto';
-const pdfParse: any = (pdfParseImport as any).default || pdfParseImport;
+
+/**
+ * Safely extracts text and page count from a PDF buffer supporting pdf-parse v2 (PDFParse class)
+ * and pdf-parse v1 (function) with graceful fallbacks.
+ */
+async function extractPdfTextAndPages(pdfBuffer: Buffer): Promise<{ text: string; numpages: number }> {
+  // 1. Try pdf-parse v2 (PDFParse class)
+  try {
+    const PDFParseClass = (pdfParseImport as any)?.PDFParse || (pdfParseImport as any)?.default?.PDFParse;
+    if (PDFParseClass && typeof PDFParseClass === 'function') {
+      const parser = new PDFParseClass({ data: pdfBuffer });
+      const textResult = await parser.getText();
+      const numpages = textResult.total || textResult.pages?.length || 1;
+      const text = textResult.text || '';
+      try {
+        await parser.destroy();
+      } catch (e) {
+        // ignore destroy warning
+      }
+      if (text.trim().length > 0) {
+        return { text, numpages };
+      }
+    }
+  } catch (err) {
+    console.warn('pdf-parse v2 class extraction attempt notice:', err);
+  }
+
+  // 2. Try pdf-parse v1 or default function export
+  try {
+    const fn: any = (pdfParseImport as any)?.default || pdfParseImport;
+    if (typeof fn === 'function') {
+      const result = await fn(pdfBuffer);
+      if (result && (result.text || result.numpages)) {
+        return {
+          text: result.text || '',
+          numpages: result.numpages || 1
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('pdf-parse v1 function extraction attempt notice:', err);
+  }
+
+  // 3. Last-resort binary text extraction for PDF text strings
+  try {
+    const bufferString = pdfBuffer.toString('latin1');
+    const textMatches = bufferString.match(/\(([^()]{3,})\)/g) || [];
+    const extractedRaw = textMatches.map(m => m.slice(1, -1)).filter(s => /[a-zA-Z0-9\s]{4,}/.test(s)).join(' ');
+    if (extractedRaw.trim().length > 50) {
+      return {
+        text: extractedRaw,
+        numpages: 1
+      };
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  return {
+    text: '',
+    numpages: 1
+  };
+}
 
 export interface DataAcquisitionInput {
   companyName: string;
@@ -1034,9 +1096,12 @@ export async function discoverAndResolveWhitepaper(
     let pageCount = 1;
 
     try {
-      const pdfData = await pdfParse(finalPdfBuffer);
+      const pdfData = await extractPdfTextAndPages(finalPdfBuffer);
       rawText = pdfData.text || '';
       pageCount = pdfData.numpages || 1;
+      if (!rawText) {
+        rawText = `Whitepaper document for ${companyName}. (${Math.round(finalPdfBuffer.length / 1024)} KB PDF).`;
+      }
     } catch (e) {
       console.warn('pdf-parse extraction warning:', e);
       rawText = `Whitepaper document for ${companyName}. (${Math.round(finalPdfBuffer.length / 1024)} KB PDF).`;
