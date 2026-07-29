@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { useAuth } from '../../context/AuthContext';
 import { DEMO_ACCOUNTS } from '../../lib/firebaseAuth';
 import { UserRole, PlatformView } from '../../types';
@@ -194,7 +195,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSelectP
         )}
 
         {/* Modal Navigation Tabs */}
-        <div className="relative z-10 px-6 sm:px-8 pt-4 border-b border-white/10 flex items-center gap-2 text-xs font-mono overflow-x-auto">
+        <ScrollableTabNav className="relative z-10 px-6 sm:px-8 pt-4 border-b border-white/10 text-xs font-mono" variant="dark">
           <button
             onClick={() => setActiveTab('demo')}
             className={`px-4 py-2.5 rounded-t-xl font-bold transition-all cursor-pointer flex items-center gap-2 ${
@@ -230,7 +231,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSelectP
             <UserCheck className="w-4 h-4 text-cyan-400" />
             <span>3. Register New Account</span>
           </button>
-        </div>
+        </ScrollableTabNav>
 
         {/* Modal Body Content */}
         <div className="relative z-10 p-6 sm:p-8 max-h-[60vh] overflow-y-auto">

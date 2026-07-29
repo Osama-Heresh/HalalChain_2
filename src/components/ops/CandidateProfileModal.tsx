@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { useLanguage } from '../../context/LanguageContext';
 import { TalentApplication, RemoteEmployee, UserRole } from '../../types';
 import {
@@ -225,7 +226,7 @@ export const CandidateProfileModal: React.FC<CandidateProfileModalProps> = ({
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="bg-slate-100 border-b border-slate-200 px-3 sm:px-6 pt-3 font-mono text-xs flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none touch-pan-x shrink-0">
+        <ScrollableTabNav className="bg-slate-100 border-b border-slate-200 px-3 sm:px-6 pt-3 font-mono text-xs shrink-0" variant="light">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-2.5 font-bold rounded-t-xl transition-all flex items-center gap-2 cursor-pointer border-b-2 ${
@@ -273,7 +274,7 @@ export const CandidateProfileModal: React.FC<CandidateProfileModalProps> = ({
             <FileText className="w-4 h-4 text-amber-600" />
             <span>{lang === 'ar' ? 'السيرة الذاتية المرفقة (CV File)' : 'CV Document Attachment'}</span>
           </button>
-        </div>
+        </ScrollableTabNav>
 
         {/* Tab Content Body */}
         <div className="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1 text-slate-800">

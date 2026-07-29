@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import {
   X,
   FileText,
@@ -199,7 +200,7 @@ export const ProjectDossierModal: React.FC<ProjectDossierModalProps> = ({
         </div>
 
         {/* Dossier Section Navigation Tabs (Covering all 22 required areas) */}
-        <div className="bg-slate-900 text-slate-300 px-4 pt-3 border-b border-slate-800 flex items-center gap-1 overflow-x-auto scrollbar-none text-xs font-mono">
+        <ScrollableTabNav className="bg-slate-900 text-slate-300 px-4 pt-3 border-b border-slate-800 text-xs font-mono" variant="dark">
           {[
             { id: 'summary', label: '1. Summary & Info', icon: Building2 },
             { id: 'lifecycle', label: '2. Lifecycle & Timeline', icon: Clock },
@@ -232,7 +233,7 @@ export const ProjectDossierModal: React.FC<ProjectDossierModalProps> = ({
               </button>
             );
           })}
-        </div>
+        </ScrollableTabNav>
 
         {/* Tab Content Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-900 dark:text-slate-100 bg-slate-50/50 dark:bg-slate-900/50">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { useRbac } from '../../context/RbacContext';
 import { useAuth } from '../../context/AuthContext';
 import { SYSTEM_PERMISSIONS, DEFAULT_SYSTEM_ROLES } from '../../lib/rbacService';
@@ -233,7 +234,7 @@ export const RbacAdminConsole: React.FC = () => {
         </div>
 
         {/* Console Navigation Tabs */}
-        <div className="relative z-10 pt-2 flex items-center gap-2 border-t border-white/10 text-xs overflow-x-auto">
+        <ScrollableTabNav className="relative z-10 pt-2 border-t border-white/10 text-xs" variant="dark">
           <button
             onClick={() => setActiveConsoleTab('matrix')}
             className={`px-4 py-2 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-2 ${
@@ -269,7 +270,7 @@ export const RbacAdminConsole: React.FC = () => {
             <Users className="w-4 h-4" />
             <span>3. Assign User Roles</span>
           </button>
-        </div>
+        </ScrollableTabNav>
       </div>
 
       {/* Save Status Notification Banner */}

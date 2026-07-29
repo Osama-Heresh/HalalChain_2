@@ -36,6 +36,7 @@ import {
   UserPlus
 } from 'lucide-react';
 import { IslamicPatternBg } from '../IslamicPatternBg';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { PMProjectHubView } from './PMProjectHubView';
 import { ProjectsManagementView } from './ProjectsManagementView';
 import { TaskDetailModal } from './TaskDetailModal';
@@ -349,7 +350,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
         )}
 
       {/* Navigation Sub-Tabs (Filtered per role) */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto scrollbar-none max-w-full touch-pan-x">
+      <ScrollableTabNav className="border-b border-slate-200 pb-2 text-xs font-mono" variant="light">
         <button
           onClick={() => setActiveOpsTab('master_registry')}
           className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
@@ -533,7 +534,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
           </button>
         )}
 
-      </div>
+      </ScrollableTabNav>
 
       {/* Master Registry Tab */}
       {activeOpsTab === 'master_registry' && (

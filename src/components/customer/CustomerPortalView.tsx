@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { IslamicPatternBg } from '../IslamicPatternBg';
 import { ShariaCertificateModal } from '../ShariaCertificateModal';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 
 interface CustomerPortalViewProps {
   applications: CertificationApplication[];
@@ -157,7 +158,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
       </div>
 
       {/* Navigation Tabs inside Customer Portal */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-none max-w-full touch-pan-x">
+      <ScrollableTabNav className="border-b border-slate-200 pb-2 text-xs font-mono" variant="light">
         <button
           onClick={() => setActiveTab('overview')}
           className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold shrink-0 ${
@@ -205,7 +206,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
           <Download className="w-3.5 h-3.5 text-amber-400" />
           <span>Download Certificate</span>
         </button>
-      </div>
+      </ScrollableTabNav>
 
       {/* Tab Content 1: Overview */}
       {activeTab === 'overview' && (

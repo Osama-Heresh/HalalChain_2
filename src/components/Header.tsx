@@ -5,6 +5,7 @@ import { useRbac } from '../context/RbacContext';
 import { PlatformTab, UserRole } from '../types';
 import { ShieldCheck, Globe, User, Briefcase, BarChart3, ChevronDown, Menu, X, KeyRound, LogOut, Sparkles } from 'lucide-react';
 import { NotificationCenter } from './NotificationCenter';
+import { ScrollableTabNav } from './common/ScrollableTabNav';
 
 interface HeaderProps {
   activePlatform: PlatformTab;
@@ -338,7 +339,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Sub-Navigation Bar for Public Website */}
         {activePlatform === 'public' && (
-          <div className="flex items-center gap-2 overflow-x-auto py-2 scrollbar-none text-xs border-t border-white/5 touch-pan-x">
+          <ScrollableTabNav className="py-2 text-xs border-t border-white/5" variant="dark">
             {publicNavItems.map((item) => (
               <button
                 key={item.id}
@@ -352,7 +353,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {t(item.labelKey)}
               </button>
             ))}
-          </div>
+          </ScrollableTabNav>
         )}
       </div>
     </header>

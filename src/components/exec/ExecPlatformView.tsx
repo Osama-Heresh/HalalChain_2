@@ -34,6 +34,7 @@ import {
   Server
 } from 'lucide-react';
 import { IslamicPatternBg } from '../IslamicPatternBg';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { CompanyWalletView } from './CompanyWalletView';
 import { RbacAdminConsole } from './RbacAdminConsole';
 import { useRbac } from '../../context/RbacContext';
@@ -177,7 +178,7 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-mono overflow-x-auto scrollbar-none max-w-full touch-pan-x">
+      <ScrollableTabNav className="border-b border-slate-200 pb-2 text-xs font-mono" variant="light">
         {hasTabAccess('exec_platform', 'bi') && (
           <button
             onClick={() => setActiveExecTab('bi')}
@@ -247,7 +248,7 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
             <span>RBAC & Access Control</span>
           </button>
         )}
-      </div>
+      </ScrollableTabNav>
 
       {/* Tab 1: Executive BI */}
       {activeExecTab === 'bi' && (

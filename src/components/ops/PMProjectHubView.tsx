@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { useLanguage } from '../../context/LanguageContext';
 import { CandidateProfileModal } from './CandidateProfileModal';
 import { TeamMemberEvaluationModal } from './TeamMemberEvaluationModal';
@@ -531,7 +532,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
 
       {/* Main PM Navigation Tabs */}
       <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none touch-pan-x max-w-full pb-1 text-xs font-mono">
+        <ScrollableTabNav className="flex-1 min-w-0 pb-1 text-xs font-mono" variant="light">
           <button
             onClick={() => setPmSubTab('projects')}
             className={`px-4 py-2.5 rounded-2xl font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
@@ -590,7 +591,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
             <FileSpreadsheet className="w-4 h-4" />
             <span>{lang === 'ar' ? 'سجلات الساعات وتقرير الأجور' : 'Hours Log & Payroll Performance'}</span>
           </button>
-        </div>
+        </ScrollableTabNav>
 
         {/* Quick Action Button */}
         {pmSubTab === 'recruitment' && (

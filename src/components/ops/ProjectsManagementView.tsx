@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   CertificationApplication,
@@ -575,7 +576,7 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
           </div>
 
           {/* Project Details Navigation Tabs (10 Tabs) */}
-          <div className="flex items-center gap-1 border-t border-white/10 pt-4 overflow-x-auto scrollbar-none max-w-full text-xs font-mono">
+          <ScrollableTabNav className="border-t border-white/10 pt-4 text-xs font-mono" variant="dark">
             {[
               { id: 'overview', label: 'Overview', icon: Building2 },
               { id: 'assessment', label: 'Assessment', icon: Sparkles },
@@ -605,7 +606,7 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
                 </button>
               );
             })}
-          </div>
+          </ScrollableTabNav>
         </div>
 
         {/* Tab 1: OVERVIEW */}

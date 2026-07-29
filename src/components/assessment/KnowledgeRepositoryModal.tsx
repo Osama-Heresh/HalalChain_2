@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { KnowledgeRepositoryFinding } from '../../types';
 import {
   X,
@@ -109,7 +110,7 @@ export const KnowledgeRepositoryModal: React.FC<KnowledgeRepositoryModalProps> =
             />
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+          <ScrollableTabNav className="pb-1 sm:pb-0" variant="auto" showMoreIndicator={false}>
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -123,7 +124,7 @@ export const KnowledgeRepositoryModal: React.FC<KnowledgeRepositoryModalProps> =
                 {cat}
               </button>
             ))}
-          </div>
+          </ScrollableTabNav>
         </div>
 
         {/* Repository Items List */}
