@@ -133,12 +133,12 @@ export interface Lead {
 
 export interface CertificationApplication {
   id: string;
-  applicationNumber: string;
+  applicationNumber?: string;
   companyName: string;
   legalCountry: string;
   representativeName: string;
   officialEmail: string;
-  phone: string;
+  phone?: string;
   telegram?: string;
   xHandle?: string;
   githubUrl?: string;
@@ -155,18 +155,27 @@ export interface CertificationApplication {
   submittedAt: string;
   targetCompletionDate: string;
   depositPaid: boolean;
-  finalPaid: boolean;
+  finalPaid?: boolean;
   totalFee: number;
   depositAmount: number;
-  remainingAmount: number;
+  remainingAmount?: number;
+  depositTxHash?: string;
+  parentAppId?: string;
   priority?: 'Low' | 'Medium' | 'High' | 'Urgent';
   notes?: string;
+  isArchived?: boolean;
+  archiveReason?: string;
+  archivedAt?: string;
+  versionNumber?: number;
+  masterProjectId?: string;
   assignedReviewers?: {
     tech_auditor?: string;
     scholar?: string;
     business_analyst?: string;
     qa?: string;
+    qa_officer?: string;
     pm?: string;
+    teamLead?: string;
   };
 }
 
@@ -345,16 +354,19 @@ export interface ReassignmentHistoryItem {
 
 export interface ProjectTeamAssignment {
   projectId: string;
-  leadTechAuditorId: string;
-  leadTechAuditorName: string;
-  shariaScholarId: string;
-  shariaScholarName: string;
-  businessAnalystId: string;
-  businessAnalystName: string;
-  qaOfficerId: string;
-  qaOfficerName: string;
-  lastUpdated: string;
-  reassignmentHistory: ReassignmentHistoryItem[];
+  leadTechAuditorId?: string;
+  leadTechAuditorName?: string;
+  shariaScholarId?: string;
+  shariaScholarName?: string;
+  businessAnalystId?: string;
+  businessAnalystName?: string;
+  qaOfficerId?: string;
+  qaOfficerName?: string;
+  lastUpdated?: string;
+  reassignmentHistory?: ReassignmentHistoryItem[];
+  teamLead?: string;
+  members?: string[];
+  assignedAt?: string;
 }
 
 export interface SystemAutoMetrics {

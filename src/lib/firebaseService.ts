@@ -8,6 +8,7 @@ import {
   setDoc,
   updateDoc,
   addDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -1027,6 +1028,24 @@ export async function addEmailEntry(
     console.error('Error adding email history entry:', err);
   }
   return docData;
+}
+
+export async function deleteApplicationPermanent(id: string): Promise<void> {
+  try {
+    const docRef = doc(db, 'applications', id);
+    await deleteDoc(docRef);
+  } catch (err) {
+    console.error(`Error permanently deleting application ${id}:`, err);
+  }
+}
+
+export async function resetDemoDataInFirestore(): Promise<void> {
+  try {
+    isSeeded = false;
+    await seedDemoDataToFirestore();
+  } catch (err) {
+    console.error('Error resetting demo data:', err);
+  }
 }
 
 // 5. System Alerts

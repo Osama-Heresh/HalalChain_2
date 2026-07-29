@@ -44,6 +44,8 @@ import {
   getMasterProjects,
   saveMasterProject,
   checkDuplicateProject,
+  deleteApplicationPermanent,
+  resetDemoDataInFirestore,
   getProjectTaskLock,
   acquireProjectTaskLock,
   releaseProjectTaskLock,
@@ -1608,6 +1610,224 @@ Respond in STRICT valid JSON format matching this exact schema:
     if (alertId) {
       await markAlertRead(alertId);
     }
+    res.json({ success: true });
+  });
+
+  // Reassign Team API
+  app.post('/api/projects/:id/reassign-team', async (req, res) => {
+    const { id } = req.params;
+    const { roleToReassign, newEmployeeId, newEmployeeName, reason, pmName } = req.body;
+    const mode = await getOperatingMode();
+
+    const apps = await getApplications();
+    const appObj = apps.find((a) => a.id === id);
+    if (appObj) {
+      const revs = appObj.assignedReviewers || {};
+      revs[roleToReassign] = newEmployeeName;
+      await updateApplication(id, { assignedReviewers: revs });
+    }
+
+    await saveProjectTeamAssignment({
+      projectId: id,
+      teamLead: 'Lead PM',
+      members: [newEmployeeName],
+      assignedAt: new Date().toISOString()
+    }, mode);
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: pmName || 'Project Manager',
+      userRole: 'pm',
+      projectId: id,
+      action: `Team Member Reassigned (${roleToReassign})`,
+      newValue: `Role '${roleToReassign}' reassigned to ${newEmployeeName}. Reason: ${reason || 'N/A'}`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
+    res.json({ success: true, projectId: id, newMember: newEmployeeName });
+  });
+
+  // Soft Delete / Archive Project API
+  app.delete('/api/applications/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userName, userRole } = req.body || {};
+    const mode = await getOperatingMode();
+
+    const apps = await getApplications();
+    const project = apps.find((a) => a.id === id);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    await updateApplication(id, { isArchived: true, stage: 'rejected' as any });
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: userName || 'Operations User',
+      userRole: userRole || 'pm',
+      projectId: id,
+      action: 'Project Soft-Deleted to Archive',
+      newValue: `Project ${project.companyName} (${id}) moved to Archived Projects Repository`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
+    res.json({ success: true, isArchived: true, id });
+  });
+
+  // Restore Soft-Deleted Project API
+  app.post('/api/applications/:id/restore', async (req, res) => {
+    const { id } = req.params;
+    const { userName, userRole } = req.body || {};
+    const mode = await getOperatingMode();
+
+    const apps = await getApplications();
+    const project = apps.find((a) => a.id === id);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    await updateApplication(id, { isArchived: false, stage: 'project_created' });
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: userName || 'Operations User',
+      userRole: userRole || 'pm',
+      projectId: id,
+      action: 'Archived Project Restored',
+      newValue: `Project ${project.companyName} (${id}) restored to active workflow`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
+    res.json({ success: true, isArchived: false, id });
+  });
+
+  // Permanent Delete Project API
+  app.delete('/api/applications/:id/permanent', async (req, res) => {
+    const { id } = req.params;
+    const { userName, userRole } = req.body || {};
+    const mode = await getOperatingMode();
+
+    await deleteApplicationPermanent(id);
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: userName || 'Administrator',
+      userRole: userRole || 'admin',
+      projectId: id,
+      action: 'Project Permanently Deleted',
+      newValue: `Record ${id} permanently wiped from Firestore`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
+    res.json({ success: true, deletedId: id });
+  });
+
+  // Create New Version API (v2.0, v3.0)
+  app.post('/api/applications/:id/new-version', async (req, res) => {
+    const { id } = req.params;
+    const { userName, userRole } = req.body || {};
+    const mode = await getOperatingMode();
+
+    const apps = await getApplications();
+    const parentApp = apps.find((a) => a.id === id);
+    if (!parentApp) {
+      return res.status(404).json({ error: 'Original project not found' });
+    }
+
+    const nextVerNum = parseFloat(String(parentApp.versionNumber || '1.0')) + 1.0;
+    const newVersionApp = {
+      ...parentApp,
+      id: `APP-2026-${Math.floor(100 + Math.random() * 900)}`,
+      applicationNumber: `HC-APP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      versionNumber: nextVerNum,
+      parentAppId: parentApp.id,
+      stage: 'project_created' as any,
+      submittedAt: new Date().toISOString().split('T')[0],
+      targetCompletionDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      isArchived: false
+    };
+
+    const saved = await addApplication(newVersionApp, mode);
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: userName || 'Project Manager',
+      userRole: userRole || 'pm',
+      projectId: saved.id,
+      action: `New Assessment Version ${nextVerNum} Created`,
+      newValue: `Version ${nextVerNum} created for ${parentApp.companyName} (Master Record ID: ${parentApp.id})`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
+    res.json(saved);
+  });
+
+  // Bulk Operations API (Archive, Restore, Reassign)
+  app.post('/api/applications/bulk-action', async (req, res) => {
+    const { action, projectIds, roleToReassign, newMemberName, userName, userRole } = req.body;
+    const mode = await getOperatingMode();
+    if (!Array.isArray(projectIds) || projectIds.length === 0) {
+      return res.status(400).json({ error: 'No project IDs provided' });
+    }
+
+    const count = projectIds.length;
+
+    for (const pid of projectIds) {
+      if (action === 'archive') {
+        await updateApplication(pid, { isArchived: true, stage: 'rejected' as any });
+      } else if (action === 'restore') {
+        await updateApplication(pid, { isArchived: false, stage: 'project_created' });
+      } else if (action === 'reassign' && roleToReassign && newMemberName) {
+        const apps = await getApplications();
+        const appObj = apps.find((a) => a.id === pid);
+        if (appObj) {
+          const revs = appObj.assignedReviewers || {};
+          revs[roleToReassign] = newMemberName;
+          await updateApplication(pid, { assignedReviewers: revs });
+        }
+      }
+    }
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: userName || 'Operations User',
+      userRole: userRole || 'pm',
+      action: `Bulk Action Executed: ${action.toUpperCase()}`,
+      newValue: `Bulk action '${action}' applied to ${count} projects (${projectIds.join(', ')})`,
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
+    res.json({ success: true, count, action });
+  });
+
+  // Reset Demo Data System API
+  app.post('/api/system/reset-demo-data', async (req, res) => {
+    const mode = await getOperatingMode();
+    await resetDemoDataInFirestore();
+
+    await addAuditLog({
+      id: `AUDIT-${Date.now().toString().slice(-4)}`,
+      timestamp: new Date().toISOString(),
+      userName: 'Administrator',
+      userRole: 'admin',
+      action: 'System Demo Data Reset',
+      newValue: 'Clean default demo data re-seeded in Firestore',
+      digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+      ipAddress: '127.0.0.1'
+    }, mode);
+
     res.json({ success: true });
   });
 

@@ -37,10 +37,19 @@ import {
   Eye,
   Lock,
   Download,
-  Printer
+  Printer,
+  Trash2,
+  Database,
+  GitBranch,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { HalalChainAssessmentEngine } from '../assessment/HalalChainAssessmentEngine';
 import { ShariaCertificateModal } from '../ShariaCertificateModal';
+import { ProjectDossierModal } from '../enterprise/ProjectDossierModal';
+import { ReassignTeamModal } from './ReassignTeamModal';
+import { ArchivedProjectsView } from './ArchivedProjectsView';
+import { TestDataManagementModal } from './TestDataManagementModal';
 import { getLocalAssessment, saveLocalAssessment, createDefaultAssessmentForProject } from '../../lib/assessmentService';
 
 interface ProjectsManagementViewProps {
@@ -95,6 +104,100 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
 
   // Certificate Modal state
   const [showCertModal, setShowCertModal] = useState(false);
+
+  // Enterprise Feature States
+  const [dossierProject, setDossierProject] = useState<CertificationApplication | null>(null);
+  const [isDossierOpen, setIsDossierOpen] = useState(false);
+  const [reassignProject, setReassignProject] = useState<CertificationApplication | null>(null);
+  const [isReassignOpen, setIsReassignOpen] = useState(false);
+  const [showArchivedView, setShowArchivedView] = useState(false);
+  const [showTestDataModal, setShowTestDataModal] = useState(false);
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
+
+  // Active vs Archived Applications
+  const activeApplications = applications.filter((app) => !app.isArchived);
+  const archivedApplications = applications.filter((app) => app.isArchived);
+
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedProjectIds.length === activeApplications.length) {
+      setSelectedProjectIds([]);
+    } else {
+      setSelectedProjectIds(activeApplications.map((a) => a.id));
+    }
+  };
+
+  const handleToggleSelectOne = (id: string) => {
+    if (selectedProjectIds.includes(id)) {
+      setSelectedProjectIds((prev) => prev.filter((item) => item !== id));
+    } else {
+      setSelectedProjectIds((prev) => [...prev, id]);
+    }
+  };
+
+  const handleBulkArchive = async () => {
+    if (selectedProjectIds.length === 0) return;
+    try {
+      const res = await fetch('/api/applications/bulk-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'archive',
+          projectIds: selectedProjectIds,
+          userName: `User (${currentUserRole.toUpperCase()})`,
+          userRole: currentUserRole
+        })
+      });
+      if (res.ok) {
+        setSelectedProjectIds([]);
+        onRefreshData();
+      }
+    } catch (err) {
+      console.error('Bulk archive error:', err);
+    }
+  };
+
+  const handleBulkRestore = async () => {
+    if (selectedProjectIds.length === 0) return;
+    try {
+      const res = await fetch('/api/applications/bulk-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'restore',
+          projectIds: selectedProjectIds,
+          userName: `User (${currentUserRole.toUpperCase()})`,
+          userRole: currentUserRole
+        })
+      });
+      if (res.ok) {
+        setSelectedProjectIds([]);
+        onRefreshData();
+      }
+    } catch (err) {
+      console.error('Bulk restore error:', err);
+    }
+  };
+
+  const handleCreateNewVersion = async (project: CertificationApplication) => {
+    try {
+      const res = await fetch(`/api/applications/${project.id}/new-version`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userName: `User (${currentUserRole.toUpperCase()})`,
+          userRole: currentUserRole
+        })
+      });
+      if (res.ok) {
+        const newVer = await res.json();
+        onRefreshData();
+        setSelectedProject(newVer);
+      }
+    } catch (err) {
+      console.error('Error creating new assessment version:', err);
+    }
+  };
 
   // Copy notification toast
   const [copiedText, setCopiedText] = useState<string | null>(null);
@@ -268,8 +371,8 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
     }
   };
 
-  // Filter applications list
-  const filteredProjects = applications.filter((app) => {
+  // Filter applications list (Active non-archived projects)
+  const filteredProjects = activeApplications.filter((app) => {
     const matchesSearch =
       app.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -410,6 +513,47 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
 
             {/* Quick Action Buttons */}
             <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => {
+                  setDossierProject(selectedProject);
+                  setIsDossierOpen(true);
+                }}
+                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-amber-400 font-bold text-xs transition-all flex items-center gap-2 cursor-pointer border border-amber-500/40 shadow-lg"
+              >
+                <FileText className="w-4 h-4 text-amber-400" />
+                <span>View Dossier</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setReassignProject(selectedProject);
+                  setIsReassignOpen(true);
+                }}
+                className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 font-bold text-xs transition-all flex items-center gap-2 cursor-pointer border border-blue-500/30"
+              >
+                <Users className="w-4 h-4 text-blue-400" />
+                <span>Reassign Team</span>
+              </button>
+
+              <button
+                onClick={() => handleCreateNewVersion(selectedProject)}
+                className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-xs transition-all flex items-center gap-2 cursor-pointer border border-emerald-500/30"
+              >
+                <GitBranch className="w-4 h-4 text-emerald-400" />
+                <span>Create v2.0</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setDossierProject(selectedProject);
+                  setIsDossierOpen(true);
+                }}
+                className="px-3.5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold text-xs transition-all flex items-center gap-2 cursor-pointer border border-rose-500/30"
+              >
+                <Trash2 className="w-4 h-4 text-rose-400" />
+                <span>Archive</span>
+              </button>
+
               <button
                 onClick={() => {
                   setActiveProjectTab('assessment');
@@ -914,45 +1058,77 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
             </p>
           </div>
 
-          <button
-            onClick={() => setShowNewProjectModal(true)}
-            className="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-xl shadow-amber-500/20 hover:scale-105 cursor-pointer flex items-center justify-center gap-2 shrink-0"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>New Project</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+            <button
+              onClick={() => setShowArchivedView(!showArchivedView)}
+              className={`px-4 py-2.5 rounded-2xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer border ${
+                showArchivedView
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg'
+                  : 'bg-slate-900/90 text-rose-300 hover:bg-slate-800 border-white/10'
+              }`}
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>{showArchivedView ? 'Active Projects' : `Archived Projects (${archivedApplications.length})`}</span>
+            </button>
+
+            <button
+              onClick={() => setShowTestDataModal(true)}
+              className="px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 font-bold text-xs transition-all flex items-center gap-2 cursor-pointer border border-white/10"
+              title="Manage Demo & Test Data"
+            >
+              <Database className="w-4 h-4 text-amber-400" />
+              <span>Test Data</span>
+            </button>
+
+            <button
+              onClick={() => setShowNewProjectModal(true)}
+              className="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-xl shadow-amber-500/20 hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>New Project</span>
+            </button>
+          </div>
         </div>
 
         {/* Stats Summary Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs font-mono">
           <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-white/10">
-            <span className="text-slate-400 text-[10px] block uppercase">Total Projects</span>
-            <span className="text-xl font-bold text-amber-400 mt-0.5 block">{applications.length}</span>
+            <span className="text-slate-400 text-[10px] block uppercase">Total Active Projects</span>
+            <span className="text-xl font-bold text-amber-400 mt-0.5 block">{activeApplications.length}</span>
           </div>
 
           <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-white/10">
             <span className="text-slate-400 text-[10px] block uppercase">In Progress</span>
             <span className="text-xl font-bold text-blue-400 mt-0.5 block">
-              {applications.filter((a) => a.stage !== 'published_registry' && a.stage !== 'rejected').length}
+              {activeApplications.filter((a) => a.stage !== 'published_registry' && a.stage !== 'rejected').length}
             </span>
           </div>
 
           <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-white/10">
             <span className="text-slate-400 text-[10px] block uppercase">Draft Reports Ready</span>
             <span className="text-xl font-bold text-amber-300 mt-0.5 block">
-              {applications.filter((a) => a.stage === 'ai_assessment').length}
+              {activeApplications.filter((a) => a.stage === 'ai_assessment').length}
             </span>
           </div>
 
           <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-white/10">
             <span className="text-slate-400 text-[10px] block uppercase">Certified & Published</span>
             <span className="text-xl font-bold text-emerald-400 mt-0.5 block">
-              {applications.filter((a) => a.stage === 'published_registry').length}
+              {activeApplications.filter((a) => a.stage === 'published_registry').length}
             </span>
           </div>
         </div>
       </div>
 
+      {/* Render Archived Projects View when toggled */}
+      {showArchivedView ? (
+        <ArchivedProjectsView
+          archivedApplications={archivedApplications}
+          currentUserRole={currentUserRole}
+          onRefreshData={onRefreshData}
+        />
+      ) : (
+      <>
       {/* Action Controls: Search & Filters Bar */}
       <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs font-mono">
@@ -1001,6 +1177,47 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
             </select>
           </div>
         </div>
+
+        {/* Bulk Actions Bar if items selected */}
+        {selectedProjectIds.length > 0 && (
+          <div className="p-3 bg-slate-900 text-white rounded-2xl flex items-center justify-between flex-wrap gap-3 font-mono text-xs animate-fade-in">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-amber-400">{selectedProjectIds.length} Selected</span>
+              <button
+                onClick={handleToggleSelectAll}
+                className="text-slate-400 hover:text-white underline text-[11px]"
+              >
+                Deselect All
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBulkArchive}
+                className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Bulk Archive</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(applications.filter(a => selectedProjectIds.includes(a.id)), null, 2));
+                  const downloadAnchor = document.createElement('a');
+                  downloadAnchor.setAttribute("href", dataStr);
+                  downloadAnchor.setAttribute("download", `projects_export_${Date.now()}.json`);
+                  document.body.appendChild(downloadAnchor);
+                  downloadAnchor.click();
+                  downloadAnchor.remove();
+                }}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all border border-amber-500/30"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export Selected</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Projects List (Grid of Cards) */}
@@ -1035,11 +1252,23 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
                   className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-500/40 transition-all p-6 flex flex-col justify-between space-y-5 group"
                 >
                   <div className="space-y-3">
-                    {/* Top Badges */}
+                    {/* Top Badges & Select Checkbox */}
                     <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">
-                        {app.id}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleToggleSelectOne(app.id)}
+                          className="text-slate-400 hover:text-amber-500 cursor-pointer"
+                        >
+                          {selectedProjectIds.includes(app.id) ? (
+                            <CheckSquare className="w-4 h-4 text-amber-500" />
+                          ) : (
+                            <Square className="w-4 h-4" />
+                          )}
+                        </button>
+                        <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">
+                          {app.id}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-1.5">
                         {getPriorityBadge(app.priority)}
                         {getStageBadge(app.stage)}
@@ -1107,28 +1336,61 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  {/* Actions Bar */}
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5 flex-wrap">
                     <button
                       onClick={() => {
-                        setSelectedProject(app);
-                        setActiveProjectTab('overview');
+                        setDossierProject(app);
+                        setIsDossierOpen(true);
                       }}
-                      className="flex-1 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="py-1.5 px-2.5 rounded-xl bg-slate-900 text-amber-400 hover:bg-black font-bold text-[11px] transition-all flex items-center gap-1 cursor-pointer"
+                      title="Open Complete Project Dossier"
                     >
-                      <span>Project Details</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
+                      <FileText className="w-3 h-3 text-amber-400" />
+                      <span>Dossier</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setReassignProject(app);
+                        setIsReassignOpen(true);
+                      }}
+                      className="py-1.5 px-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-[11px] transition-all flex items-center gap-1 cursor-pointer border border-blue-200"
+                      title="Reassign Team Members"
+                    >
+                      <Users className="w-3 h-3" />
+                      <span>Reassign</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleCreateNewVersion(app)}
+                      className="py-1.5 px-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-[11px] transition-all flex items-center gap-1 cursor-pointer border border-emerald-200"
+                      title="Create Version 2.0 Assessment"
+                    >
+                      <GitBranch className="w-3 h-3" />
+                      <span>v2.0</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setDossierProject(app);
+                        setIsDossierOpen(true);
+                      }}
+                      className="py-1.5 px-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 font-bold text-[11px] transition-all flex items-center gap-1 cursor-pointer border border-rose-200"
+                      title="Archive Project"
+                    >
+                      <Trash2 className="w-3 h-3" />
                     </button>
 
                     <button
                       onClick={() => {
                         setSelectedProject(app);
-                        setActiveProjectTab('assessment');
+                        setActiveProjectTab('overview');
                       }}
-                      className="py-2 px-3 rounded-xl bg-amber-500/10 text-amber-700 hover:bg-amber-500 hover:text-slate-950 font-bold text-xs transition-all flex items-center justify-center gap-1 cursor-pointer border border-amber-500/30"
-                      title="Run Assessment Engine"
+                      className="py-1.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] transition-all flex items-center justify-center gap-1 cursor-pointer shadow"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Details</span>
+                      <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
@@ -1137,6 +1399,8 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* NEW PROJECT FORM MODAL */}
       {showNewProjectModal && (
@@ -1332,6 +1596,32 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
             </form>
           </div>
         </div>
+      )}
+
+      {/* PROJECT DOSSIER MODAL */}
+      {isDossierOpen && dossierProject && (
+        <ProjectDossierModal
+          project={dossierProject}
+          onClose={() => setIsDossierOpen(false)}
+          onRefreshData={onRefreshData}
+        />
+      )}
+
+      {/* REASSIGN TEAM MODAL */}
+      {isReassignOpen && reassignProject && (
+        <ReassignTeamModal
+          project={reassignProject}
+          onClose={() => setIsReassignOpen(false)}
+          onRefreshData={onRefreshData}
+        />
+      )}
+
+      {/* TEST DATA MANAGEMENT MODAL */}
+      {showTestDataModal && (
+        <TestDataManagementModal
+          onClose={() => setShowTestDataModal(false)}
+          onRefreshData={onRefreshData}
+        />
       )}
     </div>
   );

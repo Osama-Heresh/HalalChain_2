@@ -17,8 +17,9 @@ import {
   Filter,
   FileCheck2
 } from 'lucide-react';
-import { MasterProjectRecord, LifecycleStageEnum, DuplicateMatchDetail } from '../../types';
+import { MasterProjectRecord, LifecycleStageEnum, DuplicateMatchDetail, CertificationApplication } from '../../types';
 import { DuplicateDetectionModal } from './DuplicateDetectionModal';
+import { ProjectDossierModal } from './ProjectDossierModal';
 
 interface MasterRegistryViewProps {
   onSelectProject?: (projectId: string) => void;
@@ -29,6 +30,10 @@ export const MasterRegistryView: React.FC<MasterRegistryViewProps> = ({ onSelect
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [stageFilter, setStageFilter] = useState<string>('ALL');
+
+  // Dossier Modal State
+  const [dossierProject, setDossierProject] = useState<CertificationApplication | null>(null);
+  const [isDossierOpen, setIsDossierOpen] = useState<boolean>(false);
 
   // New Project Form Modal State
   const [isAddingNew, setIsAddingNew] = useState<boolean>(false);
@@ -312,8 +317,42 @@ export const MasterRegistryView: React.FC<MasterRegistryViewProps> = ({ onSelect
 
                   <td className="py-4 px-4 text-right">
                     <button
-                      onClick={() => onSelectProject && onSelectProject(item.projectId)}
-                      className="px-3 py-1.5 bg-slate-900 hover:bg-black text-white font-bold rounded-xl text-xs transition-all shadow"
+                      onClick={() => {
+                        const appObj: CertificationApplication = {
+                          id: item.projectId,
+                          companyName: item.projectName,
+                          representativeName: item.companyName,
+                          officialEmail: `contact@${item.projectName.toLowerCase().replace(/\s+/g, '')}.io`,
+                          legalCountry: item.country,
+                          blockchain: 'Ethereum Mainnet',
+                          contractAddress: item.contractAddress || '0x71C...3902',
+                          whitepaperUrl: item.whitepaperUrl || 'https://halalchain.io/whitepaper.pdf',
+                          websiteUrl: item.officialWebsite || 'https://halalchain.io',
+                          cmcUrl: item.coinMarketCapId ? `https://coinmarketcap.com/currencies/${item.coinMarketCapId}` : undefined,
+                          projectDescription: `${item.projectName} (${item.tokenSymbol}) master enterprise project record registered under HalalChain Sharia Governance framework.`,
+                          packageType: 'Enterprise',
+                          totalFee: 19500,
+                          depositAmount: 9750,
+                          depositPaid: true,
+                          depositTxHash: '0x98f...a12',
+                          stage: item.lifecycleStage === 'CERTIFIED' ? 'published_registry' : 'technical_review',
+                          priority: 'High',
+                          submittedAt: item.registeredDate,
+                          targetCompletionDate: '2026-08-30',
+                          isArchived: item.isArchived,
+                          archiveReason: item.archiveReason,
+                          archivedAt: item.archivedAt,
+                          assignedReviewers: {
+                            tech_auditor: 'Dr. Ziyad Al-Hassan',
+                            scholar: 'Sheikh Dr. Ibrahim Al-Kuwaiti',
+                            business_analyst: 'Amina Mansour',
+                            qa_officer: 'Tariq Al-Mansoor'
+                          }
+                        };
+                        setDossierProject(appObj);
+                        setIsDossierOpen(true);
+                      }}
+                      className="px-3 py-1.5 bg-slate-900 hover:bg-black text-amber-400 font-bold rounded-xl text-xs transition-all shadow border border-amber-500/30 cursor-pointer"
                     >
                       View Dossier
                     </button>
@@ -453,6 +492,15 @@ export const MasterRegistryView: React.FC<MasterRegistryViewProps> = ({ onSelect
           alert(`New assessment version created under Master Record ${rec.id}`);
         }}
       />
+
+      {/* Project Dossier Modal */}
+      {isDossierOpen && dossierProject && (
+        <ProjectDossierModal
+          project={dossierProject}
+          onClose={() => setIsDossierOpen(false)}
+          onRefreshData={fetchMasterProjects}
+        />
+      )}
     </div>
   );
 };
