@@ -27,7 +27,8 @@ import {
   INITIAL_TALENT_APPLICATIONS,
   INITIAL_PROJECT_TEAM_ASSIGNMENTS,
   INITIAL_WORK_LOGS,
-  INITIAL_MEMBER_EVALUATIONS
+  INITIAL_MEMBER_EVALUATIONS,
+  INITIAL_WHITEPAPERS
 } from '../data/mockData';
 import {
   PublicCertifiedProject,
@@ -43,6 +44,7 @@ import {
   WorkLogEntry,
   MemberEvaluation,
   QuestionLibraryItem,
+  WhitepaperRepositoryItem,
   MasterProjectRecord,
   DuplicateCheckRequest,
   DuplicateCheckResult,
@@ -223,6 +225,15 @@ export async function seedDemoDataToFirestore(): Promise<void> {
       for (const ev of INITIAL_MEMBER_EVALUATIONS) {
         await setDoc(doc(db, 'memberEvaluations', ev.id), {
           ...ev,
+          isDemo: true,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      // Seed Whitepapers Repository
+      for (const wp of INITIAL_WHITEPAPERS) {
+        await setDoc(doc(db, 'whitepaperRepository', wp.id), {
+          ...wp,
           isDemo: true,
           createdAt: new Date().toISOString()
         });
@@ -1098,6 +1109,66 @@ export async function markAlertRead(alertId: string): Promise<void> {
     await setDoc(doc(db, 'systemAlerts', alertId), { isRead: true }, { merge: true });
   } catch (err) {
     console.error('Error marking alert read:', err);
+  }
+}
+
+// =========================================
+// 6. Whitepaper Knowledge Repository
+// =========================================
+
+export async function getWhitepapersRepository(mode?: SystemOperatingMode): Promise<WhitepaperRepositoryItem[]> {
+  const currentMode = mode || (await getOperatingMode());
+  const whitepapers = await getCollectionDocs<WhitepaperRepositoryItem>('whitepaperRepository', currentMode);
+
+  if (whitepapers.length === 0) {
+    return INITIAL_WHITEPAPERS;
+  }
+  return whitepapers;
+}
+
+export async function getWhitepaperByProjectId(
+  projectId: string,
+  mode?: SystemOperatingMode
+): Promise<WhitepaperRepositoryItem | null> {
+  const all = await getWhitepapersRepository(mode);
+  const found = all.find((wp) => wp.projectId === projectId && wp.status === 'current');
+  return found || all.find((wp) => wp.projectId === projectId) || null;
+}
+
+export async function getWhitepaperBySha256(
+  sha256: string,
+  mode?: SystemOperatingMode
+): Promise<WhitepaperRepositoryItem | null> {
+  if (!sha256) return null;
+  const all = await getWhitepapersRepository(mode);
+  return all.find((wp) => wp.sha256 === sha256) || null;
+}
+
+export async function saveWhitepaperRepositoryItem(
+  item: WhitepaperRepositoryItem,
+  mode?: SystemOperatingMode
+): Promise<WhitepaperRepositoryItem> {
+  const currentMode = mode || (await getOperatingMode());
+  const isDemoRecord = currentMode === 'demo';
+  const docData = { ...item, isDemo: isDemoRecord, lastChecked: new Date().toISOString() };
+
+  try {
+    await setDoc(doc(db, 'whitepaperRepository', item.id), docData, { merge: true });
+  } catch (err) {
+    console.error('Error saving whitepaper repository item to Firestore:', err);
+  }
+
+  return docData;
+}
+
+export async function deleteWhitepaperRepositoryItem(
+  id: string,
+  mode?: SystemOperatingMode
+): Promise<void> {
+  try {
+    await deleteDoc(doc(db, 'whitepaperRepository', id));
+  } catch (err) {
+    console.error(`Error deleting whitepaper ${id} from Firestore:`, err);
   }
 }
 

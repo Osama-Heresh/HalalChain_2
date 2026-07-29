@@ -52,6 +52,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'pricing', labelKey: 'public.pricing' },
     { id: 'registry', labelKey: 'public.registry' },
     { id: 'verify', labelKey: 'public.verify' },
+    { id: 'whitepaper_repository', labelKey: 'Whitepaper Repository' },
     { id: 'resources', labelKey: 'public.resources' },
     { id: 'apply', labelKey: 'public.apply' },
     { id: 'join_team', labelKey: 'public.joinTeam' }

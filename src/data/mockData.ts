@@ -12,7 +12,8 @@ import {
   TalentApplication,
   ProjectTeamAssignment,
   WorkLogEntry,
-  MemberEvaluation
+  MemberEvaluation,
+  WhitepaperRepositoryItem
 } from '../types';
 
 export const INITIAL_CERTIFIED_PROJECTS: PublicCertifiedProject[] = [
@@ -835,6 +836,187 @@ export const INITIAL_MEMBER_EVALUATIONS: MemberEvaluation[] = [
     },
     finalCombinedScore: 97,
     ratingCategory: 'Exceptional (A+)'
+  }
+];
+
+export const INITIAL_WHITEPAPERS: WhitepaperRepositoryItem[] = [
+  {
+    id: 'WP-2026-001',
+    projectId: 'APP-2026-801',
+    coinSymbol: 'ISLM',
+    coinName: 'HAQQ Network (Islamic Coin)',
+    cmcUrl: 'https://coinmarketcap.com/currencies/islamic-coin/',
+    originalWhitepaperUrl: 'https://islamiccoin.net/whitepaper.pdf',
+    resolvedPdfUrl: '/api/whitepapers/download/8f4c2e91a021b33d4e7f9a228c12e84192d348a23091f855321f00921477aa21',
+    firebaseStorageUrl: 'https://xenodochial-seat-8jlsj.firebasestorage.app/whitepapers/islm-whitepaper-v1.pdf',
+    sha256: '8f4c2e91a021b33d4e7f9a228c12e84192d348a23091f855321f00921477aa21',
+    fileSize: 2458920,
+    pages: 34,
+    uploadDate: '2026-01-15T10:00:00.000Z',
+    lastChecked: '2026-07-29T11:00:00.000Z',
+    contentHash: '8f4c2e91a021b33d4e7f9a228c12e84192d348a23091f855321f00921477aa21',
+    assessmentId: 'ASSESS-APP-2026-801',
+    version: 1,
+    language: 'English (en)',
+    status: 'current',
+    etag: '"2b890a-5b123a10"',
+    lastModifiedHeader: 'Wed, 14 Jan 2026 18:22:10 GMT',
+    extractedKnowledge: {
+      executiveSummary: 'HAQQ Network is a Sharia-compliant Proof-of-Stake L1 blockchain built on Cosmos SDK. It introduces ISLM as its native utility and gas token, featuring an automated Evergreen DAO that allocates 10% of all minted tokens to charitable and Islamic community initiatives.',
+      businessModel: 'Decentralized Proof-of-Stake L1 Infrastructure. Revenue generated via transaction gas settlement and validator staking commissions.',
+      products: ['HAQQ Blockchain L1', 'HAQQ Wallet', 'Evergreen DAO Governance Vault', 'Sharia Oracle Service'],
+      services: ['Smart Contract Deployment', 'Staking Pool Validation', 'Charitable Philanthropy Distribution'],
+      revenueSources: ['Gas Transaction Fees', 'Validator Block Rewards', 'Cross-chain Bridge Relay Fees'],
+      governance: 'Multi-sig Sharia Supervisory Board coupled with Evergreen DAO community voting.',
+      utility: ['Network Gas Settlement', 'Proof-of-Stake Validation', 'Evergreen DAO Proposal Voting'],
+      tokenomics: {
+        totalSupply: '100,000,000,000 ISLM',
+        circulatingSupply: '20,000,000,000 ISLM',
+        maxSupply: '100,000,000,000 ISLM',
+        distributionBreakdown: {
+          'Evergreen DAO': 10,
+          'Validators & Staking': 50,
+          'Founders & Core Team': 15,
+          'Ecosystem Treasury': 15,
+          'Public Distribution': 10
+        },
+        lockupPeriodMonths: 24,
+        unlockSchedule: 'Linear vesting over 24 months after 6-month cliff.',
+        yieldStakingMechanisms: 'Proof-of-Stake block rewards distributed under Mudarabah profit sharing.',
+        hasFixedInterestRisk: false
+      },
+      riskFactors: [
+        {
+          id: 'RF-01',
+          title: 'Validator Centralization Threshold',
+          category: 'Technology Stack',
+          severity: 'Low',
+          explanation: 'Top 5 active validators hold 38% of overall active stake.',
+          evidenceQuote: 'Validator set is capped at 100 active nodes during genesis phase.'
+        }
+      ],
+      complianceStatements: [
+        {
+          id: 'CS-01',
+          standardCode: 'AAOIFI-STD-32',
+          criterionTitle: 'Sharia Prohibitions: Zero Fixed Interest (Riba)',
+          mappedFact: 'PoS rewards derived strictly from block production fees rather than guaranteed interest.',
+          evidenceSnippet: 'Section 4: Block rewards follow Mudarabah profit-sharing ratios.'
+        }
+      ],
+      technologyStack: {
+        blockchain: 'Cosmos SDK / Tendermint BFT',
+        consensus: 'Proof-of-Stake (PoS)',
+        smartContractLanguages: ['Solidity (EVM Equivalent)', 'Go'],
+        securityAudits: ['CertiK Technical Audit 2025', 'HALALCHAIN Sharia Bytecode Audit'],
+        architectureType: 'Layer 1 Sovereign Blockchain'
+      },
+      consensus: 'Proof-of-Stake (Tendermint BFT)',
+      roadmap: ['Genesis Launch Q1', 'Sharia Oracle v2 Q3', 'Evergreen Grant Allocations Q4'],
+      jurisdiction: 'United Arab Emirates / Global Sharia Council',
+      disclaimers: 'Token is a protocol utility instrument and does not represent equity or debt obligations.',
+      extractedTextSnippet: 'HAQQ is a Scalable, High-Throughput Proof-of-Stake Blockchain that is Fully Compatible and Interoperable with Ethereum...'
+    },
+    versionHistory: [
+      {
+        version: 1,
+        sha256: '8f4c2e91a021b33d4e7f9a228c12e84192d348a23091f855321f00921477aa21',
+        uploadDate: '2026-01-15T10:00:00.000Z',
+        fileSize: 2458920,
+        pages: 34,
+        resolvedPdfUrl: '/api/whitepapers/download/8f4c2e91a021b33d4e7f9a228c12e84192d348a23091f855321f00921477aa21',
+        firebaseStorageUrl: 'https://xenodochial-seat-8jlsj.firebasestorage.app/whitepapers/islm-whitepaper-v1.pdf',
+        status: 'current'
+      }
+    ]
+  },
+  {
+    id: 'WP-2026-002',
+    projectId: 'APP-2026-802',
+    coinSymbol: 'PACTG',
+    coinName: 'GoldPact Digital Bullion',
+    cmcUrl: 'https://coinmarketcap.com/currencies/goldpact/',
+    originalWhitepaperUrl: 'https://goldpact.io/whitepaper',
+    resolvedPdfUrl: '/api/whitepapers/download/1a89b33100293ee09a12c84288102394c81093121049208a00293b211029e002',
+    firebaseStorageUrl: 'https://xenodochial-seat-8jlsj.firebasestorage.app/whitepapers/goldpact-v1.pdf',
+    sha256: '1a89b33100293ee09a12c84288102394c81093121049208a00293b211029e002',
+    fileSize: 1892100,
+    pages: 22,
+    uploadDate: '2026-02-10T14:30:00.000Z',
+    lastChecked: '2026-07-29T11:00:00.000Z',
+    contentHash: '1a89b33100293ee09a12c84288102394c81093121049208a00293b211029e002',
+    assessmentId: 'ASSESS-APP-2026-802',
+    version: 1,
+    language: 'English (en)',
+    status: 'current',
+    etag: '"3f9012-991823"',
+    lastModifiedHeader: 'Tue, 09 Feb 2026 12:00:00 GMT',
+    extractedKnowledge: {
+      executiveSummary: 'GoldPact is a physical gold-backed digital asset protocol on Ethereum Mainnet. Each PACTG token represents exactly 1 fine gram of 999.9 physical gold stored in DMCC Dubai vaults with continuous Chainlink Proof-of-Reserve oracle verification.',
+      businessModel: 'Real World Asset (RWA) Tokenization. Revenue derived from physical vaulting fees and mint/burn redemption fees.',
+      products: ['PACTG Gold Token', 'DMCC Physical Redemption Vault', 'Proof-of-Reserve Chainlink Feed'],
+      services: ['Gold Tokenization', 'Physical Bullion Redemption', 'Audit Certification'],
+      revenueSources: ['0.1% Physical Mint Fee', '0.25% Physical Redemption Fee', '0.1% Annual Storage Custody Fee'],
+      governance: 'GoldPact Vault Custody Council & Independent Auditor Committee.',
+      utility: ['Handheld Gold Asset Transfer', 'Sarf Currency Exchange', 'DeFi Collateral'],
+      tokenomics: {
+        totalSupply: '500,000 PACTG',
+        circulatingSupply: '350,000 PACTG',
+        maxSupply: 'Unlimited (Minted strictly upon physical gold deposit)',
+        distributionBreakdown: {
+          'Public Circulation': 70,
+          'Liquidity Reserve': 20,
+          'Treasury Reserve': 10
+        },
+        lockupPeriodMonths: 0,
+        unlockSchedule: 'Immediate upon physical vault audit verification.',
+        yieldStakingMechanisms: 'No interest staking. Pure asset custody.',
+        hasFixedInterestRisk: false
+      },
+      riskFactors: [
+        {
+          id: 'RF-02',
+          title: 'Physical Vault Custody Insurance',
+          category: 'Jurisdiction & Custody',
+          severity: 'Low',
+          explanation: 'Insured by Lloyd\'s of London up to $100M total vault assets.',
+          evidenceQuote: 'Vault reserves are audited quarterly by PwC Middle East.'
+        }
+      ],
+      complianceStatements: [
+        {
+          id: 'CS-02',
+          standardCode: 'AAOIFI-STD-21',
+          criterionTitle: 'Sharia Financial Rules: Sarf Currency Exchange',
+          mappedFact: 'Physical gold possession (Qabd) verified within 24 hours of token settlement.',
+          evidenceSnippet: 'Section 3: Token minting requires real-time vault serial number registration.'
+        }
+      ],
+      technologyStack: {
+        blockchain: 'Ethereum Mainnet',
+        consensus: 'Proof-of-Stake',
+        smartContractLanguages: ['Solidity v0.8.24'],
+        securityAudits: ['OpenZeppelin RWA Audit', 'HALALCHAIN Sharia Sarf Audit'],
+        architectureType: 'ERC-20 Token with Oracle Proof-of-Reserve'
+      },
+      consensus: 'Ethereum Consensus',
+      roadmap: ['DMCC Vault Integration Q1', 'Automated Physical Delivery Kiosks Q3'],
+      jurisdiction: 'Dubai Multi Commodities Centre (DMCC), UAE',
+      disclaimers: 'Redemption requires minimum 100 grams for physical bar dispatch.',
+      extractedTextSnippet: 'GoldPact is designed as a Sharia-compliant digital alternative to physical bullion holding...'
+    },
+    versionHistory: [
+      {
+        version: 1,
+        sha256: '1a89b33100293ee09a12c84288102394c81093121049208a00293b211029e002',
+        uploadDate: '2026-02-10T14:30:00.000Z',
+        fileSize: 1892100,
+        pages: 22,
+        resolvedPdfUrl: '/api/whitepapers/download/1a89b33100293ee09a12c84288102394c81093121049208a00293b211029e002',
+        firebaseStorageUrl: 'https://xenodochial-seat-8jlsj.firebasestorage.app/whitepapers/goldpact-v1.pdf',
+        status: 'current'
+      }
+    ]
   }
 ];
 

@@ -17,6 +17,7 @@ import { VerificationView } from './components/public/VerificationView';
 import { ResourcesView } from './components/public/ResourcesView';
 import { ApplyView } from './components/public/ApplyView';
 import { JoinTeamView } from './components/public/JoinTeamView';
+import { WhitepaperRepositoryPage } from './components/repository/WhitepaperRepositoryPage';
 
 // App platforms
 import { CustomerPortalView } from './components/customer/CustomerPortalView';
@@ -217,6 +218,9 @@ const MainContent: React.FC = () => {
                   <VerificationView initialQuery={verifyCertQuery} />
                 )}
                 {publicSubView === 'resources' && <ResourcesView />}
+                {publicSubView === 'whitepaper_repository' && (
+                  <WhitepaperRepositoryPage systemMode={systemMode} />
+                )}
                 {publicSubView === 'apply' && (
                   <ApplyView
                     selectedPackage={selectedApplyPackage}

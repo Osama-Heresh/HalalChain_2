@@ -16,7 +16,8 @@ export type PublicSubView =
   | 'verify'
   | 'resources'
   | 'apply'
-  | 'join_team';
+  | 'join_team'
+  | 'whitepaper_repository';
 
 export type PlatformTab = 'public' | 'customer' | 'ops' | 'exec';
 
@@ -169,6 +170,9 @@ export interface CertificationApplication {
   archivedAt?: string;
   versionNumber?: number;
   masterProjectId?: string;
+  whitepaperRepositoryId?: string;
+  whitepaperSha256?: string;
+  whitepaperVersion?: number;
   assignedReviewers?: {
     tech_auditor?: string;
     scholar?: string;
@@ -178,6 +182,92 @@ export interface CertificationApplication {
     pm?: string;
     teamLead?: string;
   };
+}
+
+export interface WhitepaperRepositoryItem {
+  id: string; // e.g. WP-2026-001 or WP-HASH
+  projectId: string;
+  coinSymbol: string;
+  coinName: string;
+  cmcUrl?: string;
+  originalWhitepaperUrl: string;
+  resolvedPdfUrl: string;
+  firebaseStorageUrl: string;
+  sha256: string;
+  fileSize: number;
+  pages: number;
+  uploadDate: string;
+  lastChecked: string;
+  contentHash: string;
+  assessmentId?: string;
+  version: number;
+  language: string;
+  status: 'current' | 'archived' | 'superseded';
+  etag?: string;
+  lastModifiedHeader?: string;
+  
+  extractedKnowledge?: {
+    executiveSummary: string;
+    businessModel: string;
+    products: string[];
+    services: string[];
+    revenueSources: string[];
+    governance: string;
+    utility: string[];
+    tokenomics: {
+      totalSupply?: string;
+      circulatingSupply?: string;
+      maxSupply?: string;
+      distributionBreakdown?: Record<string, number>;
+      inflationMechanism?: string;
+      deflationBurnMechanism?: string;
+      lockupPeriodMonths?: number;
+      unlockSchedule?: string;
+      yieldStakingMechanisms?: string;
+      hasFixedInterestRisk?: boolean;
+    };
+    riskFactors: Array<{
+      id: string;
+      title: string;
+      category: string;
+      severity: string;
+      explanation: string;
+      evidenceQuote?: string;
+    }>;
+    complianceStatements: Array<{
+      id: string;
+      standardCode: string;
+      criterionTitle: string;
+      mappedFact: string;
+      evidenceSnippet: string;
+    }>;
+    technologyStack: {
+      blockchain?: string;
+      consensus?: string;
+      smartContractLanguages?: string[];
+      securityAudits?: string[];
+      architectureType?: string;
+    };
+    consensus: string;
+    roadmap: string[];
+    jurisdiction: string;
+    disclaimers: string;
+    extractedTextSnippet?: string;
+    fullText?: string;
+    sections?: Array<{ title: string; content: string }>;
+  };
+
+  versionHistory?: Array<{
+    version: number;
+    sha256: string;
+    uploadDate: string;
+    fileSize: number;
+    pages: number;
+    resolvedPdfUrl: string;
+    firebaseStorageUrl: string;
+    status: 'current' | 'archived' | 'superseded';
+    changeNotes?: string;
+  }>;
 }
 
 export interface AiExtractionResult {
