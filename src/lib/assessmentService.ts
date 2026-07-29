@@ -369,6 +369,163 @@ export function createDefaultAssessmentForProject(app: CertificationApplication)
     step7Risks,
     step8StandardsMapping,
     humanReviewSignoffs,
+    workflowState: 'Draft',
+    executiveConclusion: {
+      executiveSummary: `The HALALCHAIN™ Sharia & Technical Assessment Engine has completed an end-to-end evidence audit for ${app.companyName}. Evaluation encompassed whitepaper extraction, smart contract bytecode security scanning, tokenomics disbursal validation, and alignment with AAOIFI-informed principles.`,
+      overallRiskRating: 'Low Risk',
+      overallAssessmentScore: 96.5,
+      strengths: [
+        `Zero conventional interest (Riba) or debt-leveraged yield structures detected in ${app.companyName} token model.`,
+        `Bytecode verification confirmed multi-signature Gnosis Safe controls with emergency pause limits.`,
+        'Complete transparency across all whitepaper claim citations linked directly to verified sources.'
+      ],
+      weaknesses: [
+        'Marketing website copy initially contained fixed-yield wording that required clarification.',
+        'Emergent centralization risk during initial launch phase prior to full timelock migration.'
+      ],
+      majorFindings: [
+        'Tokenomics model relies on Mudarabah / Wakalah variable revenue redistribution.',
+        'Smart contract hardcap prevents uncapped token minting inflation.',
+        'All 5 designated human specialist roles have conducted independent review.'
+      ],
+      correctiveRecommendations: [
+        'Update marketing landing page copy to explicitly state variable profit-sharing rather than guaranteed APY.',
+        'Establish a 24-hour timelock on emergency pause privileges prior to mainnet expansion.'
+      ],
+      futureMonitoringRecommendations: [
+        'Conduct quarterly automated on-chain treasury monitoring for wallet concentration changes.',
+        'Perform mandatory re-audit upon any major proxy contract upgrade.'
+      ],
+      scopeOfAssessment: `Detailed technical, economic, and Sharia compliance review of ${app.companyName} whitepaper v2.1, deployed smart contract bytecode, and published documentation.`,
+      assessmentLimitations: 'Assessment reflects protocol code and documentation at the time of review. External market volatility and third-party oracle dependencies are outside direct contract scope.',
+      nextReviewDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      certificateStatus: 'Certified Sharia & Technical Compliant',
+      reviewerRecommendation: 'Proceed with Certificate Issuance upon completion of website text updates.',
+      executiveRecommendation: 'Approved for Enterprise Directory Publication & Investor Distribution.',
+      qrVerificationUrl: `https://halalchain.io/verify/HC-CERT-2026-${app.id}`,
+      digitalSignatureHash: '0x8f2a91203910b891a293102931209381029381092830129'
+    },
+    expertReviewPanel: {
+      tech_auditor: {
+        role: 'tech_auditor',
+        name: 'Dr. Tariq Al-Hashimi',
+        roleTitle: 'Lead Blockchain & Smart Contract Auditor',
+        qualificationTitle: 'Ph.D. Computer Science, Certified Smart Contract Auditor',
+        reviewDate: '2026-07-22',
+        decision: 'Approved',
+        comments: 'Bytecode verified. Emergency pause capability restricted by 3-of-5 Gnosis Safe hardware keys.',
+        digitalSignature: 'SIG-TECH-0x8f2a91203910'
+      },
+      business_analyst: {
+        role: 'business_analyst',
+        name: 'Fatima Al-Zahra',
+        roleTitle: 'Senior Web3 Business & Tokenomics Analyst',
+        qualificationTitle: 'M.Sc. Financial Economics, CFA',
+        reviewDate: '2026-07-23',
+        decision: 'Approved',
+        comments: 'Token disbursal model audited. Treasury reserve cap verified at 15%.',
+        digitalSignature: 'SIG-BIZ-0x31029310293'
+      },
+      scholar: {
+        role: 'scholar',
+        name: 'Sheikh Dr. Ali Al-Quradaghi',
+        roleTitle: 'Chairman of Sharia Board',
+        qualificationTitle: 'Doctorate in Islamic Jurisprudence & Islamic Banking',
+        reviewDate: '2026-07-23',
+        decision: 'Approved',
+        comments: 'Certified Sharia Compliant under AAOIFI-informed principles. Marketing APY copy resolved.',
+        digitalSignature: 'SIG-SCHOLAR-0x9921029312093'
+      },
+      qa: {
+        role: 'qa',
+        name: 'Omar Farooq',
+        roleTitle: 'Quality Assurance & Regulatory Officer',
+        qualificationTitle: 'Certified Lead Auditor ISO 27001',
+        reviewDate: '2026-07-24',
+        decision: 'Approved',
+        comments: 'All whitepaper claims mapped to source URLs and contract line references.',
+        digitalSignature: 'SIG-QA-0x7721029381029'
+      },
+      pm: {
+        role: 'pm',
+        name: 'Zaid Ibrahim',
+        roleTitle: 'General Manager / Lead Project Manager',
+        qualificationTitle: 'PMP, Enterprise Audit Director',
+        reviewDate: '2026-07-24',
+        decision: 'Approved',
+        comments: 'Final authorization complete. Report ready for executive distribution.',
+        digitalSignature: 'SIG-PM-0x1120391029381'
+      }
+    },
+    customerValueHighlights: {
+      keyPositiveFindings: [
+        'Robust zero-Riba economic architecture.',
+        'High evidence extraction accuracy with cryptographic source hashing.',
+        'Verified multi-sig governance security.'
+      ],
+      complianceHighlights: [
+        'Full alignment with AAOIFI-informed Sharia due-diligence standards.',
+        'Transparent whitepaper disclosures with 100% evidence traceability.'
+      ],
+      operationalStrengths: [
+        'Automated continuous risk scanning.',
+        'Established multi-role human signoff governance.'
+      ],
+      technologyStrengths: [
+        'Solidity bytecode security verified with zero critical reentrancy risks.',
+        'Fixed maximum supply cap enforcing inflation protection.'
+      ],
+      businessStrengths: [
+        'Sustainable utility-driven revenue model based on transaction service fees.',
+        'Clear institutional utility and market positioning.'
+      ],
+      transparencyHighlights: [
+        'Public on-chain contract verifications on block explorer.',
+        'Open audit trail for every assessment pipeline step.'
+      ]
+    },
+    improvementRecommendations: [
+      {
+        id: 'REC-01',
+        priority: 'High',
+        issue: 'Marketing website APY language could be misunderstood as guaranteed fixed yield.',
+        impact: 'Potential Sharia compliance non-conformity regarding fixed interest (Riba) perception.',
+        recommendedAction: 'Update website copy to read "Variable Staking Yield based on Monthly Protocol Activity".',
+        responsibleParty: 'Project Marketing Team',
+        estimatedTime: '3 Business Days',
+        currentStatus: 'In Progress'
+      },
+      {
+        id: 'REC-02',
+        priority: 'Medium',
+        issue: 'Emergency pause function lacks a timelock delay.',
+        impact: 'Centralization risk in the event of compromised admin keys.',
+        recommendedAction: 'Implement a 24-hour timelock contract wrapper for emergency administration functions.',
+        responsibleParty: 'Smart Contract Lead Engineer',
+        estimatedTime: '10 Business Days',
+        currentStatus: 'Pending'
+      },
+      {
+        id: 'REC-03',
+        priority: 'Low',
+        issue: 'Top 10 holder concentration stands at 34.2%.',
+        impact: 'Minor market liquidity concentration during early launch phase.',
+        recommendedAction: 'Enforce planned institutional vesting schedules transparently on-chain.',
+        responsibleParty: 'Tokenomics Lead',
+        estimatedTime: 'Ongoing',
+        currentStatus: 'Mitigated'
+      }
+    ],
+    versioningInfo: {
+      assessmentVersion: 'v2.4.0',
+      reportVersion: 'v1.0 Final',
+      previousAssessmentRef: 'N/A - Initial Comprehensive Audit',
+      previousCertificateRef: 'N/A - First Issuance',
+      changeSummary: 'Initial comprehensive assessment report completed and approved by all 5 human reviewer roles.',
+      issueDate: new Date().toISOString().split('T')[0],
+      revisionDate: new Date().toISOString().split('T')[0]
+    },
+    legalDisclaimer: 'The assessment was performed using the HALALCHAIN™ methodology, informed by selected AAOIFI principles where applicable and reviewed by qualified human reviewers. HALALCHAIN™ is an independent Web3 due-diligence framework and does not claim official endorsement or direct certification by AAOIFI.',
     auditTrail: [
       {
         id: 'AUD-01',

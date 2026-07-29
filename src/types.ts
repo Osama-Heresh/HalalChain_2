@@ -135,6 +135,7 @@ export interface CertificationApplication {
   id: string;
   applicationNumber?: string;
   companyName: string;
+  projectSymbol?: string;
   legalCountry: string;
   representativeName: string;
   officialEmail: string;
@@ -640,6 +641,90 @@ export interface ExtractedWhitepaperData {
   versionHistory?: WhitepaperVersionItem[];
 }
 
+export type ReportWorkflowState =
+  | 'Draft'
+  | 'Technical Review'
+  | 'Business Review'
+  | 'Sharia Review'
+  | 'QA Review'
+  | 'Approved'
+  | 'Certified'
+  | 'Published';
+
+export interface ReportExecutiveConclusion {
+  executiveSummary: string;
+  overallRiskRating: 'Low Risk' | 'Medium Risk' | 'High Risk';
+  overallAssessmentScore: number;
+  strengths: string[];
+  weaknesses: string[];
+  majorFindings: string[];
+  correctiveRecommendations: string[];
+  futureMonitoringRecommendations: string[];
+  scopeOfAssessment: string;
+  assessmentLimitations: string;
+  nextReviewDate: string;
+  certificateStatus: string;
+  reviewerRecommendation: string;
+  executiveRecommendation: string;
+  qrVerificationUrl?: string;
+  digitalSignatureHash?: string;
+}
+
+export interface ExpertReviewerDetail {
+  role: string;
+  name: string;
+  roleTitle: string;
+  qualificationTitle?: string;
+  reviewDate: string;
+  decision: 'Approved' | 'Pending' | 'Rejected' | 'Requires Revision';
+  comments: string;
+  digitalSignature: string;
+}
+
+export interface CustomerValueSection {
+  keyPositiveFindings: string[];
+  complianceHighlights: string[];
+  operationalStrengths: string[];
+  technologyStrengths: string[];
+  businessStrengths: string[];
+  transparencyHighlights: string[];
+}
+
+export interface ImprovementRecommendationItem {
+  id: string;
+  priority: 'Critical' | 'High' | 'Medium' | 'Low';
+  issue: string;
+  impact: string;
+  recommendedAction: string;
+  responsibleParty: string;
+  estimatedTime: string;
+  currentStatus: 'Pending' | 'In Progress' | 'Resolved' | 'Mitigated';
+}
+
+export interface ReportVersioningInfo {
+  assessmentVersion: string;
+  reportVersion: string;
+  previousAssessmentRef: string;
+  previousCertificateRef: string;
+  changeSummary: string;
+  issueDate: string;
+  revisionDate: string;
+}
+
+export interface ReportValidationIssue {
+  code: string;
+  message: string;
+  section?: string;
+  severity: 'error' | 'warning';
+}
+
+export interface ReportValidationResult {
+  isValid: boolean;
+  errors: ReportValidationIssue[];
+  warnings: ReportValidationIssue[];
+  validatedAt: string;
+}
+
 export interface AssessmentReportData {
   id: string;
   projectId: string;
@@ -652,6 +737,7 @@ export interface AssessmentReportData {
   whitepaperUrl: string;
   websiteUrl: string;
   status: 'In Progress' | 'Draft Report Ready' | 'Under Multi-Role Review' | 'Final Approved';
+  workflowState?: ReportWorkflowState;
   currentStep: AssessmentStepNumber;
   draftWatermark: boolean; // True by default!
   finalCertificateDecision?: 'APPROVED_HALAL' | 'REJECTED_HARAM' | 'CONDITIONAL_APPROVAL' | 'PENDING';
@@ -659,6 +745,14 @@ export interface AssessmentReportData {
   issueDate?: string;
   verificationHash?: string;
   
+  // Executive Reporting Extensions
+  executiveConclusion?: ReportExecutiveConclusion;
+  expertReviewPanel?: Record<string, ExpertReviewerDetail>;
+  customerValueHighlights?: CustomerValueSection;
+  improvementRecommendations?: ImprovementRecommendationItem[];
+  versioningInfo?: ReportVersioningInfo;
+  legalDisclaimer?: string;
+
   // Step Data
   step1InfoCollection?: {
     cmcData: any;
