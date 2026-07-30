@@ -87,19 +87,35 @@ export const WhitepaperRepositoryPage: React.FC<WhitepaperRepositoryPageProps> =
     }
   };
 
+  const handleReresolve = async (id: string) => {
+    setReanalyzingId(id);
+    try {
+      const res = await fetch(`/api/whitepapers/${id}/reresolve`, { method: 'POST' });
+      if (res.ok) {
+        await fetchWhitepapers();
+      }
+    } catch (err) {
+      console.warn('Re-resolution failed:', err);
+    } finally {
+      setReanalyzingId(null);
+    }
+  };
+
   const openViewer = (wp: WhitepaperRepositoryItem) => {
     setSelectedWhitepaper(wp);
     setIsModalOpen(true);
   };
 
   // Filter Logic
-  const filteredWhitepapers = whitepapers.filter((wp) => {
+  const wpList = Array.isArray(whitepapers) ? whitepapers : [];
+  const filteredWhitepapers = wpList.filter((wp) => {
+    if (!wp) return false;
     const q = searchQuery.toLowerCase().trim();
     const matchQuery =
       !q ||
-      wp.coinName.toLowerCase().includes(q) ||
-      wp.coinSymbol.toLowerCase().includes(q) ||
-      wp.sha256.toLowerCase().includes(q) ||
+      (wp.coinName || '').toLowerCase().includes(q) ||
+      (wp.coinSymbol || '').toLowerCase().includes(q) ||
+      (wp.sha256 || '').toLowerCase().includes(q) ||
       (wp.extractedKnowledge?.executiveSummary || '').toLowerCase().includes(q) ||
       (wp.extractedKnowledge?.businessModel || '').toLowerCase().includes(q) ||
       (wp.extractedKnowledge?.consensus || '').toLowerCase().includes(q);
@@ -113,10 +129,10 @@ export const WhitepaperRepositoryPage: React.FC<WhitepaperRepositoryPageProps> =
   });
 
   // Calculate Statistics
-  const totalAssets = whitepapers.length;
-  const activeCurrent = whitepapers.filter((w) => w.status === 'current').length;
-  const totalPages = whitepapers.reduce((sum, w) => sum + (w.pages || 0), 0);
-  const totalStorageMb = whitepapers.reduce((sum, w) => sum + (w.fileSize || 0), 0) / (1024 * 1024);
+  const totalAssets = wpList.length;
+  const activeCurrent = wpList.filter((w) => w && w.status === 'current').length;
+  const totalPages = wpList.reduce((sum, w) => sum + ((w && w.pages) || 0), 0);
+  const totalStorageMb = wpList.reduce((sum, w) => sum + ((w && w.fileSize) || 0), 0) / (1024 * 1024);
 
   return (
     <div className="min-h-screen bg-[#0B132B] text-slate-100 p-4 sm:p-6 lg:p-8 space-y-6">
@@ -369,6 +385,11 @@ export const WhitepaperRepositoryPage: React.FC<WhitepaperRepositoryPageProps> =
         onClose={() => setIsModalOpen(false)}
         onReanalyze={async (id) => {
           await handleReanalyze(id);
+          const updated = whitepapers.find(w => w.id === id);
+          if (updated) setSelectedWhitepaper(updated);
+        }}
+        onReresolve={async (id) => {
+          await handleReresolve(id);
           const updated = whitepapers.find(w => w.id === id);
           if (updated) setSelectedWhitepaper(updated);
         }}

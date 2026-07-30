@@ -161,11 +161,13 @@ export const SmartMarketingCRMView: React.FC<SmartMarketingCRMViewProps> = ({
     }
   };
 
-  const filteredProspects = prospects.filter(
+  const prospectsList = Array.isArray(prospects) ? prospects : [];
+  const filteredProspects = prospectsList.filter(
     (p) =>
-      p.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.generalEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.country.toLowerCase().includes(searchTerm.toLowerCase())
+      p &&
+      ((p.companyName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.generalEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.country || '').toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleExportReport = async (format: 'PDF' | 'Excel' | 'CSV') => {

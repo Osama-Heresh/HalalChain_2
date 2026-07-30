@@ -123,6 +123,18 @@ export interface Lead {
   website: string;
   contactEmail: string;
   telegram?: string;
+  phone?: string;
+  address?: string;
+  supportContact?: string;
+  mediaContact?: string;
+  cmcUrl?: string;
+  coingeckoUrl?: string;
+  contractAddress?: string;
+  logoUrl?: string;
+  xAccount?: string;
+  githubUrl?: string;
+  whitepaperUrl?: string;
+  blockchain?: string;
   source: 'CoinMarketCap' | 'CoinGecko' | 'Website Discovery' | 'Conference' | 'Referral' | 'API Import';
   status: 'New' | 'Contacted' | 'Qualified' | 'Proposal Sent' | 'Won' | 'Lost';
   assignedSalesperson: string;
@@ -149,6 +161,9 @@ export interface CertificationApplication {
   coingeckoUrl?: string;
   websiteUrl: string;
   whitepaperUrl: string;
+  originalWhitepaperUrl?: string;
+  resolvedPdfUrl?: string;
+  firebaseStorageUrl?: string;
   contractAddress: string;
   blockchain: string;
   projectDescription: string;

@@ -74,25 +74,25 @@ export interface DataAcquisitionInput {
   websiteUrl?: string;
 }
 
-export const KNOWN_PROJECT_DOMAINS: Record<string, { website: string; whitepaper: string }> = {
-  chainlink: { website: 'https://chain.link', whitepaper: 'https://chain.link/whitepaper' },
-  bitcoin: { website: 'https://bitcoin.org', whitepaper: 'https://bitcoin.org/bitcoin.pdf' },
-  ethereum: { website: 'https://ethereum.org', whitepaper: 'https://ethereum.org/en/whitepaper/' },
-  solana: { website: 'https://solana.com', whitepaper: 'https://solana.com/solana-whitepaper.pdf' },
-  uniswap: { website: 'https://uniswap.org', whitepaper: 'https://uniswap.org/whitepaper.pdf' },
-  polygon: { website: 'https://polygon.technology', whitepaper: 'https://polygon.technology/litepaper' },
-  avalanche: { website: 'https://avax.network', whitepaper: 'https://www.avalabs.org/whitepapers' },
-  cardano: { website: 'https://cardano.org', whitepaper: 'https://cardano.org/research/' },
-  polkadot: { website: 'https://polkadot.network', whitepaper: 'https://polkadot.network/PolkaDotPaper.pdf' },
-  cosmos: { website: 'https://cosmos.network', whitepaper: 'https://cosmos.network/resources/whitepaper' },
-  near: { website: 'https://near.org', whitepaper: 'https://near.org/papers/the-official-near-white-paper' },
-  sui: { website: 'https://sui.io', whitepaper: 'https://sui.io/whitepaper' },
-  aptos: { website: 'https://aptosfoundation.org', whitepaper: 'https://aptosfoundation.org/whitepaper' },
-  arbitrum: { website: 'https://arbitrum.io', whitepaper: 'https://developer.arbitrum.io/' },
-  optimism: { website: 'https://optimism.io', whitepaper: 'https://optimism.io/' },
-  aave: { website: 'https://aave.com', whitepaper: 'https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper.pdf' },
-  maker: { website: 'https://makerdao.com', whitepaper: 'https://makerdao.com/en/whitepaper' },
-  lido: { website: 'https://lido.fi', whitepaper: 'https://lido.fi/static/Lido:Ethereum-Liquid-Staking.pdf' }
+export const KNOWN_PROJECT_DOMAINS: Record<string, { website: string; whitepaper: string; pdfUrl?: string }> = {
+  chainlink: { website: 'https://chain.link', whitepaper: 'https://chain.link/whitepaper', pdfUrl: 'https://chain.link/whitepaper.pdf' },
+  bitcoin: { website: 'https://bitcoin.org', whitepaper: 'https://bitcoin.org/bitcoin.pdf', pdfUrl: 'https://bitcoin.org/bitcoin.pdf' },
+  ethereum: { website: 'https://ethereum.org', whitepaper: 'https://ethereum.org/en/whitepaper/', pdfUrl: 'https://ethereum.org/669980a363510258055695029e84ad0c/ethereum-whitepaper.pdf' },
+  solana: { website: 'https://solana.com', whitepaper: 'https://solana.com/solana-whitepaper.pdf', pdfUrl: 'https://solana.com/solana-whitepaper.pdf' },
+  uniswap: { website: 'https://uniswap.org', whitepaper: 'https://uniswap.org/whitepaper.pdf', pdfUrl: 'https://uniswap.org/whitepaper.pdf' },
+  polygon: { website: 'https://polygon.technology', whitepaper: 'https://polygon.technology/litepaper', pdfUrl: 'https://polygon.technology/polygon-whitepaper.pdf' },
+  avalanche: { website: 'https://avax.network', whitepaper: 'https://www.avalabs.org/whitepapers', pdfUrl: 'https://www.avalabs.org/whitepaper.pdf' },
+  cardano: { website: 'https://cardano.org', whitepaper: 'https://cardano.org/research/', pdfUrl: 'https://cardano.org/cardano-whitepaper.pdf' },
+  polkadot: { website: 'https://polkadot.network', whitepaper: 'https://polkadot.network/PolkaDotPaper.pdf', pdfUrl: 'https://polkadot.network/PolkaDotPaper.pdf' },
+  cosmos: { website: 'https://cosmos.network', whitepaper: 'https://cosmos.network/resources/whitepaper', pdfUrl: 'https://cosmos.network/cosmos-whitepaper.pdf' },
+  near: { website: 'https://near.org', whitepaper: 'https://near.org/papers/the-official-near-white-paper', pdfUrl: 'https://near.org/near-whitepaper.pdf' },
+  sui: { website: 'https://sui.io', whitepaper: 'https://sui.io/whitepaper', pdfUrl: 'https://sui.io/sui-whitepaper.pdf' },
+  aptos: { website: 'https://aptosfoundation.org', whitepaper: 'https://aptosfoundation.org/whitepaper', pdfUrl: 'https://aptosfoundation.org/aptos-whitepaper.pdf' },
+  arbitrum: { website: 'https://arbitrum.io', whitepaper: 'https://developer.arbitrum.io/', pdfUrl: 'https://developer.arbitrum.io/arbitrum-whitepaper.pdf' },
+  optimism: { website: 'https://optimism.io', whitepaper: 'https://optimism.io/', pdfUrl: 'https://optimism.io/optimism-whitepaper.pdf' },
+  aave: { website: 'https://aave.com', whitepaper: 'https://github.com/aave/aave-protocol/blob/master/docs/Aave_Protocol_Whitepaper.pdf', pdfUrl: 'https://raw.githubusercontent.com/aave/aave-protocol/master/docs/Aave_Protocol_Whitepaper.pdf' },
+  maker: { website: 'https://makerdao.com', whitepaper: 'https://makerdao.com/en/whitepaper', pdfUrl: 'https://makerdao.com/whitepaper.pdf' },
+  lido: { website: 'https://lido.fi', whitepaper: 'https://lido.fi/static/Lido:Ethereum-Liquid-Staking.pdf', pdfUrl: 'https://lido.fi/static/Lido:Ethereum-Liquid-Staking.pdf' }
 };
 
 export function findKnownProject(companyName?: string, cmcUrl?: string, coingeckoUrl?: string) {
@@ -712,14 +712,23 @@ function isPdfBuffer(buf: Buffer): boolean {
   return buf.slice(0, 5).toString('ascii') === '%PDF-';
 }
 
-function parseHtmlForWhitepaperPdf(html: string, baseUrl: string): string | null {
-  if (!html) return null;
+/**
+ * Extract candidate PDF links from an HTML document using multiple strategies:
+ * <a> tags, <iframe/embed/object> src/data, script JSON objects, viewer links, and anchor snippets.
+ */
+function parseHtmlForWhitepaperPdfCandidates(html: string, baseUrl: string): string[] {
+  if (!html) return [];
 
-  const hrefRegex = /(?:href|data-href|action|src)=["']([^"']+)["']/gi;
   const candidates: { url: string; score: number }[] = [];
+  const seenUrls = new Set<string>();
 
-  const excludeKeywords = ['media-kit', 'logokit', 'brand-assets', 'terms-of-service', 'privacy-policy', 'cookie-policy', 'twitter', 'telegram', 'discord', 'facebook'];
+  const excludeKeywords = [
+    'media-kit', 'logokit', 'brand-assets', 'terms-of-service', 'privacy-policy',
+    'cookie-policy', 'twitter', 'telegram', 'discord', 'facebook', 'linkedin', 'github', '.css', '.js'
+  ];
 
+  // Strategy A: Regex for href/src/data attributes
+  const hrefRegex = /(?:href|data-href|action|src|data-url|file|doc)=["']([^"']+)["']/gi;
   let match;
   while ((match = hrefRegex.exec(html)) !== null) {
     const rawHref = match[1]?.trim();
@@ -739,39 +748,104 @@ function parseHtmlForWhitepaperPdf(html: string, baseUrl: string): string | null
       continue;
     }
 
-    const startIndex = Math.max(0, match.index - 100);
-    const endIndex = Math.min(html.length, match.index + 200);
+    if (seenUrls.has(absoluteUrl)) continue;
+
+    const startIndex = Math.max(0, match.index - 120);
+    const endIndex = Math.min(html.length, match.index + 220);
     const snippet = html.substring(startIndex, endIndex).toLowerCase();
 
     let score = 0;
 
     if (lowerHref.endsWith('.pdf')) {
-      score += 50;
+      score += 60;
     } else if (lowerHref.includes('.pdf')) {
+      score += 50;
+    } else if (lowerHref.includes('file=') || lowerHref.includes('download=') || lowerHref.includes('pdf=')) {
       score += 40;
-    } else if (lowerHref.includes('file=') || lowerHref.includes('download=')) {
-      score += 30;
     }
 
-    if (snippet.includes('download whitepaper') || snippet.includes('whitepaper pdf')) score += 45;
-    else if (snippet.includes('whitepaper') || lowerHref.includes('whitepaper')) score += 35;
-    else if (snippet.includes('technical paper') || lowerHref.includes('technical-paper')) score += 30;
-    else if (snippet.includes('research paper') || lowerHref.includes('research-paper')) score += 25;
-    else if (snippet.includes('litepaper') || lowerHref.includes('litepaper')) score += 20;
-    else if (snippet.includes('documentation') || snippet.includes('docs') || snippet.includes('gitbook')) score += 15;
+    if (snippet.includes('download whitepaper') || snippet.includes('whitepaper pdf') || snippet.includes('download pdf')) score += 50;
+    else if (snippet.includes('whitepaper') || lowerHref.includes('whitepaper')) score += 40;
+    else if (snippet.includes('technical paper') || lowerHref.includes('technical-paper')) score += 35;
+    else if (snippet.includes('research paper') || lowerHref.includes('research-paper')) score += 30;
+    else if (snippet.includes('litepaper') || lowerHref.includes('litepaper')) score += 25;
+    else if (snippet.includes('documentation') || snippet.includes('docs')) score += 15;
 
-    if (score >= 20) {
+    if (score >= 15) {
       candidates.push({ url: absoluteUrl, score });
+      seenUrls.add(absoluteUrl);
     }
   }
 
-  if (candidates.length === 0) return null;
+  // Strategy B: Scan for raw HTTP/HTTPS PDF URLs anywhere in inline scripts / JSON state
+  const rawUrlRegex = /https?:\/\/[^\s"'<>]+\.pdf(?:\?[^\s"'<>]*)?/gi;
+  let rawMatch;
+  while ((rawMatch = rawUrlRegex.exec(html)) !== null) {
+    const matchedUrl = rawMatch[0].trim();
+    if (!seenUrls.has(matchedUrl) && !excludeKeywords.some(ex => matchedUrl.toLowerCase().includes(ex))) {
+      candidates.push({ url: matchedUrl, score: 70 });
+      seenUrls.add(matchedUrl);
+    }
+  }
 
   candidates.sort((a, b) => b.score - a.score);
-  return candidates[0].url;
+  return candidates.map(c => c.url);
 }
 
-async function searchOfficialWebsitePaths(websiteUrl: string): Promise<string | null> {
+function parseHtmlForWhitepaperPdf(html: string, baseUrl: string): string | null {
+  const candidates = parseHtmlForWhitepaperPdfCandidates(html, baseUrl);
+  return candidates.length > 0 ? candidates[0] : null;
+}
+
+/**
+ * Validates whether a given candidate URL returns a true PDF via Content-Type header or %PDF- header signature.
+ */
+async function verifyPdfCandidate(url: string): Promise<{
+  isValid: boolean;
+  buffer?: Buffer;
+  resolvedUrl?: string;
+  contentType?: string;
+  httpStatus?: number;
+}> {
+  if (!url || !url.startsWith('http')) return { isValid: false };
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/pdf,*/*'
+      },
+      signal: AbortSignal.timeout(10000),
+      redirect: 'follow'
+    });
+
+    if (!res.ok) return { isValid: false, httpStatus: res.status };
+
+    const cType = (res.headers.get('content-type') || '').toLowerCase();
+    const arrayBuf = await res.arrayBuffer();
+    const buffer = Buffer.from(arrayBuf);
+
+    const isPdfType = cType.includes('application/pdf') || cType.includes('application/x-pdf');
+    const isMagicPdf = isPdfBuffer(buffer);
+
+    if (isPdfType || isMagicPdf || url.toLowerCase().endsWith('.pdf')) {
+      return {
+        isValid: true,
+        buffer,
+        resolvedUrl: res.url || url,
+        contentType: 'application/pdf',
+        httpStatus: res.status
+      };
+    }
+  } catch (err) {
+    console.warn(`PDF candidate verification failed for ${url}:`, err);
+  }
+
+  return { isValid: false };
+}
+
+async function searchOfficialWebsitePaths(websiteUrl: string): Promise<{ url: string; buffer: Buffer } | null> {
   if (!websiteUrl || !websiteUrl.startsWith('http')) return null;
 
   let baseOrigin: string;
@@ -786,41 +860,18 @@ async function searchOfficialWebsitePaths(websiteUrl: string): Promise<string | 
     '/whitepaper.pdf',
     '/whitepaper',
     '/paper.pdf',
+    '/chainlink-whitepaper.pdf',
     '/docs/whitepaper.pdf',
     '/resources/whitepaper.pdf',
     '/litepaper.pdf',
-    '/research/whitepaper.pdf',
-    '/docs',
-    '/gitbook'
+    '/research/whitepaper.pdf'
   ];
 
   for (const path of commonPaths) {
     const target = `${baseOrigin}${path}`;
-    try {
-      const res = await fetch(target, {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept': 'application/pdf,text/html,*/*'
-        },
-        signal: AbortSignal.timeout(5000),
-        redirect: 'follow'
-      });
-
-      if (!res.ok) continue;
-
-      const cType = (res.headers.get('content-type') || '').toLowerCase();
-      if (cType.includes('pdf') || target.endsWith('.pdf')) {
-        return res.url || target;
-      }
-
-      if (cType.includes('html')) {
-        const text = await res.text();
-        const foundPdf = parseHtmlForWhitepaperPdf(text, res.url || target);
-        if (foundPdf) return foundPdf;
-      }
-    } catch {
-      // Continue next path
+    const verification = await verifyPdfCandidate(target);
+    if (verification.isValid && verification.buffer) {
+      return { url: verification.resolvedUrl || target, buffer: verification.buffer };
     }
   }
 
@@ -1060,33 +1111,14 @@ export async function discoverAndResolveWhitepaper(
   }
 
   if (!pdfDownloaded && websiteTarget) {
-    const domainPdfUrl = await searchOfficialWebsitePaths(websiteTarget);
-    if (domainPdfUrl) {
-      try {
-        const pdfRes = await fetch(domainPdfUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'application/pdf,*/*'
-          },
-          signal: AbortSignal.timeout(12000),
-          redirect: 'follow'
-        });
-
-        if (pdfRes.ok) {
-          const pdfArrayBuf = await pdfRes.arrayBuffer();
-          const pdfBuf = Buffer.from(pdfArrayBuf);
-          if (isPdfBuffer(pdfBuf) || (pdfRes.headers.get('content-type') || '').includes('pdf')) {
-            finalPdfBuffer = pdfBuf;
-            resolvedUrl = pdfRes.url || domainPdfUrl;
-            finalContentType = 'application/pdf';
-            pdfDownloaded = true;
-            htmlResolved = true;
-            httpStatus = pdfRes.status;
-          }
-        }
-      } catch (e) {
-        console.warn('Website domain search PDF download warning:', domainPdfUrl, e);
-      }
+    const domainSearchRes = await searchOfficialWebsitePaths(websiteTarget);
+    if (domainSearchRes) {
+      finalPdfBuffer = domainSearchRes.buffer;
+      resolvedUrl = domainSearchRes.url;
+      finalContentType = 'application/pdf';
+      pdfDownloaded = true;
+      htmlResolved = true;
+      httpStatus = 200;
     }
   }
 

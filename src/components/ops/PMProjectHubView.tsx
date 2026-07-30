@@ -67,13 +67,13 @@ import {
 } from 'lucide-react';
 
 interface PMProjectHubViewProps {
-  applications: CertificationApplication[];
-  onUpdateApplicationStage: (appId: string, stage: WorkflowStage) => void;
-  onOpenTaskModal: (app: CertificationApplication) => void;
+  applications?: CertificationApplication[];
+  onUpdateApplicationStage?: (appId: string, stage: WorkflowStage) => void;
+  onOpenTaskModal?: (app: CertificationApplication) => void;
 }
 
 export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
-  applications,
+  applications = [],
   onUpdateApplicationStage,
   onOpenTaskModal
 }) => {
@@ -225,7 +225,9 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
   };
 
   // Filtered Applications
-  const filteredProjects = applications.filter((app) => {
+  const appsList = Array.isArray(applications) ? applications : [];
+  const filteredProjects = appsList.filter((app) => {
+    if (!app) return false;
     const isClosed = isClosedStage(app.stage);
     if (projectStatusFilter === 'running' && isClosed) return false;
     if (projectStatusFilter === 'closed' && !isClosed) return false;
@@ -233,18 +235,18 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       return (
-        app.companyName.toLowerCase().includes(term) ||
-        app.applicationNumber.toLowerCase().includes(term) ||
-        app.blockchain.toLowerCase().includes(term)
+        (app.companyName || '').toLowerCase().includes(term) ||
+        (app.applicationNumber || '').toLowerCase().includes(term) ||
+        (app.blockchain || '').toLowerCase().includes(term)
       );
     }
     return true;
   });
 
   // Calculate Running vs Closed counts
-  const runningCount = applications.filter((a) => !isClosedStage(a.stage)).length;
-  const closedCount = applications.filter((a) => isClosedStage(a.stage)).length;
-  const pendingTalentCount = talentApps.filter((t) => t.status === 'Pending Review').length;
+  const runningCount = appsList.filter((a) => a && !isClosedStage(a.stage)).length;
+  const closedCount = appsList.filter((a) => a && isClosedStage(a.stage)).length;
+  const pendingTalentCount = (talentApps || []).filter((t) => t && t.status === 'Pending Review').length;
   const totalPayrollDue = workLogs.reduce((sum, log) => sum + log.totalPayUsd, 0);
 
   // Get project team assignment object

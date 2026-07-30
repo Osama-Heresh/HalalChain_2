@@ -3,7 +3,8 @@ import { CertificationApplication, UserRole } from '../../types';
 import { RotateCcw, Trash2, Search, ShieldAlert, Layers, Building2, Calendar, AlertTriangle, X } from 'lucide-react';
 
 interface ArchivedProjectsViewProps {
-  archivedProjects: CertificationApplication[];
+  archivedProjects?: CertificationApplication[];
+  archivedApplications?: CertificationApplication[];
   currentUserRole: UserRole;
   onRefreshData: () => void;
   onClose?: () => void;
@@ -11,6 +12,7 @@ interface ArchivedProjectsViewProps {
 
 export const ArchivedProjectsView: React.FC<ArchivedProjectsViewProps> = ({
   archivedProjects,
+  archivedApplications,
   currentUserRole,
   onRefreshData,
   onClose
@@ -19,11 +21,19 @@ export const ArchivedProjectsView: React.FC<ArchivedProjectsViewProps> = ({
   const [selectedForPermanentDelete, setSelectedForPermanentDelete] = useState<CertificationApplication | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const filtered = archivedProjects.filter((app) => {
+  const rawList = archivedProjects || archivedApplications || [];
+  const list = Array.isArray(rawList) ? rawList : [];
+
+  const filtered = list.filter((app) => {
+    if (!app) return false;
+    const name = app.companyName || '';
+    const id = app.id || '';
+    const contract = app.contractAddress || '';
+    const term = searchTerm.toLowerCase();
     return (
-      app.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.contractAddress.toLowerCase().includes(searchTerm.toLowerCase())
+      name.toLowerCase().includes(term) ||
+      id.toLowerCase().includes(term) ||
+      contract.toLowerCase().includes(term)
     );
   });
 

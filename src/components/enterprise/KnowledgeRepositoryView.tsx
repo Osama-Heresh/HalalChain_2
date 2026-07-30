@@ -27,12 +27,14 @@ export const KnowledgeRepositoryView: React.FC = () => {
     fetchFindings();
   }, []);
 
-  const filtered = findings.filter((f) => {
+  const findingsList = Array.isArray(findings) ? findings : [];
+  const filtered = findingsList.filter((f) => {
+    if (!f) return false;
     const matchesQuery =
-      f.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.findingTopic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.extractedStatement.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.category.toLowerCase().includes(searchQuery.toLowerCase());
+      (f.projectName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.findingTopic || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.extractedStatement || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f.category || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCat = categoryFilter === 'ALL' || f.category === categoryFilter;
     return matchesQuery && matchesCat;
   });

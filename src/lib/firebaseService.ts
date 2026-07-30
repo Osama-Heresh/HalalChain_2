@@ -437,6 +437,21 @@ export async function addLead(
   return docData;
 }
 
+export async function updateLead(
+  id: string,
+  updates: Partial<Lead>
+): Promise<void> {
+  try {
+    const docRef = doc(db, 'leads', id);
+    await updateDoc(docRef, {
+      ...updates,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error(`Error updating lead ${id} in Firestore:`, err);
+  }
+}
+
 export async function getRemoteEmployees(mode?: SystemOperatingMode): Promise<RemoteEmployee[]> {
   const currentMode = mode || (await getOperatingMode());
   return getCollectionDocs<RemoteEmployee>('remoteEmployees', currentMode);

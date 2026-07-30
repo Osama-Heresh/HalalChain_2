@@ -140,48 +140,50 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
   // Get tasks filtered by the active user's role
   const getRoleFilteredTasks = (role: UserRole): CertificationApplication[] => {
+    const list = Array.isArray(applications) ? applications : [];
     switch (role) {
       case 'tech_auditor':
-        return applications.filter(
-          (a) => a.stage === 'technical_review' || a.stage === 'ai_assessment' || a.stage === 'clarification_requested'
+        return list.filter(
+          (a) => a && (a.stage === 'technical_review' || a.stage === 'ai_assessment' || a.stage === 'clarification_requested')
         );
       case 'scholar':
-        return applications.filter(
-          (a) => a.stage === 'scholar_review' || a.stage === 'clarification_requested' || a.stage === 'rejected'
+        return list.filter(
+          (a) => a && (a.stage === 'scholar_review' || a.stage === 'clarification_requested' || a.stage === 'rejected')
         );
       case 'business_analyst':
-        return applications.filter(
-          (a) => a.stage === 'ai_assessment' || a.stage === 'business_review' || a.stage === 'project_created'
+        return list.filter(
+          (a) => a && (a.stage === 'ai_assessment' || a.stage === 'business_review' || a.stage === 'project_created')
         );
       case 'qa':
-        return applications.filter(
-          (a) => a.stage === 'quality_assurance' || a.stage === 'certificate_generation'
+        return list.filter(
+          (a) => a && (a.stage === 'quality_assurance' || a.stage === 'certificate_generation')
         );
       case 'finance':
-        return applications.filter(
-          (a) => a.stage === 'waiting_deposit' || a.stage === 'waiting_final_payment'
+        return list.filter(
+          (a) => a && (a.stage === 'waiting_deposit' || a.stage === 'waiting_final_payment')
         );
       case 'sales':
       case 'marketing':
-        return applications.filter((a) => a.stage === 'waiting_deposit' || a.stage === 'project_created');
+        return list.filter((a) => a && (a.stage === 'waiting_deposit' || a.stage === 'project_created'));
       case 'pm':
       case 'admin':
       case 'exec':
       default:
-        return applications;
+        return list;
     }
   };
 
   const roleTasks = getRoleFilteredTasks(currentUserRole);
-  const displayedMyWorkTasks = myWorkFilter === 'role' ? roleTasks : applications;
+  const appsArray = Array.isArray(applications) ? applications : [];
+  const displayedMyWorkTasks = myWorkFilter === 'role' ? roleTasks : appsArray;
 
   // Counts for tab badges
-  const auditorTaskCount = applications.filter(
-    (a) => a.stage === 'technical_review' || a.stage === 'scholar_review' || a.stage === 'quality_assurance'
+  const auditorTaskCount = appsArray.filter(
+    (a) => a && (a.stage === 'technical_review' || a.stage === 'scholar_review' || a.stage === 'quality_assurance')
   ).length;
 
-  const financeTaskCount = applications.filter(
-    (a) => a.stage === 'waiting_deposit' || a.stage === 'waiting_final_payment'
+  const financeTaskCount = appsArray.filter(
+    (a) => a && (a.stage === 'waiting_deposit' || a.stage === 'waiting_final_payment')
   ).length;
 
   const handleAdvanceStage = async (nextStage: WorkflowStage, appToAdvance?: CertificationApplication) => {

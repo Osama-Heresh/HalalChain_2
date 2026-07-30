@@ -155,12 +155,14 @@ export const MasterRegistryView: React.FC<MasterRegistryViewProps> = ({ onSelect
     setNewContract('');
   };
 
-  const filteredProjects = projects.filter((p) => {
+  const projectsList = Array.isArray(projects) ? projects : [];
+  const filteredProjects = projectsList.filter((p) => {
+    if (!p) return false;
     const matchesQuery =
-      p.projectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.tokenSymbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+      (p.projectName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.tokenSymbol || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.companyName || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStage = stageFilter === 'ALL' || p.lifecycleStage === stageFilter;
     return matchesQuery && matchesStage;
   });

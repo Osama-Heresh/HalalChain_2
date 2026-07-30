@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { executeDataAcquisitionPipeline } from './dataAcquisition';
+import { getGenAiClient, generateGeminiContentWithRetry } from './geminiHelper';
 import {
   EvidenceDossierReport,
   ExecutiveProfile,
@@ -15,21 +16,6 @@ import {
   EvidenceItem,
   KnowledgeRepositoryFinding
 } from '../src/types';
-
-function getGenAiClient() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn('GEMINI_API_KEY environment variable not detected. Running Extraction Engine in fallback mode.');
-  }
-  return new GoogleGenAI({
-    apiKey: apiKey || 'dummy-key-fallback',
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build'
-      }
-    }
-  });
-}
 
 export interface ExtractionRequestInput {
   projectId: string;
@@ -349,19 +335,21 @@ Analyze the text above and return a strictly valid JSON matching this schema:
 
   if (process.env.GEMINI_API_KEY) {
     try {
-      const response = await ai.models.generateContent({
+      const { responseText } = await generateGeminiContentWithRetry({
+        ai,
         model: modelName,
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
         }
       });
-      const text = response.text || '{}';
-      const cleaned = text.replace(/^```json/m, '').replace(/^```/m, '').trim();
-      const match = cleaned.match(/\{[\s\S]*\}/);
-      extractedDossierJson = match ? JSON.parse(match[0]) : JSON.parse(cleaned);
-    } catch (err) {
-      console.warn('[Evidence Engine] Gemini extraction warning:', err);
+      if (responseText) {
+        const cleaned = responseText.replace(/^```json/m, '').replace(/^```/m, '').trim();
+        const match = cleaned.match(/\{[\s\S]*\}/);
+        extractedDossierJson = match ? JSON.parse(match[0]) : JSON.parse(cleaned);
+      }
+    } catch (err: any) {
+      console.log('[Evidence Engine] Gemini extraction fallback engaged.');
     }
   }
 
