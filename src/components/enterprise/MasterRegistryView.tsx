@@ -17,15 +17,16 @@ import {
   Filter,
   FileCheck2
 } from 'lucide-react';
-import { MasterProjectRecord, LifecycleStageEnum, DuplicateMatchDetail, CertificationApplication } from '../../types';
+import { MasterProjectRecord, LifecycleStageEnum, DuplicateMatchDetail, CertificationApplication, UserRole } from '../../types';
 import { DuplicateDetectionModal } from './DuplicateDetectionModal';
 import { ProjectDossierModal } from './ProjectDossierModal';
 
 interface MasterRegistryViewProps {
   onSelectProject?: (projectId: string) => void;
+  currentUserRole?: UserRole;
 }
 
-export const MasterRegistryView: React.FC<MasterRegistryViewProps> = ({ onSelectProject }) => {
+export const MasterRegistryView: React.FC<MasterRegistryViewProps> = ({ onSelectProject, currentUserRole }) => {
   const [projects, setProjects] = useState<MasterProjectRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -210,13 +211,15 @@ export const MasterRegistryView: React.FC<MasterRegistryViewProps> = ({ onSelect
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
-          <button
-            onClick={() => setIsAddingNew(true)}
-            className="py-3 px-5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Register New Master Project</span>
-          </button>
+          {(!currentUserRole || currentUserRole === 'pm' || currentUserRole === 'exec' || currentUserRole === 'admin') && (
+            <button
+              onClick={() => setIsAddingNew(true)}
+              className="py-3 px-5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Register New Master Project</span>
+            </button>
+          )}
         </div>
       </div>
 

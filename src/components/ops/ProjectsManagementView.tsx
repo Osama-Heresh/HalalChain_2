@@ -1120,13 +1120,15 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
               <span>Test Data</span>
             </button>
 
-            <button
-              onClick={() => setShowNewProjectModal(true)}
-              className="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-xl shadow-amber-500/20 hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>New Project</span>
-            </button>
+            {(currentUserRole === 'pm' || currentUserRole === 'exec' || currentUserRole === 'admin') && (
+              <button
+                onClick={() => setShowNewProjectModal(true)}
+                className="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-xl shadow-amber-500/20 hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" />
+                <span>New Project</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -1276,13 +1278,15 @@ export const ProjectsManagementView: React.FC<ProjectsManagementViewProps> = ({
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               No project matches the selected search filters. Click "New Project" to create one.
             </p>
-            <button
-              onClick={() => setShowNewProjectModal(true)}
-              className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs inline-flex items-center gap-2 cursor-pointer mt-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create New Project</span>
-            </button>
+            {(currentUserRole === 'pm' || currentUserRole === 'exec' || currentUserRole === 'admin') && (
+              <button
+                onClick={() => setShowNewProjectModal(true)}
+                className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs inline-flex items-center gap-2 cursor-pointer mt-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create New Project</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

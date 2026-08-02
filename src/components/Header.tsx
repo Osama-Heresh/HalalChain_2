@@ -213,28 +213,32 @@ export const Header: React.FC<HeaderProps> = ({
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   </button>
 
-                  <div className="text-[10px] uppercase font-mono text-slate-400 pt-2 pb-1 px-1">
-                    Quick Role Switcher:
-                  </div>
-                  {rolesList.map((r) => (
-                    <button
-                      key={r.role}
-                      onClick={() => {
-                        updateCurrentRole(r.role);
-                        setCurrentUserRole(r.role);
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] transition-colors flex items-center justify-between cursor-pointer ${
-                        currentUserRole === r.role || currentUser?.role === r.role
-                          ? 'bg-amber-500/20 text-amber-300 font-semibold'
-                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                      }`}
-                    >
-                      <span>{r.name}</span>
-                      {(currentUserRole === r.role || currentUser?.role === r.role) && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      )}
-                    </button>
-                  ))}
+                  {systemMode === 'demo' && (
+                    <>
+                      <div className="text-[10px] uppercase font-mono text-slate-400 pt-2 pb-1 px-1">
+                        Quick Role Switcher:
+                      </div>
+                      {rolesList.map((r) => (
+                        <button
+                          key={r.role}
+                          onClick={() => {
+                            updateCurrentRole(r.role);
+                            setCurrentUserRole(r.role);
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] transition-colors flex items-center justify-between cursor-pointer ${
+                            currentUserRole === r.role || currentUser?.role === r.role
+                              ? 'bg-amber-500/20 text-amber-300 font-semibold'
+                              : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          <span>{r.name}</span>
+                          {(currentUserRole === r.role || currentUser?.role === r.role) && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          )}
+                        </button>
+                      ))}
+                    </>
+                  )}
 
                   {currentUser && (
                     <button

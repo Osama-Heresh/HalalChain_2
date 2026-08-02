@@ -90,6 +90,24 @@ export const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
     description: 'View personal assigned workflow tasks, pending audits, and immediate action items.'
   },
   {
+    key: 'ops:master_registry',
+    label: 'Master Project Registry',
+    category: 'Operations Workspace',
+    description: 'Access the global master registry of all Web3 projects and lifecycle statuses.'
+  },
+  {
+    key: 'ops:command_center',
+    label: 'Operations Command Center',
+    category: 'Operations Workspace',
+    description: 'View real-time operational overview, SLA tracking, and system health.'
+  },
+  {
+    key: 'ops:marketing_crm',
+    label: 'Smart Marketing CRM',
+    category: 'Operations Workspace',
+    description: 'Manage lead generation, marketing prospects, CoinMarketCap discovery, and campaigns.'
+  },
+  {
     key: 'ops:crm',
     label: 'CRM & Sales Pipeline',
     category: 'Operations Workspace',
@@ -106,6 +124,24 @@ export const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
     label: 'AI Code & Contract Assessment',
     category: 'Operations Workspace',
     description: 'Run automated AI whitepaper extractions, bytecode scans, and smart contract analysis.'
+  },
+  {
+    key: 'ops:intelligence_dashboard',
+    label: 'Project Intelligence Dashboard',
+    category: 'Operations Workspace',
+    description: 'Inspect AI assessment scores, tokenomics evaluations, and project risk ratings.'
+  },
+  {
+    key: 'ops:knowledge_repository',
+    label: 'Knowledge & Audit Repository',
+    category: 'Operations Workspace',
+    description: 'Search Sharia audit findings, AAOIFI standards compliance, and technical benchmarks.'
+  },
+  {
+    key: 'ops:enterprise_reports',
+    label: 'Enterprise Reports',
+    category: 'Operations Workspace',
+    description: 'Generate compliance reports, audit metrics, and executive operational exports.'
   },
   {
     key: 'ops:auditor',
@@ -188,6 +224,12 @@ export const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
     label: 'Generate Sales Proposals & Invoices',
     category: 'System Actions',
     description: 'Create commercial proposals and issue initial fee quotes.'
+  },
+  {
+    key: 'action:pm_create_project',
+    label: 'Create New Certification Projects',
+    category: 'System Actions',
+    description: 'Initiate and register new Web3 certification projects in the platform.'
   },
   {
     key: 'action:pm_assign_team',
@@ -346,8 +388,8 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'platform:ops_platform',
     'ops:my_work',
     'ops:crm',
+    'ops:marketing_crm',
     'ops:wallet',
-    'ops:audit_log',
     'action:sales_create_lead',
     'action:sales_generate_proposal'
   ]),
@@ -357,9 +399,9 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'platform:public_website',
     'platform:ops_platform',
     'ops:my_work',
+    'ops:marketing_crm',
     'ops:crm',
     'ops:wallet',
-    'ops:audit_log',
     'action:sales_create_lead'
   ]),
 
@@ -368,10 +410,18 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'platform:public_website',
     'platform:ops_platform',
     'ops:my_work',
+    'ops:master_registry',
+    'ops:command_center',
     'ops:pm',
     'ops:crm',
-    'ops:wallet',
+    'ops:ai_engine',
+    'ops:intelligence_dashboard',
+    'ops:knowledge_repository',
+    'ops:enterprise_reports',
+    'ops:auditor',
     'ops:audit_log',
+    'ops:wallet',
+    'action:pm_create_project',
     'action:pm_assign_team',
     'action:pm_release_payroll'
   ]),
@@ -383,8 +433,8 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'ops:my_work',
     'ops:auditor',
     'ops:ai_engine',
+    'ops:knowledge_repository',
     'ops:wallet',
-    'ops:audit_log',
     'action:tech_approve_audit'
   ]),
 
@@ -393,10 +443,9 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'platform:public_website',
     'platform:ops_platform',
     'ops:my_work',
-    'ops:pm',
-    'ops:ai_engine',
+    'ops:auditor',
+    'ops:knowledge_repository',
     'ops:wallet',
-    'ops:audit_log',
     'action:biz_approve_audit'
   ]),
 
@@ -406,8 +455,8 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'platform:ops_platform',
     'ops:my_work',
     'ops:auditor',
+    'ops:knowledge_repository',
     'ops:wallet',
-    'ops:audit_log',
     'action:scholar_sign_fatwa'
   ]),
 
@@ -417,8 +466,8 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'platform:ops_platform',
     'ops:my_work',
     'ops:auditor',
+    'ops:knowledge_repository',
     'ops:wallet',
-    'ops:audit_log',
     'action:qa_signoff'
   ]),
 
@@ -428,6 +477,7 @@ export const INITIAL_ROLE_PERMISSIONS: RolePermissionsMap = {
     'platform:ops_platform',
     'ops:my_work',
     'ops:finance',
+    'ops:enterprise_reports',
     'ops:wallet',
     'ops:audit_log',
     'action:finance_verify_payment'

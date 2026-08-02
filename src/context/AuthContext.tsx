@@ -119,7 +119,28 @@ export const AuthProvider: React.FC<{
     if (!preset) {
       return { success: false, error: 'Demo account preset not found' };
     }
-    return await loginWithEmail(preset.email, preset.password);
+    const res = await loginWithEmail(preset.email, preset.password);
+    if (!res.success) {
+      const demoUser: AuthUser = {
+        uid: `demo-uid-${preset.id}`,
+        email: preset.email,
+        displayName: preset.name,
+        role: preset.role,
+        title: preset.title,
+        targetPlatform: preset.targetPlatform,
+        avatarUrl: preset.avatar,
+        isDemoAccount: true,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
+      };
+      setCurrentUser(demoUser);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(demoUser));
+      saveUserProfileToFirestore(demoUser);
+      if (onUserAuthChange) onUserAuthChange(demoUser);
+      closeAuthModal();
+      return { success: true, user: demoUser };
+    }
+    return res;
   };
 
   const registerWithEmail = async (

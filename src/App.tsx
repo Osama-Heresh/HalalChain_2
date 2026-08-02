@@ -250,6 +250,7 @@ const MainContent: React.FC = () => {
                 leads={leads}
                 auditLogs={auditLogs}
                 onRefreshData={refreshData}
+                systemMode={systemMode}
               />
             )}
 

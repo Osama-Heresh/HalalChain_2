@@ -188,13 +188,16 @@ export async function saveUserProfileToFirestore(profile: AuthUser): Promise<voi
 
 export async function signInUserWithEmail(email: string, pass: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
   try {
-    const matchedPreset = DEMO_ACCOUNTS.find((a) => a.email.toLowerCase() === email.trim().toLowerCase());
+    const cleanEmail = email.trim().toLowerCase();
+    const matchedPreset = DEMO_ACCOUNTS.find((a) => a.email.toLowerCase() === cleanEmail);
     
     let fbUser: FirebaseUser | null = null;
     try {
       const res = await signInWithEmailAndPassword(auth, email.trim(), pass);
       fbUser = res.user;
     } catch (authErr: any) {
+      console.warn('Firebase signInWithEmailAndPassword warning/error:', authErr?.code, authErr?.message);
+      
       // If user doesn't exist in Firebase Auth yet, automatically register them!
       if (
         authErr.code === 'auth/user-not-found' ||
@@ -211,18 +214,31 @@ export async function signInUserWithEmail(email: string, pass: string): Promise<
             });
           }
         } catch (createErr: any) {
+          console.warn('Firebase createUserWithEmailAndPassword warning/error:', createErr?.code, createErr?.message);
           if (createErr.code === 'auth/email-already-in-use') {
-            return { success: false, error: 'Invalid password. Please check your credentials.' };
+            if (!matchedPreset) {
+              return { success: false, error: 'Invalid password. Please check your credentials.' };
+            }
           }
-          // If Firebase Auth creates fails, fall back smoothly for presentation mode
+          // Fall back gracefully for preset/demo accounts if creation fails
         }
-      } else {
+      } else if (
+        authErr.code === 'auth/operation-not-allowed' ||
+        authErr.code === 'auth/admin-restricted-operation' ||
+        authErr.code === 'auth/configuration-not-found'
+      ) {
+        console.info('Firebase Auth Email/Password provider disabled in Console. Continuing with Firestore profile session.');
+      } else if (!matchedPreset) {
         return { success: false, error: authErr.message || 'Authentication failed' };
       }
     }
 
-    const uid = fbUser ? fbUser.uid : matchedPreset ? `demo-uid-${matchedPreset.id}` : `user-${Date.now()}`;
+    const uid = fbUser ? fbUser.uid : matchedPreset ? `demo-uid-${matchedPreset.id}` : `user-${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
     let existingProfile = await getUserProfileFromFirestore(uid);
+
+    if (!existingProfile && matchedPreset) {
+      existingProfile = await getUserProfileFromFirestore(`demo-uid-${matchedPreset.id}`);
+    }
 
     if (!existingProfile) {
       existingProfile = {
@@ -230,7 +246,7 @@ export async function signInUserWithEmail(email: string, pass: string): Promise<
         email: email.trim(),
         displayName: matchedPreset ? matchedPreset.name : (fbUser?.displayName || email.split('@')[0]),
         role: matchedPreset ? matchedPreset.role : 'customer',
-        title: matchedPreset ? matchedPreset.title : 'Registered User',
+        title: matchedPreset ? matchedPreset.title : 'Enterprise Member',
         targetPlatform: matchedPreset ? matchedPreset.targetPlatform : 'customer_portal',
         avatarUrl: matchedPreset ? matchedPreset.avatar : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
         isDemoAccount: !!matchedPreset,
@@ -239,6 +255,13 @@ export async function signInUserWithEmail(email: string, pass: string): Promise<
       };
     } else {
       existingProfile.lastLoginAt = new Date().toISOString();
+      if (matchedPreset) {
+        existingProfile.role = matchedPreset.role;
+        existingProfile.title = matchedPreset.title;
+        existingProfile.targetPlatform = matchedPreset.targetPlatform;
+        existingProfile.displayName = matchedPreset.name;
+        existingProfile.avatarUrl = matchedPreset.avatar;
+      }
     }
 
     await saveUserProfileToFirestore(existingProfile);
@@ -264,13 +287,18 @@ export async function registerUserWithEmail(
       await updateProfile(fbUser, { displayName });
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
-        // Sign in if already created
         try {
           const signInRes = await signInWithEmailAndPassword(auth, email.trim(), pass);
           fbUser = signInRes.user;
         } catch (signInErr: any) {
           return { success: false, error: 'Email already registered with a different password.' };
         }
+      } else if (
+        err.code === 'auth/operation-not-allowed' ||
+        err.code === 'auth/admin-restricted-operation' ||
+        err.code === 'auth/configuration-not-found'
+      ) {
+        console.info('Firebase Auth registration disabled in Console; proceeding with Firestore user creation.');
       } else {
         console.warn('Firebase Auth create error, falling back to profile record:', err);
       }

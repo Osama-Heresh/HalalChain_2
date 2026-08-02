@@ -60,6 +60,7 @@ interface OpsPlatformViewProps {
   leads: Lead[];
   auditLogs: AuditLogEntry[];
   onRefreshData: () => void;
+  systemMode?: 'demo' | 'production';
 }
 
 export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
@@ -68,7 +69,8 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
   applications,
   leads,
   auditLogs,
-  onRefreshData
+  onRefreshData,
+  systemMode = 'demo'
 }) => {
   const { t, dir, lang } = useLanguage();
   const [activeOpsTab, setActiveOpsTab] = useState<
@@ -144,27 +146,41 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
     switch (role) {
       case 'tech_auditor':
         return list.filter(
-          (a) => a && (a.stage === 'technical_review' || a.stage === 'ai_assessment' || a.stage === 'clarification_requested')
+          (a) => a && (
+            a.assignedReviewers?.tech_auditor === 'assigned' ||
+            a.stage === 'technical_review' ||
+            a.stage === 'ai_assessment'
+          )
         );
       case 'scholar':
         return list.filter(
-          (a) => a && (a.stage === 'scholar_review' || a.stage === 'clarification_requested' || a.stage === 'rejected')
+          (a) => a && (
+            a.assignedReviewers?.scholar === 'assigned' ||
+            a.stage === 'scholar_review'
+          )
         );
       case 'business_analyst':
         return list.filter(
-          (a) => a && (a.stage === 'ai_assessment' || a.stage === 'business_review' || a.stage === 'project_created')
+          (a) => a && (
+            a.assignedReviewers?.business_analyst === 'assigned' ||
+            a.stage === 'business_review'
+          )
         );
       case 'qa':
         return list.filter(
-          (a) => a && (a.stage === 'quality_assurance' || a.stage === 'certificate_generation')
+          (a) => a && (
+            a.assignedReviewers?.qa === 'assigned' ||
+            a.stage === 'quality_assurance'
+          )
         );
       case 'finance':
         return list.filter(
           (a) => a && (a.stage === 'waiting_deposit' || a.stage === 'waiting_final_payment')
         );
       case 'sales':
-      case 'marketing':
         return list.filter((a) => a && (a.stage === 'waiting_deposit' || a.stage === 'project_created'));
+      case 'marketing':
+        return list.filter((a) => a && (a.stage === 'project_created' || a.stage === 'published_registry'));
       case 'pm':
       case 'admin':
       case 'exec':
@@ -175,7 +191,8 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
   const roleTasks = getRoleFilteredTasks(currentUserRole);
   const appsArray = Array.isArray(applications) ? applications : [];
-  const displayedMyWorkTasks = myWorkFilter === 'role' ? roleTasks : appsArray;
+  const isManagerRole = currentUserRole === 'exec' || currentUserRole === 'admin' || currentUserRole === 'pm';
+  const displayedMyWorkTasks = isManagerRole ? (myWorkFilter === 'role' ? roleTasks : appsArray) : roleTasks;
 
   // Counts for tab badges
   const auditorTaskCount = appsArray.filter(
@@ -284,37 +301,38 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
           </p>
         </div>
 
-        {/* Role Switcher */}
-        <div className="relative z-10 bg-[#1C2541] p-3 rounded-2xl border border-amber-500/20 text-xs font-mono">
-          <label className="text-[10px] text-slate-400 block uppercase mb-1">
-            {lang === 'ar' ? 'تغيير دور المعاينة:' : 'Switch View Role:'}
-          </label>
-          <select
-            value={currentUserRole}
-            onChange={(e) => setCurrentUserRole(e.target.value as UserRole)}
-            className="bg-[#0B132B] text-amber-300 font-bold py-1.5 px-3 rounded-xl border border-amber-500/30 focus:outline-none cursor-pointer"
-          >
-            <option value="customer">Customer (Applicant)</option>
-            <option value="pm">Project Manager</option>
-            <option value="tech_auditor">Blockchain Tech Auditor</option>
-            <option value="business_analyst">Business Analyst</option>
-            <option value="scholar">Senior Sharia Scholar</option>
-            <option value="qa">Quality Assurance Officer</option>
-            <option value="finance">Finance Officer</option>
-            <option value="sales">Sales Executive</option>
-            <option value="marketing">Marketing Specialist</option>
-            <option value="exec">Executive Leader</option>
-            <option value="admin">System Administrator</option>
-          </select>
-        </div>
+        {/* Role Switcher (Available ONLY in Demo Mode AND for Super Admins) */}
+        {systemMode === 'demo' && (
+          <div className="relative z-10 bg-[#1C2541] p-3 rounded-2xl border border-amber-500/20 text-xs font-mono">
+            <label className="text-[10px] text-slate-400 block uppercase mb-1">
+              {lang === 'ar' ? 'تغيير دور المعاينة:' : 'Switch View Role:'}
+            </label>
+            <select
+              value={currentUserRole}
+              onChange={(e) => setCurrentUserRole(e.target.value as UserRole)}
+              className="bg-[#0B132B] text-amber-300 font-bold py-1.5 px-3 rounded-xl border border-amber-500/30 focus:outline-none cursor-pointer"
+            >
+              <option value="customer">Customer (Applicant)</option>
+              <option value="pm">Project Manager</option>
+              <option value="tech_auditor">Blockchain Tech Auditor</option>
+              <option value="business_analyst">Business Analyst</option>
+              <option value="scholar">Senior Sharia Scholar</option>
+              <option value="qa">Quality Assurance Officer</option>
+              <option value="finance">Finance Officer</option>
+              <option value="sales">Sales Executive</option>
+              <option value="marketing">Marketing Specialist</option>
+              <option value="exec">Executive Leader</option>
+              <option value="admin">System Administrator</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {/* PM Recruitment Alert Banner */}
       {pendingTalentApps.length > 0 &&
         (currentUserRole === 'pm' ||
           currentUserRole === 'admin' ||
-          currentUserRole === 'exec' ||
-          currentUserRole === 'business_analyst') && (
+          currentUserRole === 'exec') && (
           <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-slate-950 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-amber-400">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-slate-950 text-amber-400 flex items-center justify-center shrink-0 shadow-md">
@@ -353,65 +371,77 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
       {/* Navigation Sub-Tabs (Filtered per role) */}
       <ScrollableTabNav className="border-b border-slate-200 pb-2 text-xs font-mono" variant="light">
-        <button
-          onClick={() => setActiveOpsTab('master_registry')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeOpsTab === 'master_registry' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <Coins className="w-3.5 h-3.5 text-amber-400" />
-          <span>Master Registry</span>
-        </button>
+        {allowedTabs.includes('master_registry') && (
+          <button
+            onClick={() => setActiveOpsTab('master_registry')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeOpsTab === 'master_registry' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Coins className="w-3.5 h-3.5 text-amber-400" />
+            <span>Master Registry</span>
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveOpsTab('command_center')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeOpsTab === 'command_center' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Command Center</span>
-        </button>
+        {allowedTabs.includes('command_center') && (
+          <button
+            onClick={() => setActiveOpsTab('command_center')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeOpsTab === 'command_center' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Command Center</span>
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveOpsTab('marketing_crm')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeOpsTab === 'marketing_crm' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <Users className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Smart Marketing CRM</span>
-        </button>
+        {allowedTabs.includes('marketing_crm') && (
+          <button
+            onClick={() => setActiveOpsTab('marketing_crm')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeOpsTab === 'marketing_crm' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Smart Marketing CRM</span>
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveOpsTab('intelligence_dashboard')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeOpsTab === 'intelligence_dashboard' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>Project Intelligence</span>
-        </button>
+        {allowedTabs.includes('intelligence_dashboard') && (
+          <button
+            onClick={() => setActiveOpsTab('intelligence_dashboard')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeOpsTab === 'intelligence_dashboard' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Project Intelligence</span>
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveOpsTab('knowledge_repository')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeOpsTab === 'knowledge_repository' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Knowledge Repository</span>
-        </button>
+        {allowedTabs.includes('knowledge_repository') && (
+          <button
+            onClick={() => setActiveOpsTab('knowledge_repository')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeOpsTab === 'knowledge_repository' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Knowledge Repository</span>
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveOpsTab('enterprise_reports')}
-          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-            activeOpsTab === 'enterprise_reports' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Enterprise Reports</span>
-        </button>
+        {allowedTabs.includes('enterprise_reports') && (
+          <button
+            onClick={() => setActiveOpsTab('enterprise_reports')}
+            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+              activeOpsTab === 'enterprise_reports' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Enterprise Reports</span>
+          </button>
+        )}
 
         {allowedTabs.includes('my_work') && (
           <button
@@ -540,7 +570,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
       {/* Master Registry Tab */}
       {activeOpsTab === 'master_registry' && (
-        <MasterRegistryView onSelectProject={(pId) => setSelectedProjectId(pId)} />
+        <MasterRegistryView onSelectProject={(pId) => setSelectedProjectId(pId)} currentUserRole={currentUserRole} />
       )}
 
       {/* Operations Command Center Tab */}

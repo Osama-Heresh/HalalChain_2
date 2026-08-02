@@ -1,85 +1,89 @@
 {
-  "collections": {
-    "systemConfig": {
-      "settings": {
-        "mode": "demo",
-        "activeProvider": "Google Gemini",
-        "defaultModel": "gemini-3.6-flash",
-        "taskModelMapping": {
-          "whitepaper_analysis": "gemini-3.6-flash",
-          "smart_contract_audit": "gemini-3.1-pro-preview"
-        },
-        "maxTokenLimit": 500000,
-        "autoAssessEnabled": true
-      }
+  "entities": {
+    "SystemSettings": {
+      "title": "System Settings",
+      "description": "Global operating system configuration including demo/production mode",
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["demo", "production"] },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["mode"]
     },
-    "certifiedProjects": [
-      {
-        "id": "HC-2026-001",
-        "name": "HAQQ Network (Islamic Coin)",
-        "symbol": "ISLM",
-        "logoUrl": "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=120&auto=format&fit=crop&q=80",
-        "blockchain": "Cosmos / HAQQ Chain",
-        "category": "L1 Blockchain Ecosystem",
-        "certificateStatus": "valid",
-        "certificateType": "Sharia Compliance Certificate",
-        "certificateNumber": "HC-CERT-2026-8801",
-        "issueDate": "2026-01-15",
-        "expiryDate": "2027-01-14",
-        "riskRating": "Compliant",
-        "websiteUrl": "https://islamiccoin.net",
-        "whitepaperUrl": "https://islamiccoin.net/whitepaper.pdf",
-        "contractAddress": "0x0000000000000000000000000000000000000000",
-        "shariaSummaryEn": "The HAQQ network and ISLM token operate on an ethical proof-of-stake consensus mechanism with a dedicated Evergreen DAO receiving 10% of issuance for charitable and Islamic community initiatives.",
-        "shariaSummaryAr": "شبكة حق وحق كوين تعتمدان على آلية إثبات الحصة الأخلاقية مع تخصيص 10% من الإصدار لمنظمة Evergreen DAO للمشاريع الخيرية والاجتماعية الإسلامية.",
-        "scholarSignatures": ["Sheikh Dr. Ali Al-Quradaghi", "Dr. Nizam Yaquby", "Dr. Mohamed Elgari"],
-        "verificationHash": "0x8f4c2e91a021b33d4e7f9a228c12e84192d348a23091f855321f00921477aa21",
-        "isDemo": true
-      }
-    ],
-    "applications": [
-      {
-        "id": "APP-2026-801",
-        "applicationNumber": "HC-APP-2026-8801",
-        "companyName": "Sovereign Tokenized Sukuk Fund",
-        "legalCountry": "United Arab Emirates",
-        "representativeName": "Ahmad Razak",
-        "officialEmail": "a.razak@sovereign-sukuk.ae",
-        "phone": "+971 50 882 1920",
-        "websiteUrl": "https://sovereign-sukuk.ae",
-        "whitepaperUrl": "https://sovereign-sukuk.ae/whitepaper.pdf",
-        "contractAddress": "0x3829102938102938102938102938102938102938",
-        "blockchain": "Ethereum Mainnet",
-        "projectDescription": "Tokenized sovereign treasury Sukuk backed by physical infrastructure commodities.",
-        "packageType": "Enterprise",
-        "stage": "scholar_review",
-        "submittedAt": "2026-07-20",
-        "targetCompletionDate": "2026-08-03",
-        "depositPaid": true,
-        "finalPaid": true,
-        "totalFee": 19500,
-        "depositAmount": 9750,
-        "remainingAmount": 0,
-        "isDemo": true
-      }
-    ],
-    "leads": [
-      {
-        "id": "LEAD-101",
-        "companyName": "Mirage Carbon Exchange",
-        "projectSymbol": "MCE",
-        "country": "Saudi Arabia",
-        "website": "https://miragecarbon.sa",
-        "contactEmail": "info@miragecarbon.sa",
-        "source": "Website Discovery",
-        "status": "Qualified",
-        "assignedSalesperson": "Tariq Al-Mansoor",
-        "probability": 75,
-        "estimatedValue": 19500,
-        "notes": "Verified enterprise carbon credit tokenization protocol.",
-        "createdDate": "2026-07-18",
-        "isDemo": true
-      }
-    ]
+    "CertificationApplication": {
+      "title": "Certification Application",
+      "description": "Customer certification request and active assessment workflow record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "applicationNumber": { "type": "string" },
+        "companyName": { "type": "string" },
+        "legalCountry": { "type": "string" },
+        "representativeName": { "type": "string" },
+        "officialEmail": { "type": "string" },
+        "stage": { "type": "string" },
+        "submittedAt": { "type": "string" }
+      },
+      "required": ["id", "companyName", "stage"]
+    },
+    "PublicCertifiedProject": {
+      "title": "Public Certified Project",
+      "description": "Verified certified project published in public registry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "symbol": { "type": "string" },
+        "certificateNumber": { "type": "string" },
+        "certificateStatus": { "type": "string" }
+      },
+      "required": ["id", "name", "certificateNumber"]
+    },
+    "CrmLead": {
+      "title": "CRM Lead",
+      "description": "Sales pipeline lead",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "companyName": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "companyName"]
+    },
+    "AuditLogEntry": {
+      "title": "Audit Log Entry",
+      "description": "Immutable enterprise audit log record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "userName": { "type": "string" },
+        "userRole": { "type": "string" },
+        "action": { "type": "string" }
+      },
+      "required": ["id", "timestamp", "action"]
+    }
+  },
+  "firestore": {
+    "systemConfig": {
+      "schema": "SystemSettings",
+      "description": "System operating mode configuration"
+    },
+    "certifiedProjects": {
+      "schema": "PublicCertifiedProject",
+      "description": "Public certificate registry"
+    },
+    "applications": {
+      "schema": "CertificationApplication",
+      "description": "Certification workflow applications"
+    },
+    "leads": {
+      "schema": "CrmLead",
+      "description": "Sales lead management collection"
+    },
+    "auditLogs": {
+      "schema": "AuditLogEntry",
+      "description": "System audit trail"
+    }
   }
 }
