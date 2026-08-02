@@ -1225,19 +1225,38 @@ export interface MarketingProspectRecord {
   createdAt: string;
 }
 
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  category: 'Invitation' | 'Follow-up' | 'Reminder' | 'Certificate Issued' | 'Renewal Reminder' | 'Payment Reminder' | 'Welcome Email';
+  subject: string;
+  isDefault: boolean;
+  language: 'en' | 'ar';
+  version: string;
+  lastUpdated: string;
+  htmlContent: string;
+  variables: string[];
+}
+
 export interface EmailHistoryEntry {
   id: string;
   prospectId: string;
   masterId: string;
+  companyName?: string;
   employeeName: string;
   date: string;
   time: string;
   emailTemplate: string;
+  templateId?: string;
   recipient: string;
   subject: string;
   deliveryStatus: 'Delivered' | 'Opened' | 'Bounced' | 'Pending';
+  openStatus?: 'Opened' | 'Unopened';
+  clickStatus?: 'Clicked' | 'No Clicks';
   replyStatus: 'No Reply' | 'Replied' | 'Unsubscribed' | 'Interested';
   nextFollowUpDate: string;
+  renderedHtml?: string;
+  followUpTaskCreated?: boolean;
 }
 
 export interface SmartMarketingQueueItem {

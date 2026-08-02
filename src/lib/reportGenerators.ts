@@ -287,60 +287,14 @@ export function buildProjectAssessmentReportOptions(
   };
 }
 
+import { generateDedicatedReportData } from './reportDataGenerators';
+
 /**
  * 2. Executive Operations & Management Report
  */
-export function buildExecutiveReportOptions(reportType: string): ReportExportOptions {
-  const titles: Record<string, string> = {
-    marketing_performance: 'MARKETING PERFORMANCE & PROSPECT YIELD REPORT',
-    sales_performance: 'SALES PERFORMANCE & LEAD CONVERSION REPORT',
-    reviewer_productivity: 'REVIEWER PRODUCTIVITY & CAPACITY REPORT',
-    assessment_turnaround: 'ASSESSMENT TURNAROUND TIME ANALYSIS',
-    certificate_statistics: 'CERTIFICATE ISSUED & REGISTRY STATISTICS',
-    customer_satisfaction: 'CUSTOMER SATISFACTION & CSAT METRICS REPORT',
-    revenue_report: 'REVENUE PIPELINE & FEE DISBURSAL REPORT',
-    renewal_forecast: 'ANNUAL CERTIFICATE RENEWAL FORECAST REPORT'
-  };
-
-  const title = titles[reportType] || 'EXECUTIVE OPERATIONS REPORT';
-
-  return {
-    reportTitle: title,
-    reportSubtitle: 'Executive Board & Management Performance Intelligence Audit',
-    reportNumber: `HC-EXEC-${Math.floor(1000 + Math.random() * 9000)}`,
-    generatedBy: 'HalalChain Executive AI Analytics Engine',
-    format: 'PDF',
-    includeCoverPage: false,
-    summaryMetrics: [
-      { label: 'Total Volume', value: '142 Projects' },
-      { label: 'Conversion Rate', value: '32.4%' },
-      { label: 'Avg Turnaround', value: '4.2 Days' },
-      { label: 'Client Retention', value: '98.1%' }
-    ],
-    sections: [
-      {
-        title: '1. Executive Summary',
-        content: `This report consolidates enterprise operational metrics across marketing pipelines, lead conversions, reviewer turnaround SLAs, revenue disburse allocations, and certificate renewal statistics for Q3 2026.`
-      },
-      {
-        title: '2. Operational Performance Breakdown',
-        columns: [
-          { header: 'Metric Category', key: 'category', width: 30 },
-          { header: 'Target SLA', key: 'target', width: 20 },
-          { header: 'Actual Achievement', key: 'actual', width: 20 },
-          { header: 'Variance', key: 'variance', width: 15 },
-          { header: 'Status', key: 'status', width: 15 }
-        ],
-        rows: [
-          { category: 'Lead Response SLA', target: '< 2 Hours', actual: '42 Mins', variance: '-65%', status: 'EXCEEDED' },
-          { category: 'Technical Review Speed', target: '< 3 Days', actual: '1.8 Days', variance: '-40%', status: 'EXCEEDED' },
-          { category: 'Sharia Board Review SLA', target: '< 5 Days', actual: '2.1 Days', variance: '-58%', status: 'EXCEEDED' },
-          { category: 'Certificate Disbursal', target: '< 24 Hours', actual: '3 Hours', variance: '-87%', status: 'EXCEEDED' },
-          { category: 'Customer CSAT Score', target: '> 90%', actual: '96.8%', variance: '+6.8%', status: 'EXCEEDED' }
-        ]
-      }
-    ]
-  };
+export function buildExecutiveReportOptions(reportType: string, period: string = 'Q3 2026'): ReportExportOptions {
+  const dedicated = generateDedicatedReportData(reportType, period);
+  return dedicated.exportOptions;
 }
 
 /**

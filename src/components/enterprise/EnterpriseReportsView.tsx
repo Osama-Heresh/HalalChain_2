@@ -1,38 +1,69 @@
-import React, { useState } from 'react';
-import { FileText, Download, FileSpreadsheet, Sparkles, BarChart3, Printer, CheckCircle2, Loader2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  FileText,
+  Download,
+  FileSpreadsheet,
+  Printer,
+  CheckCircle2,
+  Filter,
+  Search,
+  Building2,
+  ShieldCheck,
+  TrendingUp,
+  BarChart3,
+  PieChart as PieChartIcon,
+  HelpCircle,
+  Calendar,
+  AlertTriangle,
+  Award,
+  Users,
+  DollarSign,
+  Briefcase,
+  Layers
+} from 'lucide-react';
 import { exportReport } from '../../lib/reportEngine';
-import { buildExecutiveReportOptions } from '../../lib/reportGenerators';
+import {
+  ENTERPRISE_REPORT_DEFINITIONS,
+  generateDedicatedReportData,
+  DedicatedReportData
+} from '../../lib/reportDataGenerators';
 
 export const EnterpriseReportsView: React.FC = () => {
-  const [selectedReportType, setSelectedReportType] = useState<string>('marketing_performance');
+  const [selectedReportType, setSelectedReportType] = useState<string>('executive_summary');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('Q3 2026');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
-  const REPORT_TYPES = [
-    { id: 'marketing_performance', title: 'Marketing Performance & Prospect Yield' },
-    { id: 'sales_performance', title: 'Sales Performance & Lead Conversion' },
-    { id: 'reviewer_productivity', title: 'Reviewer Productivity & Capacity' },
-    { id: 'assessment_turnaround', title: 'Assessment Turnaround Time Analysis' },
-    { id: 'certificate_statistics', title: 'Certificate Issued & Registry Stats' },
-    { id: 'customer_satisfaction', title: 'Customer Satisfaction & CSAT' },
-    { id: 'revenue_report', title: 'Revenue Pipeline & Fee Disbursal' },
-    { id: 'renewal_forecast', title: 'Annual Certificate Renewal Forecast' }
-  ];
+  // Generate dedicated report dataset based on selected report type & period
+  const reportData: DedicatedReportData = useMemo(() => {
+    return generateDedicatedReportData(selectedReportType, selectedPeriod, searchTerm);
+  }, [selectedReportType, selectedPeriod, searchTerm]);
 
-  const handleExport = async (format: 'PDF' | 'Excel' | 'CSV') => {
+  const handleExport = async (format: 'PDF' | 'Excel' | 'CSV' | 'Print') => {
     setIsExporting(true);
     try {
-      const opts = buildExecutiveReportOptions(selectedReportType);
-      opts.format = format;
+      const opts = { ...reportData.exportOptions, format };
       await exportReport(opts);
       setExportSuccess(`Report successfully generated and exported as ${format}!`);
       setTimeout(() => setExportSuccess(null), 4000);
     } catch (err: any) {
       console.error('Export error:', err);
+      alert(`Export error: ${err.message || 'Failed to export'}`);
     } finally {
       setIsExporting(false);
     }
   };
+
+  // Group report definitions by category
+  const categories = useMemo(() => {
+    const map: Record<string, typeof ENTERPRISE_REPORT_DEFINITIONS> = {};
+    ENTERPRISE_REPORT_DEFINITIONS.forEach((rep) => {
+      if (!map[rep.category]) map[rep.category] = [];
+      map[rep.category].push(rep);
+    });
+    return map;
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -48,8 +79,23 @@ export const EnterpriseReportsView: React.FC = () => {
             Executive Operations & Management Reporting
           </h1>
           <p className="text-slate-400 text-xs mt-1">
-            Generate and export verified executive analytics reports across marketing, sales, reviewer turnaround, revenue, and renewal forecasts.
+            Independent dynamic reporting templates with module-specific KPIs, real-time analytics charts, and verified audit export options.
           </p>
+        </div>
+
+        {/* Global Period Selector & Quick Print */}
+        <div className="flex items-center gap-2 bg-slate-800/90 p-2 rounded-2xl border border-slate-700">
+          <Calendar className="w-4 h-4 text-emerald-400 ml-1" />
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="bg-transparent text-xs font-bold text-white focus:outline-none pr-2 cursor-pointer font-mono"
+          >
+            <option value="Q3 2026" className="bg-slate-900">Q3 2026 (Live)</option>
+            <option value="Q2 2026" className="bg-slate-900">Q2 2026</option>
+            <option value="YTD 2026" className="bg-slate-900">Year-to-Date 2026</option>
+            <option value="All Time" className="bg-slate-900">All Time Historical</option>
+          </select>
         </div>
       </div>
 
@@ -60,103 +106,223 @@ export const EnterpriseReportsView: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        {/* Report Selector Panel */}
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md space-y-3">
-          <h3 className="text-xs font-bold font-mono text-slate-500 uppercase">Select Report Module</h3>
-          <div className="space-y-1.5">
-            {REPORT_TYPES.map((rep) => (
-              <button
-                key={rep.id}
-                onClick={() => setSelectedReportType(rep.id)}
-                className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all ${
-                  selectedReportType === rep.id
-                    ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-slate-950 shadow'
-                    : 'bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100'
-                }`}
-              >
-                {rep.title}
-              </button>
+        {/* Left Nav Report Selector Panel */}
+        <div className="lg:col-span-1 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold font-mono text-slate-500 uppercase">Report Catalog (11)</h3>
+            <span className="text-[10px] font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full">
+              Verified
+            </span>
+          </div>
+
+          <div className="space-y-4 max-h-[750px] overflow-y-auto pr-1">
+            {Object.entries(categories).map(([catName, reps]) => (
+              <div key={catName} className="space-y-1">
+                <div className="text-[10px] font-extrabold font-mono text-slate-400 uppercase tracking-wider px-1 pt-1">
+                  {catName}
+                </div>
+                {reps.map((rep) => {
+                  const isSelected = selectedReportType === rep.id;
+                  return (
+                    <button
+                      key={rep.id}
+                      onClick={() => setSelectedReportType(rep.id)}
+                      className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-slate-900 text-white dark:bg-emerald-600 dark:text-slate-950 shadow-md'
+                          : 'bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="truncate pr-2">
+                        <div className="truncate font-bold">{rep.title}</div>
+                      </div>
+                      {isSelected && <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>}
+                    </button>
+                  );
+                })}
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Report Preview & Export Controls */}
-        <div className="md:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+        {/* Right Report Content & Visual Analytics Panel */}
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md space-y-6">
+          
+          {/* Top Report Title & Export Action Bar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
             <div>
-              <span className="text-[10px] font-mono font-bold text-emerald-600 uppercase bg-emerald-50 px-2 py-0.5 rounded">
-                Executive Audit Report
-              </span>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white mt-1">
-                {REPORT_TYPES.find((r) => r.id === selectedReportType)?.title}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-800">
+                  {reportData.reportNumber}
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  {selectedPeriod} • Generated Live
+                </span>
+              </div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white mt-1.5">
+                {reportData.reportTitle}
               </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {reportData.reportSubtitle}
+              </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* Dedicated Export Controls */}
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => handleExport('PDF')}
-                className="py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow"
+                disabled={isExporting}
+                className="py-2 px-3.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow transition-all"
               >
                 <Printer className="w-3.5 h-3.5" /> PDF
               </button>
               <button
                 onClick={() => handleExport('Excel')}
-                className="py-2 px-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow"
+                disabled={isExporting}
+                className="py-2 px-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow transition-all"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
               </button>
               <button
                 onClick={() => handleExport('CSV')}
-                className="py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow"
+                disabled={isExporting}
+                className="py-2 px-3.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow transition-all"
               >
                 <Download className="w-3.5 h-3.5" /> CSV
               </button>
             </div>
           </div>
 
-          {/* Report Data Preview */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-3 text-xs bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl">
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Reporting Period</span>
-                <span className="font-bold text-slate-900 dark:text-white">Q3 2026 (Live)</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Generated By</span>
-                <span className="font-bold text-slate-900 dark:text-white">Executive AI Engine</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Security Status</span>
-                <span className="font-mono text-emerald-600 font-bold">DIGITAL-SIGN-OK</span>
-              </div>
-            </div>
+          {/* DEDICATED REPORT KPIS GRID */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {reportData.kpis.map((kpi, idx) => (
+              <div
+                key={idx}
+                className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between"
+              >
+                <div>
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block font-mono">
+                    {kpi.label}
+                  </span>
+                  <div className="text-lg font-black text-slate-900 dark:text-white font-mono mt-1">
+                    {kpi.value}
+                  </div>
+                </div>
 
-            <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2 text-xs">
-              <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-[11px] uppercase">
-                Summary Metrics Overview
+                <div className="mt-2 flex items-center justify-between text-[10px]">
+                  {kpi.change && (
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                      {kpi.change}
+                    </span>
+                  )}
+                  {kpi.badge && (
+                    <span className={`px-1.5 py-0.5 font-bold rounded ${kpi.badgeColor || 'bg-slate-200 text-slate-700'}`}>
+                      {kpi.badge}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                  <div className="text-slate-400 text-[10px] uppercase font-bold">Volume</div>
-                  <div className="text-lg font-black text-slate-900 dark:text-white font-mono mt-0.5">142</div>
+            ))}
+          </div>
+
+          {/* DEDICATED GRAPHICAL CHARTS / ANALYTICS VISUALIZERS */}
+          {reportData.charts && reportData.charts.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {reportData.charts.map((chart, idx) => (
+                <div
+                  key={idx}
+                  className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono uppercase">
+                      {chart.title}
+                    </span>
+                    <BarChart3 className="w-4 h-4 text-emerald-500" />
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    {chart.items.map((item, i) => {
+                      const maxValue = Math.max(...chart.items.map((it) => it.value), 1);
+                      const pct = Math.round((item.value / maxValue) * 100);
+                      return (
+                        <div key={i} className="space-y-1">
+                          <div className="flex justify-between text-[11px] font-medium text-slate-700 dark:text-slate-300 font-mono">
+                            <span>{item.label}</span>
+                            <span className="font-bold">{typeof item.value === 'number' ? item.value.toLocaleString() : item.value}</span>
+                          </div>
+                          <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${pct}%`,
+                                backgroundColor: item.color || '#059669'
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                  <div className="text-slate-400 text-[10px] uppercase font-bold">Conversion</div>
-                  <div className="text-lg font-black text-emerald-600 font-mono mt-0.5">32.4%</div>
-                </div>
-                <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                  <div className="text-slate-400 text-[10px] uppercase font-bold">Avg SLA</div>
-                  <div className="text-lg font-black text-indigo-600 font-mono mt-0.5">4.2 Days</div>
-                </div>
-                <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                  <div className="text-slate-400 text-[10px] uppercase font-bold">Retention</div>
-                  <div className="text-lg font-black text-amber-600 font-mono mt-0.5">98.1%</div>
-                </div>
+              ))}
+            </div>
+          )}
+
+          {/* DEDICATED REPORT DATA TABLES */}
+          {reportData.tables && reportData.tables.map((table, tIdx) => (
+            <div key={tIdx} className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold font-mono text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                  {table.title}
+                </h3>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {table.rows.length} Verified Records
+                </span>
+              </div>
+
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-100 dark:bg-slate-800 font-mono text-[10px] text-slate-500 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+                      {table.columns.map((col) => (
+                        <th key={col.key} className="p-3">
+                          {col.header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-slate-800 dark:text-slate-200">
+                    {table.rows.map((row, rIdx) => (
+                      <tr key={rIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+                        {table.columns.map((col) => (
+                          <td key={col.key} className="p-3 truncate max-w-[200px]">
+                            {row[col.key] || '—'}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          </div>
+          ))}
+
+          {/* EXECUTIVE RECOMMENDATIONS & TAKEAWAYS */}
+          {reportData.recommendations && reportData.recommendations.length > 0 && (
+            <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-4 rounded-2xl space-y-2">
+              <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-300 font-bold text-xs font-mono uppercase">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>Executive Findings & Actionable Recommendations</span>
+              </div>
+              <ul className="list-disc list-inside text-xs text-emerald-950 dark:text-emerald-200 space-y-1 pl-1 font-medium">
+                {reportData.recommendations.map((rec, rIdx) => (
+                  <li key={rIdx}>{rec}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
         </div>
 
