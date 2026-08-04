@@ -15,6 +15,7 @@ import {
   saveRbacRolesToFirestore,
   createCustomRoleInFirestore
 } from '../lib/rbacService';
+import { NavigationBuilderService, GeneratedNavigation } from '../lib/navigationBuilder';
 import { useAuth } from './AuthContext';
 
 interface RbacContextType {
@@ -25,6 +26,7 @@ interface RbacContextType {
   hasPlatformAccess: (platform: PlatformView, roleOverride?: UserRole) => boolean;
   hasTabAccess: (platform: PlatformView, tab: string, roleOverride?: UserRole) => boolean;
   hasActionPermission: (actionKey: string, roleOverride?: UserRole) => boolean;
+  getNavigation: (roleOverride?: UserRole) => GeneratedNavigation;
   updatePermissionToggle: (roleId: string, permKey: string, enabled: boolean) => Promise<void>;
   toggleAllPermissionsForRole: (roleId: string, enabled: boolean) => Promise<void>;
   resetRolePermissionsToDefault: () => Promise<void>;
@@ -107,6 +109,11 @@ export const RbacProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return checkPermission(role, permKey);
   };
 
+  const getNavigation = (roleOverride?: UserRole): GeneratedNavigation => {
+    const role = roleOverride || currentRole;
+    return NavigationBuilderService.generateNavigation(role, (key) => checkPermission(role, key));
+  };
+
   // Management actions
   const updatePermissionToggle = async (roleId: string, permKey: string, enabled: boolean) => {
     const updatedMatrix = {
@@ -174,6 +181,7 @@ export const RbacProvider: React.FC<{ children: React.ReactNode }> = ({ children
         hasPlatformAccess,
         hasTabAccess,
         hasActionPermission,
+        getNavigation,
         updatePermissionToggle,
         toggleAllPermissionsForRole,
         resetRolePermissionsToDefault,

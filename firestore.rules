@@ -7,58 +7,79 @@ service cloud.firestore {
       return request.auth != null || request.time != null;
     }
 
-    // Public / System Config
+    function isExecOrAdmin() {
+      return isAuthenticated();
+    }
+
+    // Public / System Config & Registry
     match /systemConfig/{docId} { allow read: if true; allow write: if isAuthenticated(); }
     match /system_settings/{docId} { allow read: if true; allow write: if isAuthenticated(); }
-    
-    // Public Registry
     match /certifiedProjects/{docId} { allow read: if true; allow write: if isAuthenticated(); }
     match /public_certified_projects/{docId} { allow read: if true; allow write: if isAuthenticated(); }
 
-    // Enterprise Collections
-    match /applications/{docId} { allow read, write: if true; }
-    match /certification_applications/{docId} { allow read, write: if true; }
-    match /leads/{docId} { allow read, write: if true; }
-    match /crm_leads/{docId} { allow read, write: if true; }
-    match /aiLogs/{docId} { allow read, write: if true; }
-    match /ai_logs/{docId} { allow read, write: if true; }
-    match /auditLogs/{docId} { allow read, write: if true; }
-    match /audit_logs/{docId} { allow read, write: if true; }
-    match /remoteEmployees/{docId} { allow read, write: if true; }
-    match /remote_employees/{docId} { allow read, write: if true; }
-    match /talentApplications/{docId} { allow read, write: if true; }
-    match /talent_applications/{docId} { allow read, write: if true; }
-    match /projectTeamAssignments/{docId} { allow read, write: if true; }
-    match /project_team_assignments/{docId} { allow read, write: if true; }
-    match /workLogs/{docId} { allow read, write: if true; }
-    match /payroll_work_logs/{docId} { allow read, write: if true; }
-    match /memberEvaluations/{docId} { allow read, write: if true; }
-    match /member_evaluations/{docId} { allow read, write: if true; }
-    match /whitepaperRepository/{docId} { allow read, write: if true; }
-    match /whitepapers_repository/{docId} { allow read, write: if true; }
-    match /clarificationMessages/{docId} { allow read, write: if true; }
-    match /clarification_messages/{docId} { allow read, write: if true; }
-    match /questionsLibrary/{docId} { allow read, write: if true; }
-    match /assessments/{docId} { allow read, write: if true; }
-    match /assessment_reports/{docId} { allow read, write: if true; }
-    match /evidenceDossiers/{docId} { allow read, write: if true; }
-    match /knowledgeRepository/{docId} { allow read, write: if true; }
-    match /knowledge_repository/{docId} { allow read, write: if true; }
-    match /masterRegistry/{docId} { allow read, write: if true; }
-    match /master_projects/{docId} { allow read, write: if true; }
-    match /projectTaskLocks/{docId} { allow read, write: if true; }
-    match /project_task_locks/{docId} { allow read, write: if true; }
-    match /marketingProspects/{docId} { allow read, write: if true; }
-    match /marketing_prospects/{docId} { allow read, write: if true; }
-    match /emailHistory/{docId} { allow read, write: if true; }
-    match /marketing_email_history/{docId} { allow read, write: if true; }
-    match /systemAlerts/{docId} { allow read, write: if true; }
-    match /system_alerts/{docId} { allow read, write: if true; }
-    match /users/{userId} { allow read, write: if true; }
+    // User Accounts & Profiles
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    match /remoteEmployees/{docId} { allow read: if isAuthenticated(); allow write: if isExecOrAdmin(); }
+    match /remote_employees/{docId} { allow read: if isAuthenticated(); allow write: if isExecOrAdmin(); }
+    match /talentApplications/{docId} { allow read, write: if isAuthenticated(); }
+    match /talent_applications/{docId} { allow read, write: if isAuthenticated(); }
+
+    // Projects, Master Registry & Applications
+    match /applications/{docId} { allow read, write: if isAuthenticated(); }
+    match /certification_applications/{docId} { allow read, write: if isAuthenticated(); }
+    match /masterRegistry/{docId} { allow read, write: if isAuthenticated(); }
+    match /master_projects/{docId} { allow read, write: if isAuthenticated(); }
+    match /projectTeamAssignments/{docId} { allow read, write: if isAuthenticated(); }
+    match /project_team_assignments/{docId} { allow read, write: if isAuthenticated(); }
+    match /projectTaskLocks/{docId} { allow read, write: if isAuthenticated(); }
+    match /project_task_locks/{docId} { allow read, write: if isAuthenticated(); }
+
+    // CRM, Leads & Prospects
+    match /leads/{docId} { allow read, write: if isAuthenticated(); }
+    match /crm_leads/{docId} { allow read, write: if isAuthenticated(); }
+    match /marketingProspects/{docId} { allow read, write: if isAuthenticated(); }
+    match /marketing_prospects/{docId} { allow read, write: if isAuthenticated(); }
+    match /emailHistory/{docId} { allow read, write: if isAuthenticated(); }
+    match /marketing_email_history/{docId} { allow read, write: if isAuthenticated(); }
+
+    // Audit Logs & Security Traces
+    match /auditLogs/{docId} { allow read: if isAuthenticated(); allow write: if isAuthenticated(); }
+    match /audit_logs/{docId} { allow read: if isAuthenticated(); allow write: if isAuthenticated(); }
+    match /security_logs/{docId} { allow read: if isAuthenticated(); allow write: if isAuthenticated(); }
+
+    // AI & Assessment Intelligence
+    match /aiLogs/{docId} { allow read, write: if isAuthenticated(); }
+    match /ai_logs/{docId} { allow read, write: if isAuthenticated(); }
+    match /assessments/{docId} { allow read, write: if isAuthenticated(); }
+    match /assessment_reports/{docId} { allow read, write: if isAuthenticated(); }
+
+    // Work, Payroll & Escrow
+    match /workLogs/{docId} { allow read, write: if isAuthenticated(); }
+    match /payroll_work_logs/{docId} { allow read, write: if isAuthenticated(); }
+    match /memberEvaluations/{docId} { allow read, write: if isAuthenticated(); }
+    match /member_evaluations/{docId} { allow read, write: if isAuthenticated(); }
+
+    // Repository, Whitepapers, Evidence & Questions
+    match /whitepaperRepository/{docId} { allow read, write: if isAuthenticated(); }
+    match /whitepapers_repository/{docId} { allow read, write: if isAuthenticated(); }
+    match /evidenceDossiers/{docId} { allow read, write: if isAuthenticated(); }
+    match /knowledgeRepository/{docId} { allow read, write: if isAuthenticated(); }
+    match /knowledge_repository/{docId} { allow read, write: if isAuthenticated(); }
+    match /questionsLibrary/{docId} { allow read, write: if isAuthenticated(); }
+
+    // Clarification Messages & System Alerts/Notifications
+    match /clarificationMessages/{docId} { allow read, write: if isAuthenticated(); }
+    match /clarification_messages/{docId} { allow read, write: if isAuthenticated(); }
+    match /systemAlerts/{docId} { allow read, write: if isAuthenticated(); }
+    match /system_alerts/{docId} { allow read, write: if isAuthenticated(); }
+    match /notifications/{docId} { allow read, write: if isAuthenticated(); }
 
     // Default Fallback
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if isAuthenticated();
     }
   }
 }

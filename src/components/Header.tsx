@@ -6,6 +6,7 @@ import { PlatformTab, UserRole } from '../types';
 import { ShieldCheck, Globe, User, Briefcase, BarChart3, ChevronDown, Menu, X, KeyRound, LogOut, Sparkles } from 'lucide-react';
 import { NotificationCenter } from './NotificationCenter';
 import { ScrollableTabNav } from './common/ScrollableTabNav';
+import { navigateTo } from '../lib/router';
 
 interface HeaderProps {
   activePlatform: PlatformTab;
@@ -30,8 +31,21 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { lang, toggleLang, t } = useLanguage();
   const { currentUser, openAuthModal, logout, updateCurrentRole } = useAuth();
-  const { hasPlatformAccess } = useRbac();
+  const { getNavigation } = useRbac();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Dynamic Navigation Builder configuration for the active user role
+  const navConfig = getNavigation(currentUserRole);
+
+  const getPlatformIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Globe': return <Globe className="w-3.5 h-3.5" />;
+      case 'User': return <User className="w-3.5 h-3.5" />;
+      case 'Briefcase': return <Briefcase className="w-3.5 h-3.5" />;
+      case 'BarChart3': return <BarChart3 className="w-3.5 h-3.5" />;
+      default: return <Globe className="w-3.5 h-3.5" />;
+    }
+  };
 
   const rolesList: { role: UserRole; name: string }[] = [
     { role: 'exec', name: 'General Manager (Exec)' },
@@ -67,6 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div
             className="flex items-center gap-2.5 cursor-pointer group shrink-0"
             onClick={() => {
+              navigateTo('/public/home');
               setActivePlatform('public');
               setActivePublicTab('home');
               setMobileMenuOpen(false);
@@ -99,63 +114,25 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Desktop Platform Navigation Tabs */}
+          {/* Desktop Platform Navigation Tabs - Dynamically Built via Navigation Builder */}
           <nav className="hidden lg:flex items-center gap-1 bg-[#1C2541]/80 p-1.5 rounded-xl border border-white/10">
-            {hasPlatformAccess('public_website') && (
+            {navConfig.platformTabs.map((p) => (
               <button
-                onClick={() => setActivePlatform('public')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  activePlatform === 'public'
+                key={p.id}
+                onClick={() => {
+                  navigateTo(p.path);
+                  setActivePlatform(p.id);
+                }}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  activePlatform === p.id
                     ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
                     : 'text-slate-300 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Globe className="w-3.5 h-3.5" />
-                {t('nav.public')}
+                {getPlatformIcon(p.iconName)}
+                <span>{t(p.labelKey) || p.defaultLabel}</span>
               </button>
-            )}
-
-            {hasPlatformAccess('customer_portal') && (
-              <button
-                onClick={() => setActivePlatform('customer')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  activePlatform === 'customer'
-                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <User className="w-3.5 h-3.5" />
-                {t('nav.customer')}
-              </button>
-            )}
-
-            {hasPlatformAccess('ops_platform') && (
-              <button
-                onClick={() => setActivePlatform('ops')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  activePlatform === 'ops'
-                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Briefcase className="w-3.5 h-3.5" />
-                {t('nav.ops')}
-              </button>
-            )}
-
-            {hasPlatformAccess('exec_platform') && (
-              <button
-                onClick={() => setActivePlatform('exec')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  activePlatform === 'exec'
-                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-md'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <BarChart3 className="w-3.5 h-3.5" />
-                {t('nav.exec')}
-              </button>
-            )}
+            ))}
           </nav>
 
           {/* Right Actions: Auth User Profile, Language Switcher & Mobile Toggle */}
@@ -282,62 +259,24 @@ export const Header: React.FC<HeaderProps> = ({
               Select Platform View:
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => {
-                  setActivePlatform('public');
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activePlatform === 'public'
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'bg-[#1C2541] text-slate-200 border border-white/10'
-                }`}
-              >
-                <Globe className="w-4 h-4" />
-                <span>{t('nav.public')}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActivePlatform('customer');
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activePlatform === 'customer'
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'bg-[#1C2541] text-slate-200 border border-white/10'
-                }`}
-              >
-                <User className="w-4 h-4" />
-                <span>{t('nav.customer')}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActivePlatform('ops');
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activePlatform === 'ops'
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'bg-[#1C2541] text-slate-200 border border-white/10'
-                }`}
-              >
-                <Briefcase className="w-4 h-4" />
-                <span>{t('nav.ops')}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActivePlatform('exec');
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activePlatform === 'exec'
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'bg-[#1C2541] text-slate-200 border border-white/10'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span>{t('nav.exec')}</span>
-              </button>
+              {navConfig.platformTabs.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    navigateTo(p.path);
+                    setActivePlatform(p.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition-all ${
+                    activePlatform === p.id
+                      ? 'bg-amber-500 text-slate-950'
+                      : 'bg-[#1C2541] text-slate-200 border border-white/10'
+                  }`}
+                >
+                  {getPlatformIcon(p.iconName)}
+                  <span>{t(p.labelKey) || p.defaultLabel}</span>
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -345,17 +284,20 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Sub-Navigation Bar for Public Website */}
         {activePlatform === 'public' && (
           <ScrollableTabNav className="py-2 text-xs border-t border-white/5" variant="dark">
-            {publicNavItems.map((item) => (
+            {navConfig.publicTabs.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActivePublicTab(item.id)}
+                onClick={() => {
+                  navigateTo(item.path);
+                  setActivePublicTab(item.id);
+                }}
                 className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap font-medium cursor-pointer ${
-                  activePublicTab === item.id
+                  activePublicTab === item.id || item.active
                     ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                     : 'text-slate-300 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {t(item.labelKey)}
+                {item.labelKey ? t(item.labelKey) : item.label}
               </button>
             ))}
           </ScrollableTabNav>

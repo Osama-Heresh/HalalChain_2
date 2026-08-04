@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { RbacProvider, useRbac } from './context/RbacContext';
+import { SessionSecurityProvider } from './context/SessionSecurityContext';
 import { AuthModal } from './components/auth/AuthModal';
 import { AccessDeniedPage } from './components/auth/AccessDeniedPage';
 import { Header } from './components/Header';
@@ -24,6 +25,7 @@ import { CustomerPortalView } from './components/customer/CustomerPortalView';
 import { OpsPlatformView } from './components/ops/OpsPlatformView';
 import { ExecPlatformView } from './components/exec/ExecPlatformView';
 
+import { parsePath, navigateTo } from './lib/router';
 import {
   PlatformView,
   PlatformTab,
@@ -56,6 +58,35 @@ const MainContent: React.FC = () => {
   const [activePlatformView, setActivePlatformView] = useState<PlatformView>('exec_platform');
   const [publicSubView, setPublicSubView] = useState<PublicSubView>('home');
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>('exec');
+
+  const [activeOpsSubTab, setActiveOpsSubTab] = useState<string>('my_work');
+  const [activeExecSubTab, setActiveExecSubTab] = useState<string>('bi');
+  const [activeCustomerSubTab, setActiveCustomerSubTab] = useState<string>('overview');
+
+  // Reactive URL router listener
+  useEffect(() => {
+    const syncRoute = () => {
+      const route = parsePath(window.location.pathname);
+      setActivePlatformView(route.platformView);
+      if (route.platformTab === 'public') {
+        setPublicSubView(route.subTab as PublicSubView);
+      } else if (route.platformTab === 'ops') {
+        setActiveOpsSubTab(route.subTab);
+      } else if (route.platformTab === 'exec') {
+        setActiveExecSubTab(route.subTab);
+      } else if (route.platformTab === 'customer') {
+        setActiveCustomerSubTab(route.subTab);
+      }
+    };
+
+    syncRoute();
+    window.addEventListener('popstate', syncRoute);
+    window.addEventListener('app-navigation', syncRoute as EventListener);
+    return () => {
+      window.removeEventListener('popstate', syncRoute);
+      window.removeEventListener('app-navigation', syncRoute as EventListener);
+    };
+  }, []);
 
   // Sync auth context user state with app view and role
   useEffect(() => {
@@ -95,10 +126,17 @@ const MainContent: React.FC = () => {
     setCurrentUserRole(role);
     if (role === 'customer') {
       setActivePlatformView('customer_portal');
+      setActiveCustomerSubTab('overview');
+      navigateTo('/customer/overview');
     } else if (role === 'exec') {
       setActivePlatformView('exec_platform');
+      setActiveExecSubTab('bi');
+      navigateTo('/exec/bi');
     } else {
       setActivePlatformView('ops_platform');
+      const defaultSubTab = 'my_work';
+      setActiveOpsSubTab(defaultSubTab);
+      navigateTo(`/ops/${defaultSubTab}`);
     }
   };
 
@@ -107,12 +145,21 @@ const MainContent: React.FC = () => {
     setActivePlatformView(newView);
     if (tab === 'customer') {
       setCurrentUserRole('customer');
+      setActiveCustomerSubTab('overview');
+      navigateTo('/customer/overview');
     } else if (tab === 'exec') {
       setCurrentUserRole('exec');
+      setActiveExecSubTab('bi');
+      navigateTo('/exec/bi');
     } else if (tab === 'ops') {
       if (currentUserRole === 'customer' || currentUserRole === 'exec') {
         setCurrentUserRole('pm');
       }
+      setActiveOpsSubTab('my_work');
+      navigateTo('/ops/my_work');
+    } else if (tab === 'public') {
+      setPublicSubView('home');
+      navigateTo('/public/home');
     }
   };
 
@@ -238,6 +285,7 @@ const MainContent: React.FC = () => {
               <CustomerPortalView
                 applications={applications}
                 onRefreshApplications={refreshData}
+                activeSubTab={activeCustomerSubTab}
               />
             )}
 
@@ -245,12 +293,13 @@ const MainContent: React.FC = () => {
             {activePlatformView === 'ops_platform' && (
               <OpsPlatformView
                 currentUserRole={currentUserRole}
-                setCurrentUserRole={setCurrentUserRole}
+                setCurrentUserRole={handleUserRoleChange}
                 applications={applications}
                 leads={leads}
                 auditLogs={auditLogs}
                 onRefreshData={refreshData}
                 systemMode={systemMode}
+                activeSubTab={activeOpsSubTab}
               />
             )}
 
@@ -259,6 +308,8 @@ const MainContent: React.FC = () => {
               <ExecPlatformView
                 systemMode={systemMode}
                 onModeChange={handleModeChange}
+                currentUserRole={currentUserRole}
+                activeSubTab={activeExecSubTab}
               />
             )}
           </>
@@ -284,7 +335,9 @@ export default function App() {
     <LanguageProvider>
       <AuthProvider>
         <RbacProvider>
-          <MainContent />
+          <SessionSecurityProvider>
+            <MainContent />
+          </SessionSecurityProvider>
         </RbacProvider>
       </AuthProvider>
     </LanguageProvider>

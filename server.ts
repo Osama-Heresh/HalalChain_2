@@ -102,6 +102,23 @@ async function startServer() {
     });
   });
 
+  // Authorization Helper Middleware for Backend Endpoints
+  const checkEndpointAuth = (req: express.Request, res: express.Response, allowedRoles?: string[]) => {
+    const userRole = (req.headers['x-user-role'] as string) || req.body?.userRole || 'exec';
+    if (userRole === 'exec' || userRole === 'admin') {
+      return true; // Executive & Admin full access
+    }
+    if (allowedRoles && !allowedRoles.includes(userRole)) {
+      res.status(403).json({
+        error: `Forbidden: User role '${userRole}' is not authorized to execute this API endpoint.`,
+        code: 403,
+        errorCode: 'ERR_PERMISSION_DENIED'
+      });
+      return false;
+    }
+    return true;
+  };
+
   // Operating Mode API (Single Configuration Setting)
   app.get('/api/system/mode', async (req, res) => {
     const settings = await getSystemSettings();
@@ -109,6 +126,8 @@ async function startServer() {
   });
 
   app.post('/api/system/mode', async (req, res) => {
+    if (!checkEndpointAuth(req, res, ['exec', 'admin'])) return;
+
     const { mode } = req.body;
     if (mode !== 'demo' && mode !== 'production') {
       return res.status(400).json({ error: 'Invalid mode. Must be "demo" or "production"' });

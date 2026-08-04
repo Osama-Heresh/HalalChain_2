@@ -52,6 +52,7 @@ import { EnterpriseReportsView } from '../enterprise/EnterpriseReportsView';
 import { safeFetch, getLocalTalentApps } from '../../lib/api';
 import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
 import { useRbac } from '../../context/RbacContext';
+import { navigateTo } from '../../lib/router';
 
 interface OpsPlatformViewProps {
   currentUserRole: UserRole;
@@ -61,6 +62,7 @@ interface OpsPlatformViewProps {
   auditLogs: AuditLogEntry[];
   onRefreshData: () => void;
   systemMode?: 'demo' | 'production';
+  activeSubTab?: string;
 }
 
 export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
@@ -70,13 +72,24 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
   leads,
   auditLogs,
   onRefreshData,
-  systemMode = 'demo'
+  systemMode = 'demo',
+  activeSubTab
 }) => {
   const { t, dir, lang } = useLanguage();
-  const [activeOpsTab, setActiveOpsTab] = useState<
-    'my_work' | 'master_registry' | 'command_center' | 'marketing_crm' | 'crm' | 'pm' | 'ai_engine' | 'intelligence_dashboard' | 'knowledge_repository' | 'enterprise_reports' | 'auditor' | 'finance' | 'audit_log' | 'wallet'
-  >('my_work');
+  const { getNavigation } = useRbac();
+  const navConfig = getNavigation(currentUserRole);
+  const opsNavItems = navConfig.opsTabs;
+
+  const [activeOpsTab, setActiveOpsTab] = useState<string>(activeSubTab || 'my_work');
   const [selectedProjectId, setSelectedProjectId] = useState<string>(applications[0]?.id || '');
+
+  useEffect(() => {
+    if (activeSubTab) {
+      setActiveOpsTab((prev) => (prev !== activeSubTab ? activeSubTab : prev));
+    } else if (opsNavItems.length > 0 && !opsNavItems.some((item) => item.id === activeOpsTab)) {
+      setActiveOpsTab(opsNavItems[0].id);
+    }
+  }, [currentUserRole, activeSubTab]);
 
   // Task Inspection Modal State
   const [activeTaskForModal, setActiveTaskForModal] = useState<CertificationApplication | null>(null);
@@ -110,33 +123,6 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
   }, []);
 
   const { hasTabAccess } = useRbac();
-
-  const ALL_OPS_TABS: Array<
-    'my_work' | 'master_registry' | 'command_center' | 'marketing_crm' | 'crm' | 'pm' | 'ai_engine' | 'intelligence_dashboard' | 'knowledge_repository' | 'enterprise_reports' | 'auditor' | 'finance' | 'audit_log' | 'wallet'
-  > = [
-    'my_work',
-    'master_registry',
-    'command_center',
-    'marketing_crm',
-    'crm',
-    'pm',
-    'ai_engine',
-    'intelligence_dashboard',
-    'knowledge_repository',
-    'enterprise_reports',
-    'auditor',
-    'finance',
-    'audit_log',
-    'wallet'
-  ];
-
-  const allowedTabs = ALL_OPS_TABS;
-
-  useEffect(() => {
-    if (allowedTabs.length > 0 && !allowedTabs.includes(activeOpsTab)) {
-      setActiveOpsTab(allowedTabs[0]);
-    }
-  }, [currentUserRole, allowedTabs]);
 
   const selectedApp = applications.find((a) => a.id === selectedProjectId) || applications[0];
 
@@ -369,203 +355,59 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
           </div>
         )}
 
-      {/* Navigation Sub-Tabs (Filtered per role) */}
+      {/* Navigation Sub-Tabs (Dynamically Built per role via Navigation Builder Service) */}
       <ScrollableTabNav className="border-b border-slate-200 pb-2 text-xs font-mono" variant="light">
-        {allowedTabs.includes('master_registry') && (
-          <button
-            onClick={() => setActiveOpsTab('master_registry')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'master_registry' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Coins className="w-3.5 h-3.5 text-amber-400" />
-            <span>Master Registry</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('command_center') && (
-          <button
-            onClick={() => setActiveOpsTab('command_center')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'command_center' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Command Center</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('marketing_crm') && (
-          <button
-            onClick={() => setActiveOpsTab('marketing_crm')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'marketing_crm' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Smart Marketing CRM</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('intelligence_dashboard') && (
-          <button
-            onClick={() => setActiveOpsTab('intelligence_dashboard')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'intelligence_dashboard' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Project Intelligence</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('knowledge_repository') && (
-          <button
-            onClick={() => setActiveOpsTab('knowledge_repository')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'knowledge_repository' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Knowledge Repository</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('enterprise_reports') && (
-          <button
-            onClick={() => setActiveOpsTab('enterprise_reports')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'enterprise_reports' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Enterprise Reports</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('my_work') && (
-          <button
-            onClick={() => setActiveOpsTab('my_work')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'my_work' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <span>{lang === 'ar' ? 'لوحة مهامي الخاطفة' : 'My Work Dashboard'}</span>
-            <span className="bg-amber-500/20 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {roleTasks.length}
-            </span>
-          </button>
-        )}
-
-        {allowedTabs.includes('pm') && (
-          <button
-            onClick={() => setActiveOpsTab('pm')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'pm' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5 text-amber-400" />
-            <span>{lang === 'ar' ? 'المشاريع' : 'Projects'}</span>
-            <span className="bg-slate-200 text-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {applications.length}
-            </span>
-          </button>
-        )}
-
-        {allowedTabs.includes('ai_engine') && (
-          <button
-            onClick={() => setActiveOpsTab('ai_engine')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'ai_engine' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>{lang === 'ar' ? 'مركز التقييم بالذكاء الاصطناعي' : 'AI Assessment Center'}</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('auditor') && (
-          <button
-            onClick={() => setActiveOpsTab('auditor')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'auditor' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            {currentUserRole === 'scholar' ? (
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
-            ) : (
-              <Code className="w-3.5 h-3.5 text-emerald-600" />
-            )}
-            <span>
-              {currentUserRole === 'scholar'
-                ? (lang === 'ar' ? 'مساحة المراجعة والشرعنة' : 'Sharia Review Workspace')
-                : currentUserRole === 'tech_auditor'
-                ? (lang === 'ar' ? 'تدقيق العقود الذكية' : 'Smart Contract Tech Auditor')
-                : currentUserRole === 'qa'
-                ? (lang === 'ar' ? 'مساحة ضمان الجودة' : 'QA Certification Gate')
-                : (lang === 'ar' ? 'مساحة التدقيق والشرعنة' : 'Auditor Workspace')}
-            </span>
-            <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {auditorTaskCount}
-            </span>
-          </button>
-        )}
-
-        {allowedTabs.includes('crm') && (
-          <button
-            onClick={() => setActiveOpsTab('crm')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'crm' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <span>{lang === 'ar' ? 'إدارة العملاء والمبيعات' : 'CRM & Sales Pipeline'}</span>
-            <span className="bg-slate-200 text-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {leads.length}
-            </span>
-          </button>
-        )}
-
-        {allowedTabs.includes('finance') && (
-          <button
-            onClick={() => setActiveOpsTab('finance')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'finance' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{lang === 'ar' ? 'بوابة التحقق المالي' : 'Finance Release Gate'}</span>
-            <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {financeTaskCount}
-            </span>
-          </button>
-        )}
-
-        {allowedTabs.includes('wallet') && (
-          <button
-            onClick={() => setActiveOpsTab('wallet')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'wallet' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Coins className="w-3.5 h-3.5 text-amber-500" />
-            <span>{lang === 'ar' ? 'محفظتي والمكافآت' : 'Employee Wallet'}</span>
-          </button>
-        )}
-
-        {allowedTabs.includes('audit_log') && (
-          <button
-            onClick={() => setActiveOpsTab('audit_log')}
-            className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
-              activeOpsTab === 'audit_log' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <span>{lang === 'ar' ? 'دفتر السجلات الدقيق' : 'Audit Log Feed'}</span>
-            <span className="bg-slate-200 text-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {auditLogs.length}
-            </span>
-          </button>
-        )}
-
+        {opsNavItems.map((tab) => {
+          const isActive = activeOpsTab === tab.id || tab.active;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                navigateTo(tab.path);
+                setActiveOpsTab(tab.id);
+              }}
+              className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+                isActive ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {tab.iconName === 'LayoutDashboard' && <Briefcase className="w-3.5 h-3.5 text-amber-400" />}
+              {tab.iconName === 'Briefcase' && <Briefcase className="w-3.5 h-3.5 text-emerald-600" />}
+              {tab.iconName === 'Code' && <Code className="w-3.5 h-3.5 text-emerald-600" />}
+              {tab.iconName === 'Cpu' && <Code className="w-3.5 h-3.5 text-amber-400" />}
+              {tab.iconName === 'FileText' && <FileText className="w-3.5 h-3.5 text-indigo-400" />}
+              {tab.iconName === 'AlertTriangle' && <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />}
+              {tab.iconName === 'CheckCircle2' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
+              {tab.iconName === 'Bell' && <Bell className="w-3.5 h-3.5 text-amber-400" />}
+              {tab.iconName === 'Coins' && <Coins className="w-3.5 h-3.5 text-amber-500" />}
+              {tab.iconName === 'CreditCard' && <CreditCard className="w-3.5 h-3.5 text-emerald-600" />}
+              {tab.iconName === 'User' && <Users className="w-3.5 h-3.5 text-slate-600" />}
+              {tab.iconName === 'Users' && <Users className="w-3.5 h-3.5 text-indigo-400" />}
+              {tab.iconName === 'ShieldCheck' && <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />}
+              {tab.iconName === 'Award' && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+              {tab.iconName === 'Sparkles' && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+              {tab.iconName === 'Database' && <Coins className="w-3.5 h-3.5 text-amber-400" />}
+              {tab.iconName === 'Activity' && <Briefcase className="w-3.5 h-3.5 text-emerald-400" />}
+              {tab.iconName === 'BarChart3' && <Briefcase className="w-3.5 h-3.5 text-indigo-400" />}
+              {tab.iconName === 'Lock' && <Lock className="w-3.5 h-3.5 text-slate-500" />}
+              <span>{tab.label}</span>
+              {(tab.id === 'my_work' || tab.id === 'my_tasks') && roleTasks.length > 0 && (
+                <span className="bg-amber-500/20 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  {roleTasks.length}
+                </span>
+              )}
+              {tab.id === 'auditor' && auditorTaskCount > 0 && (
+                <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  {auditorTaskCount}
+                </span>
+              )}
+              {tab.id === 'finance' && financeTaskCount > 0 && (
+                <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  {financeTaskCount}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </ScrollableTabNav>
 
       {/* Master Registry Tab */}
@@ -589,7 +431,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
       )}
 
       {/* Knowledge Repository Tab */}
-      {activeOpsTab === 'knowledge_repository' && (
+      {(activeOpsTab === 'knowledge_repository' || activeOpsTab === 'aaoifi_compliance') && (
         <KnowledgeRepositoryView />
       )}
 
@@ -598,8 +440,18 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
         <EnterpriseReportsView />
       )}
 
+      {/* PM Projects Hub */}
+      {(activeOpsTab === 'pm' || activeOpsTab === 'assigned_projects') && (
+        <ProjectsManagementView onSelectProject={(pId) => setSelectedProjectId(pId)} currentUserRole={currentUserRole} />
+      )}
+
+      {/* AI Engine View */}
+      {(activeOpsTab === 'ai_engine' || activeOpsTab === 'tech_assessments' || activeOpsTab === 'smart_contract_analysis' || activeOpsTab === 'whitepaper_analysis') && (
+        <HalalChainAssessmentEngine selectedApp={selectedApp} />
+      )}
+
       {/* Tab 1: My Work Dashboard */}
-      {activeOpsTab === 'my_work' && (
+      {(activeOpsTab === 'my_work' || activeOpsTab === 'my_tasks') && (
         <div className="space-y-6">
           {/* Top KPI Cards (Tailored to current role) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -773,7 +625,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
       )}
 
       {/* Tab 4: Auditor Workspace */}
-      {activeOpsTab === 'auditor' && (
+      {(activeOpsTab === 'auditor' || activeOpsTab === 'evidence' || activeOpsTab === 'findings' || activeOpsTab === 'sharia_assessments' || activeOpsTab === 'fatwa_endorsements' || activeOpsTab === 'biz_assessments' || activeOpsTab === 'tokenomics_review') && (
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-6">
           <div className="flex items-center justify-between border-b pb-4">
             <div>
@@ -1140,7 +992,7 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
       )}
 
       {/* Tab 5: CRM */}
-      {activeOpsTab === 'crm' && (
+      {(activeOpsTab === 'crm' || activeOpsTab === 'proposals' || activeOpsTab === 'contacts') && (
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-6">
           <div className="flex items-center justify-between border-b pb-4">
             <div>
@@ -1238,9 +1090,91 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
         </div>
       )}
 
-      {/* Tab 8: Employee Wallet */}
-      {activeOpsTab === 'wallet' && (
+      {/* Tab 8: Employee Wallet & Payroll */}
+      {(activeOpsTab === 'wallet' || activeOpsTab === 'payroll') && (
         <EmployeeWalletView currentUserRole={currentUserRole} />
+      )}
+
+      {/* Tab 9: Notifications & Action Alerts */}
+      {activeOpsTab === 'notifications' && (
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-6 font-mono text-xs">
+          <div className="flex items-center justify-between border-b pb-4">
+            <div>
+              <h3 className="text-base font-bold font-serif text-slate-900">Notifications & Action Alerts</h3>
+              <p className="text-xs text-slate-500 font-mono">Real-time task assignments, audit updates, and fatwa review notifications</p>
+            </div>
+            <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">
+              {roleTasks.length} Pending Actions
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {roleTasks.map((task) => (
+              <div key={task.id} className="p-4 rounded-2xl border border-amber-200 bg-amber-50/50 flex items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-amber-600" />
+                    <span>Audit Review Required: {task.companyName}</span>
+                  </div>
+                  <p className="text-slate-600 text-xs">
+                    Workflow Stage: <span className="font-bold text-slate-800">{task.stage}</span> • Package: {task.packageType}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveTaskForModal(task)}
+                  className="px-4 py-2 rounded-xl bg-[#0B132B] text-amber-300 font-bold hover:bg-[#1C2541] transition-all cursor-pointer shrink-0"
+                >
+                  Inspect Task
+                </button>
+              </div>
+            ))}
+
+            {roleTasks.length === 0 && (
+              <div className="p-8 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
+                <p className="font-bold text-slate-800">All notifications cleared for {currentUserRole.toUpperCase()}!</p>
+                <p className="text-xs">No pending action items require immediate attention.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tab 10: Profile & Credentials Card */}
+      {activeOpsTab === 'profile' && (
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-6 font-mono text-xs">
+          <div className="flex items-center justify-between border-b pb-4">
+            <div>
+              <h3 className="text-base font-bold font-serif text-slate-900">User Profile & Authorized Credentials</h3>
+              <p className="text-xs text-slate-500 font-mono">Role verification, cryptographic signing key, and assigned permissions</p>
+            </div>
+            <span className="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold uppercase">
+              {currentUserRole}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
+              <div className="text-xs font-bold uppercase text-slate-500">Account Details</div>
+              <div className="space-y-1">
+                <div className="text-base font-bold text-slate-900">{currentUserRole === 'scholar' ? 'Dr. Ahmad Al-Mansoor, PhD' : 'HalalChain Certified Specialist'}</div>
+                <div className="text-amber-700 font-semibold">{currentUserRole === 'scholar' ? 'Senior Sharia Scholar & AAOIFI Fellow' : 'HalalChain Platform Contributor'}</div>
+                <div className="text-slate-500 text-[11px]">Authorized Role ID: {currentUserRole}</div>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
+              <div className="text-xs font-bold uppercase text-slate-500">Cryptographic Signing Address</div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200 font-mono text-[11px] text-slate-800 break-all">
+                0x71C7656EC7ab88b098defB751B7401B5f6d8976F
+              </div>
+              <div className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>On-Chain Fatwa Signing Key Validated & Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Task Decision & Linked Reference Modal */}

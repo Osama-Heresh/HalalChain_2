@@ -58,6 +58,19 @@ export interface RolePermissionsMap {
   };
 }
 
+export interface AuthUser {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  title?: string;
+  avatarUrl?: string;
+  targetPlatform?: PlatformView;
+  assignedProjectIds?: string[];
+}
+
+export type MasterProject = MasterProjectRecord;
+
 export type WorkflowStage =
   | 'lead_generated'
   | 'marketing_qualification'
