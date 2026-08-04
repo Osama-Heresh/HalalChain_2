@@ -392,14 +392,27 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
           </div>
 
           {/* Sharia Verdict & Audit Summary */}
-          <div className="space-y-2 bg-amber-500/5 p-4 rounded-2xl border border-amber-300">
-            <div className="text-xs font-mono font-bold text-amber-900 uppercase flex items-center gap-2">
-              <Lock className="w-4 h-4 text-amber-600" />
-              <span>OFFICIAL SHARIA BOARD VERDICT & SUMMARY</span>
+          <div className="space-y-3 bg-amber-500/5 p-4 rounded-2xl border border-amber-300">
+            <div className="text-xs font-mono font-bold text-amber-900 uppercase flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-600" />
+                <span>OFFICIAL SHARIA BOARD VERDICT & SUMMARY / قرار هيئة الرقابة الشرعية</span>
+              </span>
+              <span className="text-[10px] text-amber-800 font-bold bg-amber-100 px-2 py-0.5 rounded">
+                Bilingual Accredited
+              </span>
             </div>
-            <p className="text-xs text-slate-800 leading-relaxed font-sans">
-              {lang === 'ar' ? shariaSummaryAr : shariaSummaryEn}
-            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed pt-1">
+              <div className="p-3 bg-white/80 rounded-xl border border-amber-200">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block mb-1">ENGLISH RULING</span>
+                <p className="text-slate-800 font-sans">{shariaSummaryEn}</p>
+              </div>
+              <div dir="rtl" className="p-3 bg-white/80 rounded-xl border border-amber-200 text-right">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block mb-1">القرار الشرعي بالعربية</span>
+                <p className="text-slate-800 font-sans">{shariaSummaryAr}</p>
+              </div>
+            </div>
           </div>
 
           {/* Barcode & QR Code Section */}

@@ -1369,6 +1369,76 @@ export interface EnterpriseReportExport {
   dataRows: Array<Record<string, any>>;
 }
 
+/**
+ * Enterprise Multilingual Collaboration Engine Types
+ */
+export type TranslationStatus =
+  | 'AI Generated'
+  | 'Awaiting Verification'
+  | 'Verified'
+  | 'Rejected'
+  | 'Modified';
+
+export type MultilingualFieldKey =
+  | 'assessment_finding'
+  | 'recommendation'
+  | 'scholar_opinion'
+  | 'business_finding'
+  | 'technical_finding'
+  | 'qa_notes'
+  | 'executive_summary'
+  | 'final_conclusion'
+  | 'certificate_remarks'
+  | 'internal_notes'
+  | 'customer_messages'
+  | 'report_comments';
+
+export type ReportDisplayLanguage = 'en' | 'ar' | 'bilingual';
+
+export interface MultilingualTextRecord {
+  id: string;
+  fieldKey: MultilingualFieldKey | string;
+  entityId?: string;
+  entityName?: string;
+  originalLanguage: 'en' | 'ar' | string;
+  originalText: string;
+  translations: Record<string, string>; // { en: '...', ar: '...', fr: '...', tr: '...', ms: '...', id: '...', ur: '...' }
+  translationStatus: TranslationStatus;
+  translationConfidence: number; // 0.0 - 1.0 or 0 - 100
+  translationGeneratedDate: string;
+  generatedBy: string;
+  verifiedBy?: string;
+  verificationDate?: string;
+  reviewerNotes?: string;
+  aaoifiReferences?: string[]; // Standard IDs or codes attached
+}
+
+export interface AaoifiStandardReference {
+  id: string; // e.g. "AAOIFI-21"
+  standardNumber: string; // e.g. "AAOIFI Standard No. 21 (Financial Sukuk)"
+  sectionCode: string; // e.g. "Para 3/2 - Ownership & Risk Transfer"
+  titleEn: string;
+  titleAr: string;
+  arabicText: string;
+  officialEnglishText: string;
+  internalExplanationEn: string;
+  internalExplanationAr: string;
+  aiSummaryEn: string;
+  aiSummaryAr: string;
+  category: 'Sukuk' | 'Gharar & Derivatives' | 'Governance' | 'Cryptocurrency & Tokens' | 'Profit Sharing & Mudarabah';
+}
+
+export interface DomainTermGlossaryItem {
+  term: string;
+  category: 'Islamic / Sharia' | 'Financial / Economics' | 'Blockchain / Web3' | 'Technical / Code';
+  en: string;
+  ar: string;
+  definitionEn: string;
+  definitionAr: string;
+  canonicalUsage: string;
+}
+
+
 
 
 

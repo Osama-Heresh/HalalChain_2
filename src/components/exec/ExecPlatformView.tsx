@@ -37,6 +37,8 @@ import { IslamicPatternBg } from '../IslamicPatternBg';
 import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { CompanyWalletView } from './CompanyWalletView';
 import { RbacAdminConsole } from './RbacAdminConsole';
+import { MultilingualCollaborationConsole } from '../enterprise/MultilingualCollaborationConsole';
+import { Globe, Languages } from 'lucide-react';
 import { useRbac } from '../../context/RbacContext';
 
 interface ExecPlatformViewProps {
@@ -50,7 +52,7 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
 }) => {
   const { t } = useLanguage();
   const { hasTabAccess } = useRbac();
-  const [activeExecTab, setActiveExecTab] = useState<'bi' | 'company_wallet' | 'ai_config' | 'workforce' | 'sys_admin' | 'rbac_admin'>('bi');
+  const [activeExecTab, setActiveExecTab] = useState<'bi' | 'company_wallet' | 'ai_config' | 'workforce' | 'sys_admin' | 'rbac_admin' | 'multilingual'>('bi');
 
   const [aiConfig, setAiConfig] = useState<AiConfig | null>(() => getLocalAiConfig());
   const [aiLogs, setAiLogs] = useState<AiServiceLog[]>(() => getLocalAiLogs());
@@ -248,7 +250,22 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
             <span>RBAC & Access Control</span>
           </button>
         )}
+
+        <button
+          onClick={() => setActiveExecTab('multilingual')}
+          className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-semibold whitespace-nowrap flex items-center gap-1.5 ${
+            activeExecTab === 'multilingual' ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Globe className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Multilingual Collaboration Engine</span>
+        </button>
       </ScrollableTabNav>
+
+      {/* Multilingual Collaboration Console */}
+      {activeExecTab === 'multilingual' && (
+        <MultilingualCollaborationConsole />
+      )}
 
       {/* Tab 1: Executive BI */}
       {activeExecTab === 'bi' && (

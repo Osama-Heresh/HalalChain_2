@@ -60,9 +60,9 @@ export const EnterpriseReportsView: React.FC = () => {
     const map: Record<string, typeof ENTERPRISE_REPORT_DEFINITIONS> = {};
     ENTERPRISE_REPORT_DEFINITIONS.forEach((rep) => {
       if (!map[rep.category]) map[rep.category] = [];
-      map[rep.category].push(rep);
+      (map[rep.category] as any).push(rep);
     });
-    return map;
+    return map as Record<string, typeof ENTERPRISE_REPORT_DEFINITIONS>;
   }, []);
 
   return (
@@ -123,7 +123,7 @@ export const EnterpriseReportsView: React.FC = () => {
                 <div className="text-[10px] font-extrabold font-mono text-slate-400 uppercase tracking-wider px-1 pt-1">
                   {catName}
                 </div>
-                {reps.map((rep) => {
+                {(reps as any[]).map((rep) => {
                   const isSelected = selectedReportType === rep.id;
                   return (
                     <button
