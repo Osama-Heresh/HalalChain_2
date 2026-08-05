@@ -38,10 +38,12 @@ import { ScrollableTabNav } from '../common/ScrollableTabNav';
 import { CompanyWalletView } from './CompanyWalletView';
 import { RbacAdminConsole } from './RbacAdminConsole';
 import { SecurityDashboard } from './SecurityDashboard';
+import { ExecutiveCustomerSuccessDashboard } from './ExecutiveCustomerSuccessDashboard';
 import { MultilingualCollaborationConsole } from '../enterprise/MultilingualCollaborationConsole';
+import { CommercialOperationsConsole } from '../enterprise/CommercialOperationsConsole';
 import { Globe, Languages, ShieldAlert } from 'lucide-react';
 import { useRbac } from '../../context/RbacContext';
-import { UserRole } from '../../types';
+import { CertificationApplication, UserRole } from '../../types';
 import { navigateTo } from '../../lib/router';
 
 interface ExecPlatformViewProps {
@@ -49,13 +51,15 @@ interface ExecPlatformViewProps {
   onModeChange?: (newMode: 'demo' | 'production') => void;
   currentUserRole?: UserRole;
   activeSubTab?: string;
+  applications?: CertificationApplication[];
 }
 
 export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
   systemMode: propSystemMode,
   onModeChange,
   currentUserRole = 'exec',
-  activeSubTab
+  activeSubTab,
+  applications = []
 }) => {
   const { t } = useLanguage();
   const { getNavigation } = useRbac();
@@ -229,9 +233,26 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
         })}
       </ScrollableTabNav>
 
+      {/* Executive Customer Success Dashboard */}
+      {activeExecTab === 'customer_success_exec' && (
+        <ExecutiveCustomerSuccessDashboard
+          applications={applications}
+          currentUserRole={currentUserRole}
+        />
+      )}
+
       {/* Security Dashboard */}
       {activeExecTab === 'security_dashboard' && (
         <SecurityDashboard />
+      )}
+
+      {/* Commercial Operations Console */}
+      {activeExecTab === 'commercial_ops_exec' && (
+        <CommercialOperationsConsole
+          applications={applications}
+          currentUserRole={currentUserRole}
+          currentUserName="General Manager"
+        />
       )}
 
       {/* Multilingual Collaboration Console */}

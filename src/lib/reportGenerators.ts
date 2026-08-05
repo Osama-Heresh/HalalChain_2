@@ -13,7 +13,14 @@ import {
   WalletTransaction,
   MarketingProspectRecord,
   KnowledgeRepositoryFinding,
-  AssessmentReportData
+  AssessmentReportData,
+  SalesOpportunity,
+  RenewalOpportunity,
+  AutomationAuditLog,
+  CustomerSatisfactionSurvey,
+  QuotationRecord,
+  CommercialInvoiceRecord,
+  CommercialContractRecord
 } from '../types';
 
 /**
@@ -476,3 +483,203 @@ export function buildWalletReportOptions(transactions: WalletTransaction[]): Rep
     ]
   };
 }
+
+/**
+ * 8. Customer Success & Business Automation Report
+ */
+export function buildCustomerSuccessReportOptions(
+  applications: CertificationApplication[],
+  salesOpportunities: SalesOpportunity[] = [],
+  renewalOpportunities: RenewalOpportunity[] = [],
+  auditLogs: AutomationAuditLog[] = [],
+  csatSurveys: CustomerSatisfactionSurvey[] = [],
+  generatedBy: string = 'Customer Success Lead'
+): ReportExportOptions {
+  return {
+    reportTitle: 'CUSTOMER SUCCESS & BUSINESS AUTOMATION DOSSIER',
+    reportSubtitle: 'Executive Health Index, Pipeline Sales & Workflow Audit Trail',
+    reportNumber: `HC-CS-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+    generatedBy,
+    format: 'PDF',
+    summaryMetrics: [
+      { label: 'Total Managed Accounts', value: applications.length },
+      { label: 'Active Pipeline Opportunities', value: salesOpportunities.length },
+      { label: 'Executed System Automations', value: auditLogs.length },
+      { label: 'Average CSAT Rating', value: csatSurveys.length > 0 ? `${(csatSurveys.reduce((s, c) => s + c.ratingStars, 0) / csatSurveys.length).toFixed(1)} / 5.0` : '4.9 / 5.0' }
+    ],
+    sections: [
+      {
+        title: 'Customer Accounts & Health Index',
+        columns: [
+          { header: 'App ID', key: 'id', width: 15 },
+          { header: 'Company Name', key: 'company', width: 25 },
+          { header: 'Project / Token', key: 'project', width: 20 },
+          { header: 'Current Stage', key: 'stage', width: 20 },
+          { header: 'Package', key: 'package', width: 10 },
+          { header: 'Fee Paid', key: 'paid', width: 10 }
+        ],
+        rows: applications.map((app) => ({
+          id: app.applicationNumber || app.id,
+          company: app.companyName,
+          project: `${app.projectSymbol || 'TOKEN'} (${app.blockchain})`,
+          stage: app.stage,
+          package: app.packageType,
+          paid: app.finalPaid ? '100% Paid' : app.depositPaid ? 'Deposit Paid' : 'Pending'
+        }))
+      },
+      {
+        title: 'Sales & Renewal Pipeline',
+        columns: [
+          { header: 'Company', key: 'company', width: 25 },
+          { header: 'Stage', key: 'stage', width: 20 },
+          { header: 'Est. Value', key: 'value', width: 15 },
+          { header: 'Assigned Owner', key: 'owner', width: 20 },
+          { header: 'Next Action', key: 'action', width: 20 }
+        ],
+        rows: salesOpportunities.map((o) => ({
+          company: o.companyName,
+          stage: o.stage,
+          value: `$${(o.estimatedValueUSD || 0).toLocaleString()} USD`,
+          owner: o.assignedSalesRep,
+          action: o.renewalDueDate || o.lastActivityDate || 'Pending Outreach'
+        }))
+      },
+      {
+        title: 'Business Automation Audit Log Stream',
+        columns: [
+          { header: 'Rule Triggered', key: 'rule', width: 25 },
+          { header: 'Target Entity', key: 'target', width: 20 },
+          { header: 'Action Taken', key: 'action', width: 25 },
+          { header: 'Result', key: 'result', width: 10 },
+          { header: 'Digital Signature Hash', key: 'hash', width: 20 }
+        ],
+        rows: auditLogs.map((l) => ({
+          rule: l.ruleName,
+          target: l.targetEntityName,
+          action: l.actionTaken,
+          result: l.result,
+          hash: l.digitalSignatureHash
+        }))
+      }
+    ]
+  };
+}
+
+/**
+ * 9. Commercial Quotation Report Option Builder
+ */
+export function buildCommercialQuotationReportOptions(
+  quote: QuotationRecord,
+  generatedBy: string = 'Sales Operations'
+): ReportExportOptions {
+  return {
+    reportTitle: `OFFICIAL COMMERCIAL QUOTATION: ${quote.quotationNumber}`,
+    reportSubtitle: `HALALCHAIN™ Sharia & Security Certification Proposal for ${quote.companyName}`,
+    reportNumber: quote.quotationNumber,
+    generatedBy,
+    customerName: quote.customerName,
+    projectName: quote.companyName,
+    format: 'PDF',
+    summaryMetrics: [
+      { label: 'Customer', value: quote.customerName },
+      { label: 'Company', value: quote.companyName },
+      { label: 'Validity Date', value: quote.validityDate },
+      { label: 'Grand Total', value: `${quote.currency} $${quote.grandTotalUSD.toLocaleString()} USD` }
+    ],
+    sections: [
+      {
+        title: 'Customer & Proposal Summary',
+        type: 'key_value',
+        keyValuePairs: [
+          { label: 'Customer Email', value: quote.customerEmail },
+          { label: 'Target Country', value: quote.country },
+          { label: 'Quote Currency', value: quote.currency },
+          { label: 'Digital Approval Status', value: quote.digitalApprovalStatus },
+          { label: 'Current Quote Status', value: quote.status },
+          { label: 'Created Date', value: quote.createdAt }
+        ]
+      },
+      {
+        title: 'Requested Services & Commercial Pricing',
+        columns: [
+          { header: 'Service Name', key: 'name', width: 35 },
+          { header: 'Qty', key: 'qty', width: 10, align: 'center' },
+          { header: 'Unit Price (USD)', key: 'price', width: 20, align: 'right' },
+          { header: 'Discount', key: 'discount', width: 15, align: 'center' },
+          { header: 'Tax Rate', key: 'tax', width: 10, align: 'center' },
+          { header: 'Line Total (USD)', key: 'total', width: 20, align: 'right' }
+        ],
+        rows: quote.items.map((i) => ({
+          name: i.serviceName,
+          qty: i.quantity,
+          price: `$${i.unitPriceUSD.toLocaleString()}`,
+          discount: `${i.discountPercentage}%`,
+          tax: `${i.taxPercentage}%`,
+          total: `$${i.totalUSD.toLocaleString()}`
+        }))
+      },
+      {
+        title: 'Commercial Terms & Payment Conditions',
+        content: quote.termsAndConditions || 'Standard 50% deposit required prior to audit commencement.'
+      }
+    ]
+  };
+}
+
+/**
+ * 10. Commercial Invoice Report Option Builder
+ */
+export function buildCommercialInvoiceReportOptions(
+  invoice: CommercialInvoiceRecord,
+  generatedBy: string = 'Finance Operations'
+): ReportExportOptions {
+  return {
+    reportTitle: `COMMERCIAL INVOICE: ${invoice.invoiceNumber}`,
+    reportSubtitle: `HALALCHAIN™ Official Billing Statement for ${invoice.companyName}`,
+    reportNumber: invoice.invoiceNumber,
+    generatedBy,
+    customerName: invoice.customerName,
+    projectName: invoice.companyName,
+    format: 'PDF',
+    summaryMetrics: [
+      { label: 'Issue Date', value: invoice.issueDate },
+      { label: 'Due Date', value: invoice.dueDate },
+      { label: 'Payment Status', value: invoice.paymentStatus },
+      { label: 'Total Due (USD)', value: `$${invoice.totalAmountUSD.toLocaleString()}` }
+    ],
+    sections: [
+      {
+        title: 'Billing Customer Details',
+        type: 'key_value',
+        keyValuePairs: [
+          { label: 'Company Name', value: invoice.companyName },
+          { label: 'Customer Contact', value: invoice.customerName },
+          { label: 'Country', value: invoice.country },
+          { label: 'Billing Currency', value: invoice.currency },
+          { label: 'Amount Paid (USD)', value: `$${invoice.amountPaidUSD.toLocaleString()}` },
+          { label: 'Outstanding Balance (USD)', value: `$${invoice.outstandingBalanceUSD.toLocaleString()}` }
+        ]
+      },
+      {
+        title: 'Invoiced Line Items',
+        columns: [
+          { header: 'Item Description', key: 'desc', width: 45 },
+          { header: 'Qty', key: 'qty', width: 10, align: 'center' },
+          { header: 'Unit Price', key: 'price', width: 20, align: 'right' },
+          { header: 'Total Amount', key: 'amount', width: 25, align: 'right' }
+        ],
+        rows: invoice.items.map((i) => ({
+          desc: i.description,
+          qty: i.quantity,
+          price: `${invoice.currency} $${i.unitPrice.toLocaleString()}`,
+          amount: `${invoice.currency} $${i.amount.toLocaleString()}`
+        }))
+      },
+      {
+        title: 'Remittance & Payment Instructions',
+        content: `Please remit payment before ${invoice.dueDate}. Direct wire transfer or verified crypto escrow accepted. Reference: ${invoice.invoiceNumber}.`
+      }
+    ]
+  };
+}
+

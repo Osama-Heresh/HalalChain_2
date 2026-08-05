@@ -210,6 +210,7 @@ export interface CertificationApplication {
     pm?: string;
     teamLead?: string;
   };
+  certificateExpiryDate?: string;
 }
 
 export interface WhitepaperRepositoryItem {
@@ -1585,6 +1586,289 @@ export interface EnterpriseAiIntelligenceReport {
   historicalInsights: HistoricalPrecedentInsight[];
 }
 
+export interface CustomerHealthScoreDetails {
+  overallScore: number; // 0 - 100
+  status: 'Excellent' | 'Healthy' | 'Needs Attention' | 'High Risk';
+  communicationScore: number; // 0 - 100
+  documentScore: number; // 0 - 100
+  assessmentScore: number; // 0 - 100
+  paymentScore: number; // 0 - 100
+  renewalScore: number; // 0 - 100
+  trend: 'improving' | 'stable' | 'declining';
+  lastCalculatedAt: string;
+  keyRisks: string[];
+  positiveSignals: string[];
+}
+
+export interface SalesOpportunity {
+  id: string;
+  customerId: string;
+  companyName: string;
+  projectName: string;
+  tokenName: string;
+  stage: 'Lead' | 'Contacted' | 'Interested' | 'Meeting Scheduled' | 'Proposal Sent' | 'Assessment Started' | 'Certificate Issued' | 'Renewal' | 'Closed' | 'Lost';
+  estimatedValueUSD: number;
+  closeProbabilityPct: number;
+  assignedSalesRep: string;
+  createdDate: string;
+  lastActivityDate: string;
+  renewalDueDate?: string;
+  stageHistory: Array<{ stage: string; timestamp: string; note: string; updatedBy: string }>;
+}
+
+export interface RenewalOpportunity {
+  id: string;
+  certificateNumber: string;
+  companyName: string;
+  projectName: string;
+  issueDate: string;
+  expiryDate: string;
+  daysUntilExpiry: number;
+  status: 'Expiring in 90 Days' | 'Expiring in 60 Days' | 'Expiring in 30 Days' | 'Expired' | 'Renewed' | 'In Renewal Review';
+  annualFeeUSD: number;
+  assignedRep: string;
+  contactEmail: string;
+  renewalStage: 'Pending Contact' | 'Outreach Sent' | 'Terms Agreed' | 'Re-Audit In Progress' | 'Completed';
+}
+
+export interface CustomerSatisfactionSurvey {
+  id: string;
+  customerId: string;
+  companyName: string;
+  projectName: string;
+  ratingStars: number; // 1-5
+  comments: string;
+  improvementSuggestions: string;
+  npsScore: number; // 0-10
+  submittedAt: string;
+  contactPerson: string;
+}
+
+export interface BusinessAutomationRule {
+  id: string;
+  ruleName: string;
+  triggerEvent: 'Customer Inactivity (3 Days)' | 'Customer Inactivity (7 Days)' | 'Unpaid Invoice' | 'Missing Documents' | 'Certificate Expiry (90 Days)' | 'Certificate Issued' | 'CSAT Survey Submitted';
+  condition: string;
+  automatedActions: string[];
+  isEnabled: boolean;
+  lastTriggeredAt: string;
+  triggerCount: number;
+  requiresHumanApproval: boolean;
+}
+
+export interface AutomationAuditLog {
+  id: string;
+  timestamp: string;
+  ruleId: string;
+  ruleName: string;
+  triggeredBy: string;
+  targetEntityId: string;
+  targetEntityName: string;
+  actionTaken: string;
+  result: 'Success' | 'Skipped (Duplicate)' | 'Failed' | 'Pending Human Confirmation';
+  reason: string;
+  digitalSignatureHash: string;
+}
+
+export interface ServiceCatalogItem {
+  id: string;
+  serviceName: string;
+  description: string;
+  category: 'Sharia Compliance' | 'Smart Contract Audit' | 'Whitepaper Audit' | 'Governance Review' | 'Tokenomics Assessment' | 'Annual Monitoring' | 'Enterprise Subscription' | 'Training Services' | 'Consulting';
+  basePriceUSD: number;
+  currency: string; // 'USD' | 'AED' | 'SAR' | 'EUR' | 'MYR' | 'GBP'
+  estimatedDurationDays: number;
+  deliverables: string[];
+  renewalRequired: boolean;
+  isActive: boolean;
+  pricingModel: 'Fixed' | 'Custom' | 'Discount' | 'Promotional' | 'Enterprise' | 'Partner' | 'Regional';
+  regionalMultipliers?: Record<string, number>; // e.g. GCC: 1.0, SEA: 0.85, EU: 1.15
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PriceHistoryEntry {
+  id: string;
+  serviceId: string;
+  serviceName: string;
+  oldPriceUSD: number;
+  newPriceUSD: number;
+  currency: string;
+  reason: string;
+  changedBy: string;
+  timestamp: string;
+}
+
+export interface QuotationItem {
+  serviceId: string;
+  serviceName: string;
+  quantity: number;
+  unitPriceUSD: number;
+  discountPercentage: number;
+  taxPercentage: number;
+  totalUSD: number;
+}
+
+export interface QuotationRecord {
+  id: string;
+  quotationNumber: string;
+  customerName: string;
+  companyName: string;
+  customerEmail: string;
+  country: string;
+  currency: string; // 'USD' | 'AED' | 'SAR' | 'EUR' | 'MYR' | 'GBP'
+  exchangeRateToBaseUSD: number;
+  items: QuotationItem[];
+  subtotalUSD: number;
+  totalDiscountUSD: number;
+  taxTotalUSD: number;
+  grandTotalUSD: number;
+  validityDate: string;
+  termsAndConditions: string;
+  digitalApprovalStatus: 'Pending Signature' | 'Digitally Approved' | 'Declined';
+  status: 'Draft' | 'Sent' | 'Accepted' | 'Rejected' | 'Expired';
+  createdBy: string;
+  createdAt: string;
+  convertedToProjectId?: string;
+  convertedToContractId?: string;
+}
+
+export interface CommercialContractRecord {
+  id: string;
+  contractNumber: string;
+  quotationId?: string;
+  customerName: string;
+  companyName: string;
+  servicesIncluded: string[];
+  totalContractValueUSD: number;
+  currency: string;
+  startDate: string;
+  endDate: string;
+  renewalDate: string;
+  status: 'Draft' | 'Pending Signature' | 'Active' | 'Renewed' | 'Terminated' | 'Expired';
+  signedDocumentUrl?: string;
+  signedAt?: string;
+  notes: string;
+  autoRenewal: boolean;
+  partnerReferralCode?: string;
+}
+
+export interface CommercialInvoiceItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  amount: number;
+}
+
+export interface CommercialInvoiceRecord {
+  id: string;
+  invoiceNumber: string;
+  contractId?: string;
+  quotationId?: string;
+  customerName: string;
+  companyName: string;
+  country: string;
+  currency: string;
+  exchangeRateToBaseUSD: number;
+  items: CommercialInvoiceItem[];
+  subtotal: number;
+  taxAmount: number;
+  totalAmount: number;
+  totalAmountUSD: number;
+  amountPaidUSD: number;
+  outstandingBalanceUSD: number;
+  issueDate: string;
+  dueDate: string;
+  paymentStatus: 'Draft' | 'Issued' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled';
+  pdfGeneratedUrl?: string;
+  notes?: string;
+}
+
+export interface PaymentRecord {
+  id: string;
+  paymentNumber: string;
+  invoiceId: string;
+  invoiceNumber: string;
+  customerName: string;
+  companyName: string;
+  amountPaidUSD: number;
+  paymentType: 'Payment Received' | 'Refund' | 'Partial Payment';
+  paymentMethod: 'Bank Wire Transfer' | 'Crypto Escrow' | 'Credit Card' | 'Corporate Transfer' | 'Letter of Credit';
+  referenceNumber: string;
+  paymentDate: string;
+  recordedBy: string;
+  status: 'Cleared' | 'Pending Verification' | 'Refunded';
+  notes?: string;
+}
+
+export interface CommercialSubscriptionRecord {
+  id: string;
+  subscriptionNumber: string;
+  customerName: string;
+  companyName: string;
+  serviceCategory: string;
+  annualFeeUSD: number;
+  currency: string;
+  startDate: string;
+  renewalDate: string;
+  autoRenewal: boolean;
+  status: 'Active' | 'Past Due' | 'Auto-Renewing' | 'Canceled' | 'Expired';
+  lastReminderSentDate?: string;
+  associatedCertificateId?: string;
+}
+
+export interface PartnerRecord {
+  id: string;
+  partnerName: string;
+  companyName: string;
+  country: string;
+  referralCode: string;
+  commissionPercentage: number;
+  projectsReferredCount: number;
+  revenueGeneratedUSD: number;
+  commissionPaidUSD: number;
+  commissionPendingUSD: number;
+  isActive: boolean;
+  contactEmail: string;
+}
+
+export interface ReviewerPayrollRecord {
+  id: string;
+  reviewerId: string;
+  reviewerName: string;
+  reviewerRole: 'Sharia Scholar' | 'Technical Auditor' | 'Tokenomics Lead' | 'Legal Expert';
+  completedTasksCount: number;
+  approvedAssessmentsCount: number;
+  basePayUSD: number;
+  bonusAmountUSD: number;
+  commissionAmountUSD: number;
+  totalPaymentsDueUSD: number;
+  paymentStatus: 'Pending Payroll Approval' | 'Approved' | 'Disbursed';
+  periodMonthYear: string;
+  isImmutableForReviewers: true;
+}
+
+export interface FinancialAuditLogEntry {
+  id: string;
+  timestamp: string;
+  user: string;
+  action: string;
+  module: 'Catalog' | 'Pricing' | 'Quotation' | 'Contract' | 'Invoice' | 'Payment' | 'Subscription' | 'Partner' | 'Payroll';
+  entityId: string;
+  oldValue: string;
+  newValue: string;
+  reason: string;
+  digitalSignatureHash: string;
+}
+
+export interface CurrencyRate {
+  code: 'USD' | 'AED' | 'SAR' | 'EUR' | 'MYR' | 'GBP';
+  name: string;
+  symbol: string;
+  rateToBaseUSD: number; // e.g. 1 USD = 3.67 AED -> 3.67
+  lastUpdated: string;
+}
+
 export interface PlatformAiExecutiveMetrics {
   averageAiConfidencePct: number;
   activeContradictionsCount: number;
@@ -1595,6 +1879,8 @@ export interface PlatformAiExecutiveMetrics {
   overallPlatformHealthPct: number;
   overallPlatformHealthStatus: 'Optimal' | 'Stable' | 'Attention Required' | 'Critical Alerts';
 }
+
+
 
 
 

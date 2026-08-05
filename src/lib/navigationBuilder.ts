@@ -232,6 +232,7 @@ export class NavigationBuilderService {
       case 'sales': {
         const items: NavItem[] = [
           createItem('my_work', 'Dashboard', 'LayoutDashboard', 'ops:my_work'),
+          createItem('customer_success', 'Customer Success & Automation', 'HeartPulse', 'ops:crm'),
           createItem('crm', 'CRM & Sales Pipeline', 'Users', 'ops:crm'),
           createItem('marketing_crm', 'Smart Marketing CRM', 'Sparkles', 'ops:marketing_crm'),
           createItem('proposals', 'Proposals & Quotes', 'FileText', 'action:sales_generate_proposal'),
@@ -248,6 +249,7 @@ export class NavigationBuilderService {
       case 'marketing': {
         const items: NavItem[] = [
           createItem('my_work', 'Dashboard', 'LayoutDashboard', 'ops:my_work'),
+          createItem('customer_success', 'Customer Success & Automation', 'HeartPulse', 'ops:marketing_crm'),
           createItem('marketing_crm', 'Smart Marketing CRM', 'Sparkles', 'ops:marketing_crm'),
           createItem('crm', 'Lead Discovery & CRM', 'Users', 'ops:crm'),
           createItem('my_tasks', 'My Tasks', 'CheckCircle2', 'ops:my_work'),
@@ -262,6 +264,7 @@ export class NavigationBuilderService {
       case 'pm': {
         const items: NavItem[] = [
           createItem('my_work', 'Dashboard', 'LayoutDashboard', 'ops:my_work'),
+          createItem('customer_success', 'Customer Success & Automation', 'HeartPulse', 'ops:pm'),
           createItem('master_registry', 'Master Registry', 'Database', 'ops:master_registry'),
           createItem('command_center', 'Operations Command Center', 'Activity', 'ops:command_center'),
           createItem('pm', 'Project Management Hub', 'Briefcase', 'ops:pm'),
@@ -282,6 +285,7 @@ export class NavigationBuilderService {
       case 'finance': {
         const items: NavItem[] = [
           createItem('my_work', 'Dashboard', 'LayoutDashboard', 'ops:my_work'),
+          createItem('commercial_ops', 'Commercial & Financial Ops', 'DollarSign', 'ops:finance'),
           createItem('finance', 'Financial Escrow & Deposit Gate', 'CreditCard', 'ops:finance'),
           createItem('enterprise_reports', 'Enterprise Reports', 'FileText', 'ops:enterprise_reports'),
           createItem('audit_log', 'Audit Trail Logs', 'Lock', 'ops:audit_log'),
@@ -313,6 +317,8 @@ export class NavigationBuilderService {
       default: {
         const candidateItems: NavItem[] = [
           createItem('my_work', 'Dashboard', 'LayoutDashboard', 'ops:my_work'),
+          createItem('commercial_ops', 'Commercial & Financial Ops', 'DollarSign', 'ops:finance'),
+          createItem('customer_success', 'Customer Success & Automation', 'HeartPulse', 'ops:crm'),
           createItem('master_registry', 'Master Registry', 'Database', 'ops:master_registry'),
           createItem('command_center', 'Operations Command Center', 'Activity', 'ops:command_center'),
           createItem('marketing_crm', 'Smart Marketing CRM', 'Sparkles', 'ops:marketing_crm'),
@@ -342,6 +348,8 @@ export class NavigationBuilderService {
   ): NavItem[] {
     const candidateItems: NavItem[] = [
       { id: 'bi', path: '/exec/bi', label: 'Financial BI & Analytics', iconName: 'BarChart3', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/bi', currentPath) },
+      { id: 'commercial_ops_exec', path: '/exec/commercial_ops_exec', label: 'Commercial Operations Console', iconName: 'DollarSign', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/commercial_ops_exec', currentPath) },
+      { id: 'customer_success_exec', path: '/exec/customer_success_exec', label: 'Executive Customer Success', iconName: 'HeartPulse', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/customer_success_exec', currentPath) },
       { id: 'company_wallet', path: '/exec/company_wallet', label: 'Company Treasury & P&L Wallet', iconName: 'Coins', permissionKey: 'exec:company_wallet', parentModule: 'exec', active: this.isItemActive('/exec/company_wallet', currentPath) },
       { id: 'ai_config', path: '/exec/ai_config', label: 'Enterprise AI Control Engine', iconName: 'Cpu', permissionKey: 'exec:ai_config', parentModule: 'exec', active: this.isItemActive('/exec/ai_config', currentPath) },
       { id: 'workforce', path: '/exec/workforce', label: 'Workforce & Talent Management', iconName: 'Users', permissionKey: 'exec:workforce', parentModule: 'exec', active: this.isItemActive('/exec/workforce', currentPath) },

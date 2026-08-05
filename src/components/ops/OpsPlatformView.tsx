@@ -48,6 +48,8 @@ import { ProjectIntelligenceDashboard } from '../enterprise/ProjectIntelligenceD
 import { OperationsCommandCenter } from '../enterprise/OperationsCommandCenter';
 import { KnowledgeRepositoryView } from '../enterprise/KnowledgeRepositoryView';
 import { EnterpriseReportsView } from '../enterprise/EnterpriseReportsView';
+import { CustomerSuccessPlatformView } from '../enterprise/CustomerSuccessPlatformView';
+import { CommercialOperationsConsole } from '../enterprise/CommercialOperationsConsole';
 
 import { safeFetch, getLocalTalentApps } from '../../lib/api';
 import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
@@ -438,6 +440,20 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
       {/* Knowledge Repository Tab */}
       {(activeOpsTab === 'knowledge_repository' || activeOpsTab === 'aaoifi_compliance') && (
         <KnowledgeRepositoryView />
+      )}
+
+      {/* Commercial Operations & Financial Management Console */}
+      {(activeOpsTab === 'commercial_ops' || activeOpsTab === 'finance') && (
+        <CommercialOperationsConsole
+          applications={applications}
+          currentUserRole={currentUserRole}
+          currentUserName={currentUserRole === 'scholar' ? 'Dr. Ahmad Al-Mansoor' : 'Commercial Operations Lead'}
+        />
+      )}
+
+      {/* Customer Success Platform View */}
+      {activeOpsTab === 'customer_success' && (
+        <CustomerSuccessPlatformView applications={applications} currentUserRole={currentUserRole} />
       )}
 
       {/* Enterprise Reports Tab */}
@@ -994,6 +1010,15 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Customer Success & Business Automation Tab */}
+      {activeOpsTab === 'customer_success' && (
+        <CustomerSuccessPlatformView
+          applications={applications}
+          currentUserRole={currentUserRole}
+          onRefreshData={onRefreshData}
+        />
       )}
 
       {/* Tab 5: CRM */}

@@ -310,6 +310,7 @@ const MainContent: React.FC = () => {
                 onModeChange={handleModeChange}
                 currentUserRole={currentUserRole}
                 activeSubTab={activeExecSubTab}
+                applications={applications}
               />
             )}
           </>
