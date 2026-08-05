@@ -461,7 +461,7 @@ export async function scrapeWebsiteMetadata(websiteUrl: string) {
       extractedWpUrl
     };
   } catch (err: any) {
-    console.log(`Website scraping note for ${websiteUrl}:`, err?.message || 'Fetch skipped');
+    // Handle skipped/unreachable fetch quietly without verbose stack traces
     return { description: '', contactEmail: '', telegramUrl: '', xHandle: '', extractedWpUrl: '' };
   }
 }
@@ -838,8 +838,8 @@ async function verifyPdfCandidate(url: string): Promise<{
         httpStatus: res.status
       };
     }
-  } catch (err) {
-    console.warn(`PDF candidate verification failed for ${url}:`, err);
+  } catch (_err) {
+    // Unreachable or non-existent PDF candidate URL
   }
 
   return { isValid: false };
@@ -1100,13 +1100,13 @@ export async function discoverAndResolveWhitepaper(
                 break;
               }
             }
-          } catch (e) {
-            console.warn('Discovered PDF link download warning:', candidatePdfUrl, e);
+          } catch (_e) {
+            // Unreachable candidate link
           }
         }
       }
-    } catch (err) {
-      console.warn('Whitepaper link resolution warning:', targetUrl, err);
+    } catch (_err) {
+      // Unreachable target URL
     }
   }
 
@@ -1134,8 +1134,7 @@ export async function discoverAndResolveWhitepaper(
       if (!rawText) {
         rawText = `Whitepaper document for ${companyName}. (${Math.round(finalPdfBuffer.length / 1024)} KB PDF).`;
       }
-    } catch (e) {
-      console.warn('pdf-parse extraction warning:', e);
+    } catch (_e) {
       rawText = `Whitepaper document for ${companyName}. (${Math.round(finalPdfBuffer.length / 1024)} KB PDF).`;
     }
 

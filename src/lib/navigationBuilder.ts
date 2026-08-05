@@ -363,11 +363,14 @@ export class NavigationBuilderService {
     currentPath: string
   ): NavItem[] {
     const candidateItems: NavItem[] = [
-      { id: 'overview', path: '/customer/overview', label: 'Application Status Tracker', iconName: 'Clock', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/overview', currentPath) },
-      { id: 'deposit', path: '/customer/deposit', label: 'Submit Application Deposit', iconName: 'CreditCard', permissionKey: 'customer:deposit', parentModule: 'customer', active: this.isItemActive('/customer/deposit', currentPath) },
-      { id: 'payments', path: '/customer/payments', label: 'Submit Final Certificate Fee', iconName: 'CreditCard', permissionKey: 'customer:final_payment', parentModule: 'customer', active: this.isItemActive('/customer/payments', currentPath) },
-      { id: 'messages', path: '/customer/messages', label: 'Sharia Clarifications Channel', iconName: 'MessageSquare', permissionKey: 'customer:messages', parentModule: 'customer', active: this.isItemActive('/customer/messages', currentPath) },
-      { id: 'certificate', path: '/customer/certificate', label: 'Certificate Download & Seal', iconName: 'Award', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/certificate', currentPath) }
+      { id: 'dashboard', path: '/customer/dashboard', label: 'Customer Dashboard', iconName: 'LayoutDashboard', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/dashboard', currentPath) },
+      { id: 'c360', path: '/customer/c360', label: 'Customer 360 Profile', iconName: 'UserCheck', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/c360', currentPath) },
+      { id: 'overview', path: '/customer/overview', label: 'Assessment Tracker', iconName: 'Clock', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/overview', currentPath) },
+      { id: 'timeline', path: '/customer/timeline', label: 'Activity Timeline', iconName: 'Activity', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/timeline', currentPath) },
+      { id: 'communication', path: '/customer/communication', label: 'Communication Center', iconName: 'MessageSquare', permissionKey: 'customer:messages', parentModule: 'customer', active: this.isItemActive('/customer/communication', currentPath) },
+      { id: 'payments', path: '/customer/payments', label: 'Invoices & Payments', iconName: 'CreditCard', permissionKey: 'customer:final_payment', parentModule: 'customer', active: this.isItemActive('/customer/payments', currentPath) },
+      { id: 'documents', path: '/customer/documents', label: 'Document Exchange', iconName: 'FileText', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/documents', currentPath) },
+      { id: 'certificate', path: '/customer/certificate', label: 'Certificate & Seal', iconName: 'Award', permissionKey: 'customer:dashboard', parentModule: 'customer', active: this.isItemActive('/customer/certificate', currentPath) }
     ];
 
     return candidateItems.filter((item) => checkPermission(item.permissionKey!));

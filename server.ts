@@ -271,6 +271,30 @@ async function startServer() {
     res.json(saved);
   });
 
+  app.put('/api/applications/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const mode = await getOperatingMode();
+      await updateApplication(id, updates);
+      await addAuditLog({
+        id: `AUDIT-${Date.now().toString().slice(-4)}`,
+        timestamp: new Date().toISOString(),
+        userName: updates.representativeName || 'Customer Sync',
+        userRole: 'customer',
+        projectId: id,
+        action: 'Customer 360 Profile Updated',
+        newValue: `Updated details for ${updates.companyName || id}`,
+        digitalSignature: `SIG-SHA256-${Math.random().toString(16).substring(2, 10)}`,
+        ipAddress: '127.0.0.1'
+      }, mode);
+      res.json({ success: true, id, updates });
+    } catch (err: any) {
+      console.error('Error updating application:', err);
+      res.status(500).json({ error: err?.message || 'Failed to update application.' });
+    }
+  });
+
   // Smart Project Discovery Wizard API
   app.post('/api/projects/discover', async (req, res) => {
     try {
