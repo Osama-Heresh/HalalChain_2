@@ -427,7 +427,12 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
 
       {/* Project Intelligence Dashboard Tab */}
       {activeOpsTab === 'intelligence_dashboard' && (
-        <ProjectIntelligenceDashboard projectName={selectedApp?.companyName} tokenSymbol={selectedApp?.blockchain} />
+        <ProjectIntelligenceDashboard
+          projectName={selectedApp?.companyName}
+          tokenSymbol={selectedApp?.blockchain}
+          applications={applications}
+          onSelectProject={(pId) => setSelectedProjectId(pId)}
+        />
       )}
 
       {/* Knowledge Repository Tab */}

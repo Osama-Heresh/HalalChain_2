@@ -19,6 +19,8 @@ import {
   ReportValidationResult
 } from '../../types';
 import { BigFourDossierView } from './BigFourDossierView';
+import { AiAssessmentIntelligenceConsole } from './AiAssessmentIntelligenceConsole';
+import { generateAssessmentIntelligenceReport } from '../../lib/aiAssessmentIntelligence';
 import {
   ASSESSMENT_STEPS_META,
   getLocalAssessment,
@@ -96,8 +98,8 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
   const [showVersionHistory, setShowVersionHistory] = useState<boolean>(false);
   const [copyHashSuccess, setCopyHashSuccess] = useState<boolean>(false);
 
-  // Evidence-Based AI Extraction Engine States
-  const [mainViewTab, setMainViewTab] = useState<'pipeline' | 'dossier'>('dossier');
+  // Evidence-Based AI Extraction Engine & Intelligence States
+  const [mainViewTab, setMainViewTab] = useState<'ai_intelligence' | 'dossier' | 'pipeline'>('ai_intelligence');
   const [evidenceDossier, setEvidenceDossier] = useState<EvidenceDossierReport | null>(null);
   const [isExtractingDossier, setIsExtractingDossier] = useState<boolean>(false);
 
@@ -1033,24 +1035,36 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
       </div>
 
       {/* Main View Mode Selector Tabs */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-200 dark:bg-slate-800 rounded-2xl">
+      <div className="flex flex-wrap md:flex-nowrap items-center gap-2 p-1.5 bg-slate-200 dark:bg-slate-800 rounded-2xl">
+        <button
+          onClick={() => setMainViewTab('ai_intelligence')}
+          className={`flex-1 py-3 px-4 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all ${
+            mainViewTab === 'ai_intelligence'
+              ? 'bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-md'
+              : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-emerald-400" />
+          <span>AI Intelligence Engine (Confidence & Contradiction)</span>
+        </button>
+
         <button
           onClick={() => setMainViewTab('dossier')}
           className={`flex-1 py-3 px-4 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all ${
             mainViewTab === 'dossier'
-              ? 'bg-slate-900 text-white shadow-md'
+              ? 'bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-md'
               : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <FileText className="w-4 h-4 text-emerald-400" />
-          <span>Evidence-Based AI Extraction Engine (Big Four Dossier)</span>
+          <span>Evidence-Based AI Extraction (Big Four Dossier)</span>
         </button>
 
         <button
           onClick={() => setMainViewTab('pipeline')}
           className={`flex-1 py-3 px-4 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all ${
             mainViewTab === 'pipeline'
-              ? 'bg-slate-900 text-white shadow-md'
+              ? 'bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-md'
               : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -1059,7 +1073,15 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
         </button>
       </div>
 
-      {/* VIEW MODE 1: Big Four Dossier View */}
+      {/* VIEW MODE 1: Enterprise AI Assessment Intelligence Console */}
+      {mainViewTab === 'ai_intelligence' && (
+        <AiAssessmentIntelligenceConsole
+          intelligence={generateAssessmentIntelligenceReport(assessment, selectedApp, evidenceDossier)}
+          currentUserRole={currentUserRole}
+        />
+      )}
+
+      {/* VIEW MODE 2: Big Four Dossier View */}
       {mainViewTab === 'dossier' && (
         <BigFourDossierView
           application={selectedApp}
@@ -1070,7 +1092,7 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
         />
       )}
 
-      {/* VIEW MODE 2: Interactive 10-Step Pipeline */}
+      {/* VIEW MODE 3: Interactive 10-Step Pipeline */}
       {mainViewTab === 'pipeline' && (
         <div className="space-y-8">
           <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-md space-y-3">

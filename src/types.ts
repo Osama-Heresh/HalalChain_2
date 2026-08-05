@@ -599,6 +599,16 @@ export interface CompanyWalletData {
   transactions: WalletTransaction[];
 }
 
+export interface DomainTermGlossaryItem {
+  term: string;
+  category: string;
+  en: string;
+  ar: string;
+  definitionEn: string;
+  definitionAr: string;
+  canonicalUsage: string;
+}
+
 // ==================== HALALCHAIN ASSESSMENT ENGINE TYPES ====================
 
 export type AssessmentStepNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
@@ -1441,15 +1451,151 @@ export interface AaoifiStandardReference {
   category: 'Sukuk' | 'Gharar & Derivatives' | 'Governance' | 'Cryptocurrency & Tokens' | 'Profit Sharing & Mudarabah';
 }
 
-export interface DomainTermGlossaryItem {
-  term: string;
-  category: 'Islamic / Sharia' | 'Financial / Economics' | 'Blockchain / Web3' | 'Technical / Code';
-  en: string;
-  ar: string;
-  definitionEn: string;
-  definitionAr: string;
-  canonicalUsage: string;
+
+
+// ==================== ENTERPRISE AI ASSESSMENT INTELLIGENCE ENGINE TYPES ====================
+
+export interface AiConfidenceDimension {
+  dimensionKey: 'whitepaper' | 'smart_contract' | 'business_model' | 'governance' | 'tokenomics' | 'transparency' | 'sharia_readiness';
+  titleEn: string;
+  titleAr: string;
+  scorePct: number; // 0 - 100
+  confidenceLevel: 'High Confidence' | 'Medium Confidence' | 'Attention Required';
+  positiveFactors: string[];
+  riskFactors: string[];
+  explanation: string;
 }
+
+export interface AiContradictionAlert {
+  id: string;
+  projectId: string;
+  contradictionTitle: string;
+  contradictionCategory: 'Technical vs Governance' | 'Business vs Sharia' | 'Whitepaper vs On-Chain Code' | 'Scholar vs Business Analyst' | 'QA vs Technical Reviewer';
+  disciplinesInvolved: UserRole[];
+  findingA: { role: string; summary: string; quoteRef?: string };
+  findingB: { role: string; summary: string; quoteRef?: string };
+  severity: 'Critical' | 'High' | 'Medium' | 'Low';
+  detectedAt: string;
+  aiExplanation: string;
+  recommendedResolution: string;
+  status: 'Active Alert' | 'Resolved by Human';
+  resolvedBy?: string;
+  resolvedAt?: string;
+  resolutionNote?: string;
+  label: 'AI Recommendation – Human Review Required';
+}
+
+export interface MandatoryEvidenceItem {
+  id: string;
+  title: string;
+  discipline: 'Technical Review' | 'Business Review' | 'Governance' | 'Sharia Review' | 'QA Review';
+  evidenceType: 'Whitepaper Source Quote' | 'Bytecode Explorer Verification' | 'On-Chain Liquidity Lock Proof' | 'Multi-Sig Governance Spec' | 'AAOIFI Standard Clause Mapping' | 'Representative Identity Verification';
+  isCollected: boolean;
+  isRequiredForCertification: boolean;
+  collectedDetails?: string;
+  sourceRef?: string;
+  missingImpact: string;
+}
+
+export interface DisciplineProgress {
+  disciplineKey: 'technical' | 'business' | 'governance' | 'sharia' | 'qa' | 'operations';
+  title: string;
+  role: UserRole;
+  completionPct: number;
+  totalTasks: number;
+  completedTasks: number;
+  remainingTasks: string[];
+}
+
+export interface AiExecutiveSummaryReport {
+  id: string;
+  projectId: string;
+  projectName: string;
+  generatedAt: string;
+  recommendedDecision: 'RECOMMENDED_FOR_CERTIFICATION' | 'REQUIRES_REVISION_AND_MITIGATION' | 'HIGH_SHARIA_RISK_REJECTED' | 'INCOMPLETE_EVIDENCE_HOLD';
+  overallAssessmentScore: number;
+  majorFindings: string[];
+  majorRisks: Array<{
+    id: string;
+    title: string;
+    severity: 'Critical' | 'High' | 'Medium' | 'Low' | 'Informational';
+    explanation: string;
+  }>;
+  positiveObservations: string[];
+  outstandingIssues: string[];
+  executiveConclusionText: string;
+  consultingReportQuality: true;
+  label: 'AI Recommendation – Human Review Required';
+}
+
+export interface CategorizedRecommendation {
+  id: string;
+  category: 'Business' | 'Technology' | 'Governance' | 'Transparency' | 'Sharia';
+  title: string;
+  priority: 'Critical' | 'High' | 'Medium' | 'Low';
+  suggestedAction: string;
+  rationale: string;
+  targetRole: UserRole;
+  status: 'Suggested' | 'Accepted by Reviewer' | 'Dismissed';
+  reviewerNote?: string;
+  label: 'AI Recommendation – Human Review Required';
+}
+
+export interface ClassclassifiedRiskItem {
+  id: string;
+  title: string;
+  category: 'Smart Contract' | 'Tokenomics' | 'Governance' | 'Business Model' | 'Blockchain Centralization' | 'Sharia Compliance';
+  severity: 'Critical' | 'High' | 'Medium' | 'Low' | 'Informational';
+  classificationReasoning: string;
+  evidenceQuote: string;
+  referenceLocation: string;
+  reviewerStatus: 'Pending Review' | 'Validated' | 'Overridden / Cleared';
+  reviewerComment?: string;
+}
+
+export interface HistoricalPrecedentInsight {
+  id: string;
+  similarProjectId: string;
+  similarProjectName: string;
+  similarityScorePct: number;
+  matchingDimension: string;
+  reusableInsight: string;
+  precedentOutcome: string;
+  applicableAaoifiStandard?: string;
+  label: 'AI Recommendation – Human Review Required';
+}
+
+export interface EnterpriseAiIntelligenceReport {
+  projectId: string;
+  projectName: string;
+  analyzedAt: string;
+  isCached: boolean;
+  confidenceDimensions: AiConfidenceDimension[];
+  overallAiConfidencePct: number;
+  contradictionAlerts: AiContradictionAlert[];
+  mandatoryEvidenceItems: MandatoryEvidenceItem[];
+  missingEvidenceCount: number;
+  isFinalCertificationBlocked: boolean;
+  blockingReasons: string[];
+  completenessPct: number;
+  disciplineProgress: DisciplineProgress[];
+  executiveSummary: AiExecutiveSummaryReport;
+  categorizedRecommendations: CategorizedRecommendation[];
+  classifiedRisks: ClassclassifiedRiskItem[];
+  historicalInsights: HistoricalPrecedentInsight[];
+}
+
+export interface PlatformAiExecutiveMetrics {
+  averageAiConfidencePct: number;
+  activeContradictionsCount: number;
+  missingEvidenceCount: number;
+  projectsReadyForQaCount: number;
+  projectsReadyForCertificationCount: number;
+  criticalRisksCount: number;
+  overallPlatformHealthPct: number;
+  overallPlatformHealthStatus: 'Optimal' | 'Stable' | 'Attention Required' | 'Critical Alerts';
+}
+
 
 
 
