@@ -347,6 +347,7 @@ export class NavigationBuilderService {
     currentPath: string
   ): NavItem[] {
     const candidateItems: NavItem[] = [
+      { id: 'executive_intelligence', path: '/exec/executive_intelligence', label: 'Executive Intelligence & Ops Excellence', iconName: 'Activity', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/executive_intelligence', currentPath) },
       { id: 'bi', path: '/exec/bi', label: 'Financial BI & Analytics', iconName: 'BarChart3', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/bi', currentPath) },
       { id: 'commercial_ops_exec', path: '/exec/commercial_ops_exec', label: 'Commercial Operations Console', iconName: 'DollarSign', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/commercial_ops_exec', currentPath) },
       { id: 'customer_success_exec', path: '/exec/customer_success_exec', label: 'Executive Customer Success', iconName: 'HeartPulse', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/customer_success_exec', currentPath) },
@@ -356,6 +357,7 @@ export class NavigationBuilderService {
       { id: 'sys_admin', path: '/exec/sys_admin', label: 'System Operating Mode', iconName: 'Settings', permissionKey: 'exec:sys_admin', parentModule: 'exec', active: this.isItemActive('/exec/sys_admin', currentPath) },
       { id: 'rbac_admin', path: '/exec/rbac_admin', label: 'RBAC & Permission Control Console', iconName: 'ShieldCheck', permissionKey: 'exec:rbac_admin', parentModule: 'exec', active: this.isItemActive('/exec/rbac_admin', currentPath) },
       { id: 'security_dashboard', path: '/exec/security_dashboard', label: 'Security & Hardening Dashboard', iconName: 'ShieldAlert', permissionKey: 'exec:rbac_admin', parentModule: 'exec', active: this.isItemActive('/exec/security_dashboard', currentPath) },
+      { id: 'enterprise_release', path: '/exec/enterprise_release', label: 'Enterprise Release Candidate Console', iconName: 'ShieldCheck', permissionKey: 'exec:rbac_admin', parentModule: 'exec', active: this.isItemActive('/exec/enterprise_release', currentPath) },
       { id: 'multilingual', path: '/exec/multilingual', label: 'Multilingual Collaboration Console', iconName: 'Globe', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/multilingual', currentPath) }
     ];
 

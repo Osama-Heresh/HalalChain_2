@@ -41,7 +41,9 @@ import { SecurityDashboard } from './SecurityDashboard';
 import { ExecutiveCustomerSuccessDashboard } from './ExecutiveCustomerSuccessDashboard';
 import { MultilingualCollaborationConsole } from '../enterprise/MultilingualCollaborationConsole';
 import { CommercialOperationsConsole } from '../enterprise/CommercialOperationsConsole';
-import { Globe, Languages, ShieldAlert } from 'lucide-react';
+import { EnterpriseIntelligencePlatform } from '../enterprise/EnterpriseIntelligencePlatform';
+import { EnterpriseReleaseCandidateConsole } from '../enterprise/EnterpriseReleaseCandidateConsole';
+import { Globe, Languages, ShieldAlert, Activity } from 'lucide-react';
 import { useRbac } from '../../context/RbacContext';
 import { CertificationApplication, UserRole } from '../../types';
 import { navigateTo } from '../../lib/router';
@@ -66,7 +68,7 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
   const navConfig = getNavigation(currentUserRole);
   const execNavItems = navConfig.execTabs;
 
-  const [activeExecTab, setActiveExecTab] = useState<string>(activeSubTab || 'bi');
+  const [activeExecTab, setActiveExecTab] = useState<string>(activeSubTab || 'executive_intelligence');
 
   useEffect(() => {
     if (activeSubTab) {
@@ -214,6 +216,7 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
                 isActive ? 'bg-[#0B132B] text-amber-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
+              {item.iconName === 'Activity' && <Activity className="w-3.5 h-3.5 text-amber-400" />}
               {item.iconName === 'BarChart3' && <BarChart3 className="w-3.5 h-3.5 text-amber-400" />}
               {item.iconName === 'Coins' && <DollarSign className="w-3.5 h-3.5 text-emerald-500" />}
               {item.iconName === 'Cpu' && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
@@ -233,6 +236,15 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
         })}
       </ScrollableTabNav>
 
+      {/* Enterprise Monitoring & Executive Intelligence */}
+      {activeExecTab === 'executive_intelligence' && (
+        <EnterpriseIntelligencePlatform
+          applications={applications}
+          currentUserRole={currentUserRole}
+          currentUserName="General Manager"
+        />
+      )}
+
       {/* Executive Customer Success Dashboard */}
       {activeExecTab === 'customer_success_exec' && (
         <ExecutiveCustomerSuccessDashboard
@@ -241,9 +253,12 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
         />
       )}
 
-      {/* Security Dashboard */}
-      {activeExecTab === 'security_dashboard' && (
-        <SecurityDashboard />
+      {/* Security Dashboard & Enterprise Release Candidate Console */}
+      {(activeExecTab === 'security_dashboard' || activeExecTab === 'enterprise_release') && (
+        <EnterpriseReleaseCandidateConsole
+          currentUserRole={currentUserRole}
+          currentUserName="General Manager"
+        />
       )}
 
       {/* Commercial Operations Console */}

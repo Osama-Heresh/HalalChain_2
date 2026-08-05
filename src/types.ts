@@ -1880,6 +1880,78 @@ export interface PlatformAiExecutiveMetrics {
   overallPlatformHealthStatus: 'Optimal' | 'Stable' | 'Attention Required' | 'Critical Alerts';
 }
 
+export interface ExecutiveAlert {
+  id: string;
+  timestamp: string;
+  title: string;
+  type: 'project_overdue' | 'critical_finding' | 'ai_contradiction' | 'cert_delayed' | 'customer_inactive' | 'invoice_overdue' | 'security_warning' | 'system_failure';
+  severity: 'critical' | 'high' | 'warning' | 'info';
+  message: string;
+  sourceModule: string;
+  entityId?: string;
+  isResolved: boolean;
+  resolvedBy?: string;
+  resolvedAt?: string;
+}
+
+export interface ReviewerScorecard {
+  reviewerId: string;
+  name: string;
+  role: 'scholar' | 'tech_auditor' | 'business_analyst' | 'qa';
+  avatarUrl?: string;
+  assignedProjects: number;
+  completedProjects: number;
+  avgCompletionDays: number;
+  aiAgreementRatePct: number;
+  qaCorrectionsCount: number;
+  avgConfidenceScore: number;
+  pendingTasks: number;
+  productivityTrend: 'improving' | 'stable' | 'declining';
+  capacityUtilizationPct: number;
+  availableCapacityHours: number;
+}
+
+export interface ProjectHealthStatus {
+  projectId: string;
+  projectName: string;
+  clientName: string;
+  blockchain: string;
+  category: string;
+  healthCategory: 'Healthy' | 'Needs Attention' | 'Delayed' | 'Blocked' | 'High Risk' | 'Critical';
+  reasons: string[];
+  recommendedActions: string[];
+  daysInCurrentStage: number;
+  assignedReviewers: string[];
+}
+
+export interface SystemHealthMetrics {
+  apiUptimePct: number;
+  apiLatencyMs: number;
+  databaseStatus: 'Optimal' | 'Degraded' | 'Maintenance';
+  firestoreStatus: 'Optimal' | 'Degraded';
+  storageUsageGB: number;
+  storageLimitGB: number;
+  docQueueDepth: number;
+  aiQueueDepth: number;
+  backgroundJobsActive: number;
+  notificationQueueDepth: number;
+  emailQueueDepth: number;
+  errorRatePct: number;
+}
+
+export interface PredictiveForecastItem {
+  metricName: string;
+  metricKey: string;
+  currentValue: string | number;
+  projectedValue30d: string | number;
+  projectedValue90d: string | number;
+  growthRatePct: number;
+  confidencePct: number;
+  trendDirection: 'up' | 'down' | 'stable';
+  insightSummary: string;
+}
+
+
 
 
 

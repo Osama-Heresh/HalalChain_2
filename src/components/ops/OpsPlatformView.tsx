@@ -50,6 +50,7 @@ import { KnowledgeRepositoryView } from '../enterprise/KnowledgeRepositoryView';
 import { EnterpriseReportsView } from '../enterprise/EnterpriseReportsView';
 import { CustomerSuccessPlatformView } from '../enterprise/CustomerSuccessPlatformView';
 import { CommercialOperationsConsole } from '../enterprise/CommercialOperationsConsole';
+import { EnterpriseIntelligencePlatform } from '../enterprise/EnterpriseIntelligencePlatform';
 
 import { safeFetch, getLocalTalentApps } from '../../lib/api';
 import { INITIAL_TALENT_APPLICATIONS } from '../../data/mockData';
@@ -417,9 +418,13 @@ export const OpsPlatformView: React.FC<OpsPlatformViewProps> = ({
         <MasterRegistryView onSelectProject={(pId) => setSelectedProjectId(pId)} currentUserRole={currentUserRole} />
       )}
 
-      {/* Operations Command Center Tab */}
-      {activeOpsTab === 'command_center' && (
-        <OperationsCommandCenter />
+      {/* Operations Command Center & Executive Intelligence Tab */}
+      {(activeOpsTab === 'command_center' || activeOpsTab === 'executive_intelligence_ops') && (
+        <EnterpriseIntelligencePlatform
+          applications={applications}
+          currentUserRole={currentUserRole}
+          currentUserName="Operations Lead"
+        />
       )}
 
       {/* Smart Marketing CRM Tab */}
