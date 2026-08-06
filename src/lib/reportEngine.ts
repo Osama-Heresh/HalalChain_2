@@ -19,6 +19,8 @@ export interface ReportSection {
   metrics?: Array<{ label: string; value: string | number; change?: string }>;
   columns?: ReportDataColumn[];
   rows?: Array<Record<string, any>>;
+  table?: { headers: string[]; rows: string[][] };
+  subSections?: Array<{ title: string; content?: string }>;
 }
 
 export interface ReportExportOptions {
@@ -29,7 +31,7 @@ export interface ReportExportOptions {
   customerName?: string;
   projectName?: string;
   tokenSymbol?: string;
-  format: 'PDF' | 'Excel' | 'CSV' | 'Print';
+  format?: 'PDF' | 'Excel' | 'CSV' | 'Print';
   orientation?: 'portrait' | 'landscape';
   includeCoverPage?: boolean;
   watermarkText?: string;
@@ -368,38 +370,91 @@ export async function exportToPDF(options: ReportExportOptions): Promise<void> {
     // Key-Value Pairs
     if (sec.keyValuePairs && sec.keyValuePairs.length > 0) {
       ensureSpace(12);
-      const colW = contentWidth / 2 - 2;
+      const isLongText = sec.keyValuePairs.some(
+        (kv) => (String(kv.label).length + String(kv.value).length) > 35
+      );
 
-      sec.keyValuePairs.forEach((kv, idx) => {
-        ensureSpace(7);
-        const isRightCol = idx % 2 === 1;
-        const x = isRightCol ? margin + colW + 4 : margin;
+      if (isLongText) {
+        // Full width stacked card layout with dynamic heights to prevent overlapping
+        sec.keyValuePairs.forEach((kv) => {
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          const labelLines = doc.splitTextToSize(String(kv.label), contentWidth - 8);
 
-        doc.setFillColor(248, 250, 252);
-        doc.setDrawColor(241, 245, 249);
-        doc.roundedRect(x, currentY, colW, 7, 1, 1, 'FD');
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(51, 65, 85);
+          const valueLines = doc.splitTextToSize(String(kv.value), contentWidth - 8);
 
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(71, 85, 105);
-        doc.text(kv.label, x + 3, currentY + 4.8);
+          const boxHeight = (labelLines.length * 4) + (valueLines.length * 4) + 6;
+          ensureSpace(boxHeight + 2);
 
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(15, 23, 42);
-        doc.text(String(kv.value), x + colW - 3, currentY + 4.8, { align: 'right' });
+          doc.setFillColor(248, 250, 252);
+          doc.setDrawColor(226, 232, 240);
+          doc.roundedRect(margin, currentY, contentWidth, boxHeight, 1.5, 1.5, 'FD');
 
-        if (isRightCol || idx === sec.keyValuePairs!.length - 1) {
-          currentY += 8.5;
-        }
-      });
-      currentY += 2;
+          let textY = currentY + 4.5;
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(11, 19, 43);
+          labelLines.forEach((l: string) => {
+            doc.text(l, margin + 4, textY);
+            textY += 4;
+          });
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(51, 65, 85);
+          valueLines.forEach((l: string) => {
+            doc.text(l, margin + 4, textY);
+            textY += 4;
+          });
+
+          currentY += boxHeight + 2.5;
+        });
+        currentY += 2;
+      } else {
+        // Short metrics 2-column grid
+        const colW = contentWidth / 2 - 2;
+
+        sec.keyValuePairs.forEach((kv, idx) => {
+          ensureSpace(9);
+          const isRightCol = idx % 2 === 1;
+          const x = isRightCol ? margin + colW + 4 : margin;
+
+          doc.setFillColor(248, 250, 252);
+          doc.setDrawColor(226, 232, 240);
+          doc.roundedRect(x, currentY, colW, 8, 1, 1, 'FD');
+
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(71, 85, 105);
+          doc.text(String(kv.label), x + 3, currentY + 5.2);
+
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(15, 23, 42);
+          doc.text(String(kv.value), x + colW - 3, currentY + 5.2, { align: 'right' });
+
+          if (isRightCol || idx === sec.keyValuePairs!.length - 1) {
+            currentY += 9.5;
+          }
+        });
+        currentY += 2;
+      }
     }
 
     // Table Section
-    if (sec.columns && sec.rows && sec.rows.length > 0) {
-      const headRow = sec.columns.map((c) => c.header);
-      const bodyRows = sec.rows.map((row) => sec.columns!.map((col) => (row[col.key] !== undefined && row[col.key] !== null ? String(row[col.key]) : '')));
+    let headRow: string[] = [];
+    let bodyRows: string[][] = [];
 
+    if (sec.table && sec.table.headers && sec.table.rows) {
+      headRow = sec.table.headers;
+      bodyRows = sec.table.rows;
+    } else if (sec.columns && sec.rows && sec.rows.length > 0) {
+      headRow = sec.columns.map((c) => c.header);
+      bodyRows = sec.rows.map((row) => sec.columns!.map((col) => (row[col.key] !== undefined && row[col.key] !== null ? String(row[col.key]) : '')));
+    }
+
+    if (headRow.length > 0 && bodyRows.length > 0) {
+      ensureSpace(18);
       autoTable(doc, {
         startY: currentY,
         head: [headRow],
@@ -409,7 +464,8 @@ export async function exportToPDF(options: ReportExportOptions): Promise<void> {
           font: 'helvetica',
           fontSize: 7.5,
           cellPadding: 2.5,
-          textColor: [30, 41, 59]
+          textColor: [30, 41, 59],
+          overflow: 'linebreak'
         },
         headStyles: {
           fillColor: [11, 19, 43],
@@ -430,6 +486,31 @@ export async function exportToPDF(options: ReportExportOptions): Promise<void> {
       // @ts-ignore
       currentY = (doc as any).lastAutoTable.finalY + 8;
     }
+
+    // SubSections
+    if (sec.subSections && sec.subSections.length > 0) {
+      for (const sub of sec.subSections) {
+        ensureSpace(12);
+        doc.setFontSize(9.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text(sub.title, margin, currentY);
+        currentY += 5;
+
+        if (sub.content) {
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(51, 65, 85);
+          const subLines = doc.splitTextToSize(sub.content, contentWidth);
+          subLines.forEach((line: string) => {
+            ensureSpace(5);
+            doc.text(line, margin, currentY);
+            currentY += 4;
+          });
+          currentY += 3;
+        }
+      }
+    }
   }
 
   // Add Page Numbers Footer to ALL pages
@@ -448,6 +529,232 @@ export async function exportToPDF(options: ReportExportOptions): Promise<void> {
 
   const filename = generateReportFilename(options.reportTitle, options.projectName, options.tokenSymbol, 'pdf');
   doc.save(filename);
+}
+
+/**
+ * Generate Microsoft Word compatible HTML Document string
+ */
+export function generateWordHtmlDocument(options: {
+  title: string;
+  subtitle?: string;
+  docId?: string;
+  author?: string;
+  date?: string;
+  sections: Array<{
+    title: string;
+    content?: string;
+    keyValuePairs?: Array<{ label: string; value: string | number }>;
+    table?: { headers: string[]; rows: string[][] };
+    subSections?: Array<{ title: string; content?: string }>;
+  }>;
+}): string {
+  const dateStr = options.date || new Date().toLocaleDateString();
+  const authorStr = options.author || 'HALALCHAIN™ Enterprise QA Directorate';
+  const docIdStr = options.docId || `HALALCHAIN-DOC-${Date.now()}`;
+
+  return `<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+  <meta charset='utf-8'>
+  <title>${options.title}</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
+  <style>
+    @page Section1 {
+      size: 8.5in 11.0in;
+      margin: 1.0in 1.0in 1.0in 1.0in;
+      mso-header-margin: .5in;
+      mso-footer-margin: .5in;
+      mso-paper-source: 0;
+    }
+    div.Section1 { page: Section1; }
+    body {
+      font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+    .header-table {
+      width: 100%;
+      border-bottom: 3px solid #0b132b;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+    }
+    .brand-title {
+      font-size: 20pt;
+      font-weight: bold;
+      color: #0b132b;
+      margin: 0;
+    }
+    .sub-title {
+      font-size: 12pt;
+      color: #d97706;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+    .meta-box {
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    h1 {
+      font-size: 15pt;
+      color: #0b132b;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 12pt;
+      color: #1e293b;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 10.5pt;
+      color: #334155;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      margin-bottom: 16px;
+      font-size: 9.5pt;
+    }
+    table.data-table th {
+      background-color: #0b132b;
+      color: #ffffff;
+      font-weight: bold;
+      padding: 8px;
+      border: 1px solid #0b132b;
+      text-align: left;
+    }
+    table.data-table td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 8px;
+      vertical-align: top;
+    }
+    table.data-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    .kv-grid {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+    }
+    .kv-cell {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 8px;
+      font-size: 9.5pt;
+    }
+    .footer {
+      margin-top: 40px;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 10px;
+      font-size: 8.5pt;
+      color: #64748b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="Section1">
+    <div class="header-table">
+      <div class="brand-title">HALALCHAIN™ ENTERPRISE</div>
+      <div class="sub-title">${options.title}</div>
+      ${options.subtitle ? `<div style="font-size:10pt; color:#64748b; margin-top:4px;">${options.subtitle}</div>` : ''}
+    </div>
+
+    <div class="meta-box">
+      <table style="width:100%; border:none; font-size:9.5pt;">
+        <tr>
+          <td><strong>Document ID:</strong> ${docIdStr}</td>
+          <td><strong>Date:</strong> ${dateStr}</td>
+        </tr>
+        <tr>
+          <td><strong>Author:</strong> ${authorStr}</td>
+          <td><strong>Classification:</strong> Enterprise Confidential</td>
+        </tr>
+      </table>
+    </div>
+
+    ${options.sections.map(sec => `
+      <div>
+        <h1>${sec.title}</h1>
+        ${sec.content ? `<p>${sec.content.replace(/\n/g, '<br/>')}</p>` : ''}
+
+        ${sec.keyValuePairs && sec.keyValuePairs.length > 0 ? `
+          <table class="kv-grid">
+            ${sec.keyValuePairs.map(kv => `
+              <tr>
+                <td class="kv-cell" style="width:30%;"><strong>${kv.label}</strong></td>
+                <td class="kv-cell">${kv.value}</td>
+              </tr>
+            `).join('')}
+          </table>
+        ` : ''}
+
+        ${sec.table ? `
+          <table class="data-table">
+            <thead>
+              <tr>
+                ${sec.table.headers.map(h => `<th>${h}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${sec.table.rows.map((row) => `
+                <tr>
+                  ${row.map(cell => `<td>${cell}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        ` : ''}
+
+        ${sec.subSections ? sec.subSections.map(sub => `
+          <div>
+            <h2>${sub.title}</h2>
+            ${sub.content ? `<p>${sub.content.replace(/\n/g, '<br/>')}</p>` : ''}
+          </div>
+        `).join('') : ''}
+      </div>
+    `).join('')}
+
+    <div class="footer">
+      OFFICIAL HALALCHAIN™ ENTERPRISE DOCUMENT — CONFIDENTIAL & PROPRIETARY
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Trigger download of Microsoft Word document
+ */
+export function downloadWordDocument(htmlContent: string, filename: string) {
+  const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  const cleanName = filename.endsWith('.doc') || filename.endsWith('.docx') ? filename : `${filename}.doc`;
+  link.download = cleanName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /**

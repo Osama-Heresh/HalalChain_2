@@ -358,6 +358,7 @@ export class NavigationBuilderService {
       { id: 'rbac_admin', path: '/exec/rbac_admin', label: 'RBAC & Permission Control Console', iconName: 'ShieldCheck', permissionKey: 'exec:rbac_admin', parentModule: 'exec', active: this.isItemActive('/exec/rbac_admin', currentPath) },
       { id: 'security_dashboard', path: '/exec/security_dashboard', label: 'Security & Hardening Dashboard', iconName: 'ShieldAlert', permissionKey: 'exec:rbac_admin', parentModule: 'exec', active: this.isItemActive('/exec/security_dashboard', currentPath) },
       { id: 'enterprise_release', path: '/exec/enterprise_release', label: 'Enterprise Release Candidate Console', iconName: 'ShieldCheck', permissionKey: 'exec:rbac_admin', parentModule: 'exec', active: this.isItemActive('/exec/enterprise_release', currentPath) },
+      { id: 'uat_manual', path: '/exec/uat_manual', label: 'Enterprise UAT Manual & QA Specs', iconName: 'FileText', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/uat_manual', currentPath) },
       { id: 'multilingual', path: '/exec/multilingual', label: 'Multilingual Collaboration Console', iconName: 'Globe', permissionKey: 'exec:bi', parentModule: 'exec', active: this.isItemActive('/exec/multilingual', currentPath) }
     ];
 

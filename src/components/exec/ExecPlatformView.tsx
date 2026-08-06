@@ -43,6 +43,7 @@ import { MultilingualCollaborationConsole } from '../enterprise/MultilingualColl
 import { CommercialOperationsConsole } from '../enterprise/CommercialOperationsConsole';
 import { EnterpriseIntelligencePlatform } from '../enterprise/EnterpriseIntelligencePlatform';
 import { EnterpriseReleaseCandidateConsole } from '../enterprise/EnterpriseReleaseCandidateConsole';
+import { EnterpriseUatManualView } from '../enterprise/EnterpriseUatManualView';
 import { Globe, Languages, ShieldAlert, Activity } from 'lucide-react';
 import { useRbac } from '../../context/RbacContext';
 import { CertificationApplication, UserRole } from '../../types';
@@ -273,6 +274,14 @@ export const ExecPlatformView: React.FC<ExecPlatformViewProps> = ({
       {/* Multilingual Collaboration Console */}
       {activeExecTab === 'multilingual' && (
         <MultilingualCollaborationConsole />
+      )}
+
+      {/* Enterprise UAT Manual & QA Specs */}
+      {activeExecTab === 'uat_manual' && (
+        <EnterpriseUatManualView
+          currentUserRole={currentUserRole}
+          currentUserName="General Manager"
+        />
       )}
 
       {/* Tab 1: Executive BI */}
