@@ -756,7 +756,6 @@ Respond in structured JSON format matching this schema:
   "businessAnalysis": {
     "coreActivities": ["DeFi Staking"],
     "revenueStructure": "Service fee based",
-    "shariaRiskScore": 15,
     "transparencyLevel": "High"
   },
   "aiDraftFindings": [
@@ -837,7 +836,6 @@ Respond in structured JSON format matching this schema:
           businessAnalysis: {
             coreActivities: ['Decentralized Liquidity Provision', 'Sukuk Tokenization'],
             revenueStructure: 'Transparent transaction-based commission (Murabaha / Wakalah)',
-            shariaRiskScore: 12,
             transparencyLevel: 'High'
           },
           aiDraftFindings: [
