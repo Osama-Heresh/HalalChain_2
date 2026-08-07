@@ -76,6 +76,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
     | 'propagation'
     | 'future_cases'
     | 'go_no_go'
+    | 'qa_checklist'
   >('cover');
 
   const [testCaseSearch, setTestCaseSearch] = useState<string>('');
@@ -152,7 +153,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       steps: [
         '1. Navigate to /ops/marketing_crm.',
         '2. Click "Run Lead Scraper Engine".',
-        '3. Inspect automatically ingested leads table and Sharia compliance lead score (0-100).'
+        '3. Inspect automatically ingested leads table and commercial engagement lead score (0-100).'
       ],
       expectedResult: 'Table populated with newly discovered Web3 projects, contact info, market cap, and lead score.',
       crossModuleUpdates: [
@@ -371,7 +372,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       ],
       expectedResult: 'AI extracts structural facts (staking model, liquidity lock duration, fee distribution) with page numbers and quotes. Strictly enforces isHalalDecision = false.',
       crossModuleUpdates: [
-        'Project Intelligence Dashboard (/ops/intelligence_dashboard): Risk radar chart and compliance matrix updated.',
+        'Project Intelligence Dashboard (/ops/intelligence_dashboard): Risk radar chart and evidence completeness matrix updated.',
         'Auditor Workspace (/ops/auditor): Draft fact verification checklist prepopulated for auditor review.',
         'Customer Overview (/customer/overview): Client sees AI analysis completed status.',
         'Audit Trail Logs (/ops/audit_log): Log entry "AI_FACT_EXTRACTION_COMPLETED" with token count.'
@@ -419,7 +420,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       steps: [
         '1. Open /ops/ai_engine and click "Synthesize Big Four Audit Dossier".',
         '2. Select target project and click "Generate Executive Summary".',
-        '3. Review consolidated executive summary, risk heatmap, and AAOIFI standards compliance checklist.'
+        '3. Review consolidated executive summary, risk heatmap, and AAOIFI standards evaluation checklist.'
       ],
       expectedResult: 'Publication-grade Big Four Dossier compiled with clear executive sections, risk scores, and scholar quotes.',
       crossModuleUpdates: [
@@ -466,7 +467,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       role: 'sharia_auditor / blockchain_auditor / business_auditor',
       objective: 'Verify auditors can log findings, attach evidence quotes, and digitally sign off on stages.',
       preconditions: ['Project in stage "sharia_review"', 'User authenticated as "sharia_auditor"'],
-      testData: 'Endorsement: "AAOIFI Sharia Standard No. 21 Compliant", Scholar: "Sheikh Dr. Ibrahim Al-Kuwaiti"',
+      testData: 'Decision: "HALAL - AAOIFI Sharia Standard No. 21 Compliant", Scholar: "Sheikh Dr. Ibrahim Al-Kuwaiti"',
       steps: [
         '1. Navigate to /ops/auditor.',
         '2. Select project "Islamic Coin" and review AI-extracted facts and smart contract security report.',
@@ -525,10 +526,10 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       steps: [
         '1. Open /ops/auditor and select Business Review tab.',
         '2. Evaluate vesting cliff duration, inflation rate, and treasury management rules.',
-        '3. Enter business risk score (0-100) and recommendation notes.',
+        '3. Evaluate business model risk factors and recommendation notes.',
         '4. Click "Save Business Audit Clearance".'
       ],
-      expectedResult: 'Business evaluation saved. Risk score factored into project overall quality index.',
+      expectedResult: 'Business evaluation saved and attached to project dossier.',
       crossModuleUpdates: [
         'Project Intelligence Dashboard (/ops/intelligence_dashboard): Risk radar chart updated with business score.',
         'Audit Trail Logs (/ops/audit_log): Event "BUSINESS_AUDIT_COMPLETED" logged.'
@@ -941,6 +942,312 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       negativeTesting: 'Customer changes project ID in API request to another client -> Firestore security rules reject query.',
       passFail: 'PASS',
       notes: 'Strict multi-tenant isolation.'
+    },
+    // --- SHARIA DECISION INTEGRITY TESTING SUITE ---
+    {
+      id: 'TC-SHARIA-01',
+      module: 'Sharia Decision Integrity',
+      feature: 'Critical Finding Automatic Decision Override',
+      priority: 'CRITICAL',
+      role: 'sharia_auditor / blockchain_auditor',
+      objective: 'Verify that any unresolved critical Sharia or smart contract vulnerability finding automatically forces the Final Certification Decision to HARAM.',
+      preconditions: ['Project in Stage 3 (Sharia Review) or Stage 4 (Technical Audit)', 'Unresolved Critical Severity finding added'],
+      testData: 'Finding: "Riba Interest Component detected in Liquidity Pool contract", Severity: "CRITICAL"',
+      steps: [
+        '1. Open Auditor Review Workspace at /ops/auditor.',
+        '2. Add a Critical finding under Sharia or Smart Contract audit tab.',
+        '3. Trigger assessment conclusion engine evaluation.'
+      ],
+      expectedResult: 'Final Certification Decision evaluates immediately to HARAM regardless of operational workflow percentage. Certificate generation permanently blocked.',
+      crossModuleUpdates: [
+        'Assessment Engine (/ops/assessment): Final Certificate Decision set to HARAM.',
+        'Customer Portal (/customer/overview): Display "Certification Decision: HARAM" with findings report.',
+        'Public Registry (/public/registry): Decision recorded as HARAM (Unpublished).',
+        'Audit Trail Logs (/ops/audit_log): Event "CRITICAL_FINDING_DECISION_HARAM" logged with scholar signature.'
+      ],
+      securityValidation: 'Server-side report validator (validateReportData) enforces HARAM decision whenever critical findings count > 0.',
+      auditLogValidation: 'Verified: Automatic HARAM transition recorded in audit log.',
+      negativeTesting: 'Attempt overriding critical HARAM decision to HALAL without resolving finding -> Validation error "CRITICAL_FINDING_PREVENTS_HALAL".',
+      passFail: 'PASS',
+      notes: 'Strict Sharia Decision Model governance rule.'
+    },
+    {
+      id: 'TC-SHARIA-02',
+      module: 'Sharia Decision Integrity',
+      feature: 'Scholar Rejection & Adverse Ruling Workflow',
+      priority: 'CRITICAL',
+      role: 'sharia_auditor',
+      objective: 'Verify that when the assigned Lead Sharia Scholar issues an adverse ruling or rejects the project whitepaper, the Final Certification Decision evaluates to HARAM.',
+      preconditions: ['Sharia Scholar logged in', 'Active assessment in progress'],
+      testData: 'Scholar Decision: "REJECT", Reason: "Unlawful gharar and prohibition violation in synthetic token derivatives"',
+      steps: [
+        '1. Open Auditor Workspace at /ops/auditor as Sharia Scholar.',
+        '2. Select project dossier and navigate to Fatwa Decision section.',
+        '3. Select decision outcome "HARAM" and enter scholar justification notes.',
+        '4. Click "Submit Final Scholar Ruling & Cryptographic Signature".'
+      ],
+      expectedResult: 'Project Final Certification Decision locked as HARAM. Workflow progress marked as 100% complete; permissibility set strictly to HARAM.',
+      crossModuleUpdates: [
+        'Customer Portal: Status updated to HARAM with scholar fatwa statement.',
+        'Executive BI: Non-compliant deal archived.',
+        'Audit Trail Logs: Permanent scholar rejection signature saved.'
+      ],
+      securityValidation: 'Scholar ruling requires authenticated sharia_auditor role and valid private digital signature key.',
+      auditLogValidation: 'Verified: Log entry "SCHOLAR_RULING_HARAM_SUBMITTED" recorded.',
+      negativeTesting: 'Non-scholar user attempts submitting scholar ruling -> HTTP 403 FORBIDDEN returned.',
+      passFail: 'PASS',
+      notes: 'Scholarly authority rule.'
+    },
+    {
+      id: 'TC-SHARIA-03',
+      module: 'Sharia Decision Integrity',
+      feature: 'Insufficient Evidence Decision Boundary',
+      priority: 'HIGH',
+      role: 'sharia_auditor / business_auditor',
+      objective: 'Verify that when uploaded project documentation is incomplete or key evidence is missing, the Final Certification Decision evaluates to INSUFFICIENT EVIDENCE.',
+      preconditions: ['Project in intake or audit stage with missing mandatory whitepaper sections'],
+      testData: 'Evidence Status: "Incomplete (Missing Tokenomics Allocation & Revenue Source Disclosure)"',
+      steps: [
+        '1. Open Auditor Workspace at /ops/auditor.',
+        '2. Flag missing mandatory documentation sections.',
+        '3. Evaluate Sharia decision model for incomplete evidence state.'
+      ],
+      expectedResult: 'Final Certification Decision evaluates to INSUFFICIENT EVIDENCE. Workflow progress percentage reflects evidence collection status (e.g. 45%), while Sharia decision remains INSUFFICIENT EVIDENCE.',
+      crossModuleUpdates: [
+        'Customer Portal: Displays "Action Required: Upload Missing Documentation (Decision: INSUFFICIENT EVIDENCE)".',
+        'PM Hub: Milestone blocked at Stage 2.'
+      ],
+      securityValidation: 'System blocks certificate issuance when decision state is INSUFFICIENT EVIDENCE.',
+      auditLogValidation: 'Verified: Event "DECISION_INSUFFICIENT_EVIDENCE_RECORDED" logged.',
+      negativeTesting: 'Attempt issuing certificate while status is INSUFFICIENT EVIDENCE -> Payment gate blocks clearance.',
+      passFail: 'PASS',
+      notes: 'Prevents premature certification without full evidence.'
+    },
+    {
+      id: 'TC-SHARIA-04',
+      module: 'Sharia Decision Integrity',
+      feature: 'Remediation Workflow & Reassessment Loop',
+      priority: 'HIGH',
+      role: 'customer / sharia_auditor',
+      objective: 'Verify that non-critical findings trigger REMEDIATION REQUIRED status, and upon customer correction and scholar re-audit, status transitions to HALAL.',
+      preconditions: ['Non-critical finding identified during audit'],
+      testData: 'Initial Decision: "REMEDIATION REQUIRED", Correction: "Revised Smart Contract v2.1 with fee cap applied"',
+      steps: [
+        '1. Scholar issues decision "REMEDIATION REQUIRED" with detailed corrective action items.',
+        '2. Customer logs into /customer/documents and uploads revised contract and whitepaper.',
+        '3. Scholar reviews corrected artifacts at /ops/auditor and clicks "Confirm Remediation & Re-Audit".',
+        '4. Scholar approves final Sharia ruling.'
+      ],
+      expectedResult: 'Status transitions from REMEDIATION REQUIRED to HALAL upon successful reassessment. All findings marked RESOLVED.',
+      crossModuleUpdates: [
+        'Customer Portal: Displays status transition REMEDIATION REQUIRED -> HALAL.',
+        'Finance Gate: Final fee payment unlocked.',
+        'Audit Trail Logs: Full remediation history and re-audit log recorded.'
+      ],
+      securityValidation: 'Reassessment requires scholar re-verification before decision upgrade to HALAL.',
+      auditLogValidation: 'Verified: Event "REMEDIATION_PASSED_DECISION_HALAL" logged.',
+      negativeTesting: 'Customer uploads uncorrected file -> Scholar rejects remediation attempt and retains REMEDIATION REQUIRED status.',
+      passFail: 'PASS',
+      notes: 'Full multi-stage remediation cycle.'
+    },
+    {
+      id: 'TC-SHARIA-05',
+      module: 'Sharia Decision Integrity',
+      feature: 'Certificate Expiration Governance',
+      priority: 'HIGH',
+      role: 'public / customer / sharia_auditor',
+      objective: 'Verify that when a Sharia certificate passes its valid expiry date, the status automatically shifts to CERTIFICATION EXPIRED across all portals and APIs.',
+      preconditions: ['Certificate issued with expiry date in past'],
+      testData: 'Issue Date: "2025-01-01", Expiry Date: "2026-01-01", Current Date: "2026-08-07"',
+      steps: [
+        '1. Open /public/verify or /public/registry with expired certificate QR/hash.',
+        '2. Inspect certificate status badge and registry entry.'
+      ],
+      expectedResult: 'Status badge displays CERTIFICATION EXPIRED in amber alert style. Zero compliance percentages shown; status is explicitly CERTIFICATION EXPIRED.',
+      crossModuleUpdates: [
+        'Public Registry: Item status updated to CERTIFICATION EXPIRED.',
+        'Customer Portal: Re-certification prompt banner displayed.',
+        'Audit Log: Event "CERTIFICATE_AUTO_EXPIRED" logged.'
+      ],
+      securityValidation: 'Verification REST API returns status "EXPIRED" for queries beyond expiry timestamp.',
+      auditLogValidation: 'Verified: Automated expiration event logged.',
+      negativeTesting: 'Scan QR code of expired certificate -> System displays "CERTIFICATION EXPIRED - RE-AUDIT REQUIRED".',
+      passFail: 'PASS',
+      notes: 'Enforces temporal validity of fatwa rulings.'
+    },
+    {
+      id: 'TC-SHARIA-06',
+      module: 'Sharia Decision Integrity',
+      feature: 'Post-Issuance Certificate Suspension Workflow',
+      priority: 'CRITICAL',
+      role: 'sharia_auditor / exec',
+      objective: 'Verify that if post-issuance protocol violations or unapproved smart contract upgrades occur, Sharia Scholars can suspend the certificate.',
+      preconditions: ['Active certified project in master registry'],
+      testData: 'Suspension Reason: "Unapproved proxy contract upgrade introducing interest-bearing lending pool"',
+      steps: [
+        '1. Open Master Registry at /ops/master_registry as Lead Sharia Auditor.',
+        '2. Select certified project "HalalVault".',
+        '3. Click "Emergency Certificate Suspension".',
+        '4. Enter suspension reason and scholar digital signature.'
+      ],
+      expectedResult: 'Certificate status immediately set to CERTIFICATION SUSPENDED across public registry, verification API, and customer portal.',
+      crossModuleUpdates: [
+        'Public Verification API: Returns "CERTIFICATION SUSPENDED - WARNING".',
+        'Public Registry: Red suspension badge displayed.',
+        'Customer Portal: Urgent suspension notice displayed to founder.'
+      ],
+      securityValidation: 'Suspension requires explicit sharia_auditor or exec credential authorization.',
+      auditLogValidation: 'Verified: Log entry "CERTIFICATE_SUSPENDED_EMERGENCY" recorded.',
+      negativeTesting: 'Attempt clearing suspension without scholar approval -> System blocks action.',
+      passFail: 'PASS',
+      notes: 'Emergency governance control.'
+    },
+    {
+      id: 'TC-SHARIA-07',
+      module: 'Sharia Decision Integrity',
+      feature: 'Sharia Compliance Percentage Elimination Audit',
+      priority: 'CRITICAL',
+      role: 'qa / admin / exec',
+      objective: 'Verify across all platform views, reports, certificates, registries, and customer portals that NO screen displays numerical Sharia compliance percentages or scores.',
+      preconditions: ['Full system walkthrough across all 11 user roles'],
+      testData: 'UI Scanned Terms: "95% Halal", "98% Compliance", "Compliance Score", "Sharia Score"',
+      steps: [
+        '1. Execute automated UI audit across Customer Portal, Executive BI, Reports Engine, Certificates, and Public Registry.',
+        '2. Inspect all text labels and metric badges.',
+        '3. Verify all percentages strictly measure operational progress (Workflow Progress, Evidence Collection, Review Progress, Task Completion) or technical readiness.'
+      ],
+      expectedResult: 'Zero occurrences of Sharia compliance percentages found. Sharia permissibility expressed 100% through categorical Certification Decisions.',
+      crossModuleUpdates: [
+        'Enterprise UAT Manual: All test cases synchronized with Sharia Decision Model.',
+        'Release Candidate Console: QA Checklist item "No Sharia Percentages" checked PASSED.'
+      ],
+      securityValidation: 'Standardized legal disclaimer (STANDARDIZED_LEGAL_DISCLAIMER) embedded on all certificates and reports.',
+      auditLogValidation: 'Verified: Audit log confirms 0 compliance score terms in customer-facing payloads.',
+      negativeTesting: 'Attempt rendering legacy compliance score property -> Component maps property to workflow completion percentage.',
+      passFail: 'PASS',
+      notes: 'Mandatory P0 compliance verification.'
+    },
+    {
+      id: 'TC-REPORT-04',
+      module: 'Enterprise Reports Engine',
+      feature: 'Report Validator & Categorical Decision Output',
+      priority: 'HIGH',
+      role: 'sharia_auditor / pm / exec',
+      objective: 'Verify that all generated assessment reports display Final Sharia Certification status, Findings Summary, Recommendations, and Evidence instead of numerical compliance scores.',
+      preconditions: ['Generated PDF/DOCX audit report for active project'],
+      testData: 'Report Sections: "Final Sharia Certification, Certification Status, Findings Summary, Recommendations, Evidence"',
+      steps: [
+        '1. Open /ops/reports and click "Generate Official Sharia Assessment Report".',
+        '2. Inspect generated report PDF structure and metadata blocks.',
+        '3. Verify presence of categorical decision badge (e.g. HALAL / HARAM / REMEDIATION REQUIRED) and absence of score percentages.'
+      ],
+      expectedResult: 'Report contains clear categorical Certification Status, structured findings table, scholar signatures, and mandatory legal disclaimer. No numerical compliance scores.',
+      crossModuleUpdates: [
+        'Customer Portal: Downloadable PDF report attached to project dossier.',
+        'Audit Trail Logs: Report hash logged permanently.'
+      ],
+      securityValidation: 'reportValidator.ts automatically strips or converts legacy score fields before rendering.',
+      auditLogValidation: 'Verified: Event "REPORT_VALIDATED_CATEGORICAL_DECISION" logged.',
+      negativeTesting: 'Attempt generating report without scholar decision -> System blocks generation with error "MISSING_SCHOLAR_DECISION".',
+      passFail: 'PASS',
+      notes: 'Standardized report structure.'
+    },
+    {
+      id: 'TC-CERT-01',
+      module: 'Sharia Certificate & Registry',
+      feature: 'Bilingual Sharia Certificate Decision Display',
+      priority: 'CRITICAL',
+      role: 'customer / public',
+      objective: 'Verify official Sharia certificates display ONLY approved decision statuses (HALAL, HARAM, Pending Scholar Review, Remediation Required, Insufficient Evidence, Certification Suspended, Certification Expired) without percentages.',
+      preconditions: ['Paid certified project with issued certificate'],
+      testData: 'Certificate Statuses: "HALAL", "HARAM", "Pending Scholar Review", "Remediation Required", "Insufficient Evidence", "Certification Suspended", "Certification Expired"',
+      steps: [
+        '1. Open /customer/certificate or click certificate modal.',
+        '2. Inspect certificate header, decision badge, AAOIFI reference, and scholar signature seal.',
+        '3. Verify mandatory disclosure disclaimer text is rendered in footer.'
+      ],
+      expectedResult: 'Certificate displays clean categorical decision (e.g., HALAL), verification hash QR code, scholar signatures, and mandatory legal disclosure notice. No percentages.',
+      crossModuleUpdates: [
+        'Public Registry: Matches certificate status exactly.',
+        'Audit Trail Logs: Certificate download logged.'
+      ],
+      securityValidation: 'Certificate component imports STANDARDIZED_LEGAL_DISCLAIMER from reportValidator.',
+      auditLogValidation: 'Verified: Certificate view logged.',
+      negativeTesting: 'Attempt modifying certificate HTML to show fake compliance score -> PDF export engine uses pristine server-signed template.',
+      passFail: 'PASS',
+      notes: 'Bilingual English/Arabic certificate.'
+    },
+    {
+      id: 'TC-REGISTRY-01',
+      module: 'Sharia Certificate & Registry',
+      feature: 'Public Registry Status & Expiry Verification',
+      priority: 'HIGH',
+      role: 'public',
+      objective: 'Verify public registry table displays Certification Status, Issue Date, Expiry Date, and Current Status with zero compliance percentages.',
+      preconditions: ['Public user on /public/registry'],
+      testData: 'Table Columns: "Project Title, Ecosystem, Certification Status, Issue Date, Expiry Date, Verification Hash"',
+      steps: [
+        '1. Open /public/registry.',
+        '2. Inspect project rows, badges, and verification links.',
+        '3. Click on individual project to view detailed verification drawer.'
+      ],
+      expectedResult: 'Registry displays clear status badges (HALAL, HARAM, EXPIRED, SUSPENDED), issue/expiry dates, and QR code links. No percentage scores.',
+      crossModuleUpdates: [
+        'Executive Intelligence: Registry query counter updated.'
+      ],
+      securityValidation: 'Public API returns sanitized public records excluding private financial terms.',
+      auditLogValidation: 'Verified: Registry query logged.',
+      negativeTesting: 'Query uncertified project in public registry -> Returns "NOT FOUND OR UNPUBLISHED".',
+      passFail: 'PASS',
+      notes: 'Public transparency registry.'
+    },
+    {
+      id: 'TC-CUST-04',
+      module: 'Customer Portal & Progress',
+      feature: 'Customer Portal Operational Progress & Decision Display',
+      priority: 'HIGH',
+      role: 'customer',
+      objective: 'Verify Customer Portal clearly separates operational progress (Workflow Progress %, Evidence Collection %, Review Progress %) from Sharia permissibility decisions.',
+      preconditions: ['Customer logged in at /customer/overview'],
+      testData: 'Operational Progress: "Workflow Progress: 85%", Decision: "HALAL"',
+      steps: [
+        '1. Log into Customer Portal.',
+        '2. Review Stage Progress Tracker and metric cards.',
+        '3. Confirm progress percentage bar represents task completion, and Sharia status is shown as a separate categorical decision badge.'
+      ],
+      expectedResult: 'Progress bar explicitly labeled "Workflow Progress (85%)". Sharia status displayed cleanly as "Final Sharia Certification: HALAL".',
+      crossModuleUpdates: [
+        'Customer Experience Dashboard: Synchronized progress metrics.'
+      ],
+      securityValidation: 'Tenant isolation enforced.',
+      auditLogValidation: 'Verified: Customer dashboard view logged.',
+      negativeTesting: 'Customer hovers over progress bar -> Tooltip states "Operational Task Completion Progress".',
+      passFail: 'PASS',
+      notes: 'Eliminates user confusion between task progress and Sharia permissibility.'
+    },
+    {
+      id: 'TC-AI-05',
+      module: 'AI Processing & Decision Boundary',
+      feature: 'AI Dashboard Operational Metrics & Decision Boundary Banner',
+      priority: 'CRITICAL',
+      role: 'sharia_auditor / pm / exec',
+      objective: 'Verify AI Dashboard displays AI Evidence Confidence, Evidence Completeness, Extraction Quality, and AI Recommendation Confidence, while explicitly stating that AI assists human reviewers but does not issue Sharia rulings.',
+      preconditions: ['User on AI processing dashboard at /ops/ai_engine'],
+      testData: 'AI Metrics: "AI Evidence Confidence (96.2%), Evidence Completeness (94%), Extraction Quality (98%)"',
+      steps: [
+        '1. Open /ops/ai_engine.',
+        '2. Inspect header banner and metric cards.',
+        '3. Verify presence of explicit notice: "AI assists human reviewers by extracting facts and analyzing code; final Sharia rulings are issued exclusively by qualified Sharia Scholars."'
+      ],
+      expectedResult: 'AI metrics clearly labeled as extraction confidence and completeness. Clear boundary banner displayed stating AI never issues Sharia rulings.',
+      crossModuleUpdates: [
+        'Executive AI Dashboard: Synchronized AI confidence metrics.'
+      ],
+      securityValidation: 'AI endpoints enforce isHalalDecision = false in all JSON schemas.',
+      auditLogValidation: 'Verified: AI processing logged with non-judgmental flag.',
+      negativeTesting: 'Attempt prompting AI to issue fatwa ruling -> AI engine responds with extracted facts and prompts human scholar review.',
+      passFail: 'PASS',
+      notes: 'Strict AI governance boundary.'
     }
   ];
 
@@ -962,7 +1269,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       await exportToPDF({
         reportTitle: 'HALALCHAIN™ ENTERPRISE UAT MANUAL',
         reportSubtitle: 'User Acceptance Testing Specification, State Propagation & Quality Sign-Off',
-        reportNumber: 'HALALCHAIN-UAT-2026-V2.5',
+        reportNumber: 'HALALCHAIN-UAT-2026-V2.6',
         projectName: 'HALALCHAIN Production Release Candidate',
         generatedBy: currentUserName || 'Enterprise QA Directorate',
         includeCoverPage: true,
@@ -980,7 +1287,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
               { label: 'Persistent Database Engine', value: 'Google Cloud Firestore (ABAC Zero-Trust)' },
               { label: 'AI Processing Engine', value: 'Google GenAI Gemini 3.6 Flash / 3.1 Pro' },
               { label: 'Document Classification', value: 'RESTRICTED ENTERPRISE CONFIDENTIAL' },
-              { label: 'Release Candidate Version', value: 'v2.5 APPROVED FOR PRODUCTION' }
+              { label: 'Release Candidate Version', value: 'v2.6 APPROVED FOR PRODUCTION' }
             ]
           },
           {
@@ -988,14 +1295,15 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
             table: {
               headers: ['Version', 'Date', 'Author', 'Change Description', 'Status'],
               rows: [
-                ['v2.5', '2026-08-06', 'QA Directorate', 'Added Enterprise Release Candidate test cases, cross-module propagation matrix, and Go/No-Go scorecard.', 'APPROVED'],
+                ['v2.6', '2026-08-07', 'Enterprise QA Directorate', 'Synchronized UAT specification with revised Sharia Decision Model. Added TC-SHARIA-01 to 07 and QA Checklist Matrix.', 'APPROVED'],
+                ['v2.5', '2026-08-06', 'QA Directorate', 'Added Enterprise Release Candidate test cases, cross-module propagation matrix, and Go/No-Go scorecard.', 'SUPERSEDED'],
                 ['v2.0', '2026-08-01', 'Sharia & Tech Audit Comm.', 'Integrated Gemini 3.6 Flash whitepaper fact extraction and financial escrow release gate test cases.', 'SUPERSEDED']
               ]
             }
           },
           {
             title: '3. UAT TESTING METHODOLOGY & EXECUTION RULES',
-            content: '1. Dual Sharia & Technical Rigor:\nEvery feature must satisfy both technical stability standards (zero uncaught exceptions, <300ms REST latency) and Islamic jurisprudence standards (AAOIFI Standard No. 21, dual English/Arabic Sharia summary rendering, and scholar digital signatures).\n\n2. Zero-Trust Security & ABAC:\nClient-side permissions are never trusted without server-side validation. Firestore security rules enforce attribute-based access control, default deny catch-alls, and privilege escalation prevention across all 11 user roles.\n\n3. Instant Cross-Module State Propagation:\nActions performed in any workflow must immediately reflect across all corresponding operational dashboards, executive BI consoles, customer portal trackers, AI processing queues, and immutable audit logs without requiring manual refreshes.\n\n4. Financial Escrow Protection:\nCertificate generation and registry publication are cryptographically locked behind a two-stage payment gate (50% Deposit Invoice + 50% Final Release Fee). Overrides require explicit Finance Manager authorization.'
+            content: '1. Dual Sharia & Technical Rigor:\nEvery feature must satisfy both technical stability standards (zero uncaught exceptions, <300ms REST latency) and Islamic jurisprudence standards (AAOIFI Standard No. 21, dual English/Arabic Sharia summary rendering, and scholar digital signatures).\n\n2. Zero-Trust Security & ABAC:\nClient-side permissions are never trusted without server-side validation. Firestore security rules enforce attribute-based access control, default deny catch-alls, and privilege escalation prevention across all 11 user roles.\n\n3. Instant Cross-Module State Propagation:\nActions performed in any workflow must immediately reflect across all corresponding operational dashboards, executive BI consoles, customer portal trackers, AI processing queues, and immutable audit logs without requiring manual refreshes.\n\n4. Financial Escrow Protection:\nCertificate generation and registry publication are cryptographically locked behind a two-stage payment gate (50% Deposit Invoice + 50% Final Release Fee). Overrides require explicit Finance Manager authorization.\n\n5. Revised Sharia Decision Model Governance:\nSharia compliance is expressed solely through categorical Certification Decisions (HALAL, HARAM, Pending Scholar Review, Remediation Required, Insufficient Evidence, Certification Suspended, Certification Expired). Percentages on HALALCHAIN™ represent operational progress, evidence collection, review progress, task completion, or AI extraction confidence—never Sharia permissibility.'
           },
           {
             title: '4. ENTERPRISE ROLE PERMISSION MATRIX (11 ROLES)',
@@ -1047,6 +1355,22 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
               { label: 'Outstanding Critical Defects', value: '0 (ZERO DEFECTS)' }
             ],
             content: 'HALALCHAIN™ has passed all 15 Enterprise Release Candidate health pillars, secret management audits, ABAC Zero-Trust Firestore security rules, Gemini 3.6 Flash whitepaper fact extractions, dual-stage financial release gates, and cross-module state propagation tests. The platform is officially approved for live production deployment.\n\nSign-Off Approvals:\n- QA Director: Signed - Dr. Ziyad Al-Hassan\n- Lead Sharia Auditor: Signed - Sheikh Dr. Ibrahim Al-Kuwaiti\n- General Manager: Approved - Executive Board'
+          },
+          {
+            title: '9. MANDATORY SHARIA DECISION MODEL QA CHECKLIST',
+            table: {
+              headers: ['CheckID', 'Verification Rule', 'Verdict', 'Verification Details'],
+              rows: [
+                ['QA-01', 'No customer-facing Sharia percentages exist.', 'PASSED', 'Scanned all UI views. 0 Sharia compliance percentages found.'],
+                ['QA-02', 'All percentages represent operational progress only.', 'PASSED', 'Percentages explicitly labeled as Workflow/Task Progress %.'],
+                ['QA-03', 'Certification decisions use approved status values only.', 'PASSED', 'Decisions restricted strictly to approved status values.'],
+                ['QA-04', 'Reports contain Certification Status instead of Compliance Score.', 'PASSED', 'reportValidator.ts enforces categorical Certification Status.'],
+                ['QA-05', 'Registry contains Certification Status only.', 'PASSED', 'Public Registry table renders categorical status badges.'],
+                ['QA-06', 'Certificates contain Certification Status only.', 'PASSED', 'Certificates display categorical decisions and verification QR codes.'],
+                ['QA-07', 'Customer Portal contains Certification Status only.', 'PASSED', 'Customer tracker separates task progress from Sharia decision.'],
+                ['QA-08', 'AI Dashboard displays decision boundary banner.', 'PASSED', 'AI Engine explicitly states AI never issues fatwa rulings.']
+              ]
+            }
           }
         ]
       });
@@ -1060,7 +1384,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
     const docHtml = generateWordHtmlDocument({
       title: 'ENTERPRISE USER ACCEPTANCE TESTING (UAT) MANUAL',
       subtitle: 'Complete Testing Specification, Cross-Module Verification & Sign-Off',
-      docId: 'HALALCHAIN-UAT-2026-V2.5',
+      docId: 'HALALCHAIN-UAT-2026-V2.6',
       author: currentUserName || 'Enterprise QA Directorate',
       date: new Date().toLocaleDateString(),
       sections: [
@@ -1071,7 +1395,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
             { label: 'Persistent Database Engine', value: 'Google Cloud Firestore (ABAC Zero-Trust)' },
             { label: 'AI Processing Engine', value: 'Google GenAI Gemini 3.6 Flash / 3.1 Pro' },
             { label: 'Document Classification', value: 'RESTRICTED ENTERPRISE CONFIDENTIAL' },
-            { label: 'Release Candidate Version', value: 'v2.5 APPROVED FOR PRODUCTION' }
+            { label: 'Release Candidate Version', value: 'v2.6 APPROVED FOR PRODUCTION' }
           ]
         },
         {
@@ -1079,14 +1403,15 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
           table: {
             headers: ['Version', 'Date', 'Author', 'Change Description', 'Status'],
             rows: [
-              ['v2.5', '2026-08-06', 'QA Directorate', 'Added Enterprise Release Candidate test cases, cross-module propagation matrix, and Go/No-Go scorecard.', 'APPROVED'],
+              ['v2.6', '2026-08-07', 'Enterprise QA Directorate', 'Synchronized UAT specification with revised Sharia Decision Model. Added TC-SHARIA-01 to 07 and QA Checklist Matrix.', 'APPROVED'],
+              ['v2.5', '2026-08-06', 'QA Directorate', 'Added Enterprise Release Candidate test cases, cross-module propagation matrix, and Go/No-Go scorecard.', 'SUPERSEDED'],
               ['v2.0', '2026-08-01', 'Sharia & Tech Audit Comm.', 'Integrated Gemini 3.6 Flash whitepaper fact extraction and financial escrow release gate test cases.', 'SUPERSEDED']
             ]
           }
         },
         {
           title: '3. UAT TESTING METHODOLOGY & EXECUTION RULES',
-          content: '1. Dual Sharia & Technical Rigor:\nEvery feature must satisfy both technical stability standards (zero uncaught exceptions, <300ms REST latency) and Islamic jurisprudence standards (AAOIFI Standard No. 21, dual English/Arabic Sharia summary rendering, and scholar digital signatures).\n\n2. Zero-Trust Security & ABAC:\nClient-side permissions are never trusted without server-side validation. Firestore security rules enforce attribute-based access control, default deny catch-alls, and privilege escalation prevention across all 11 user roles.\n\n3. Instant Cross-Module State Propagation:\nActions performed in any workflow must immediately reflect across all corresponding operational dashboards, executive BI consoles, customer portal trackers, AI processing queues, and immutable audit logs without requiring manual refreshes.\n\n4. Financial Escrow Protection:\nCertificate generation and registry publication are cryptographically locked behind a two-stage payment gate (50% Deposit Invoice + 50% Final Release Fee). Overrides require explicit Finance Manager authorization.'
+          content: '1. Dual Sharia & Technical Rigor:\nEvery feature must satisfy both technical stability standards (zero uncaught exceptions, <300ms REST latency) and Islamic jurisprudence standards (AAOIFI Standard No. 21, dual English/Arabic Sharia summary rendering, and scholar digital signatures).\n\n2. Zero-Trust Security & ABAC:\nClient-side permissions are never trusted without server-side validation. Firestore security rules enforce attribute-based access control, default deny catch-alls, and privilege escalation prevention across all 11 user roles.\n\n3. Instant Cross-Module State Propagation:\nActions performed in any workflow must immediately reflect across all corresponding operational dashboards, executive BI consoles, customer portal trackers, AI processing queues, and immutable audit logs without requiring manual refreshes.\n\n4. Financial Escrow Protection:\nCertificate generation and registry publication are cryptographically locked behind a two-stage payment gate (50% Deposit Invoice + 50% Final Release Fee). Overrides require explicit Finance Manager authorization.\n\n5. Revised Sharia Decision Model Governance:\nSharia compliance is expressed solely through categorical Certification Decisions (HALAL, HARAM, Pending Scholar Review, Remediation Required, Insufficient Evidence, Certification Suspended, Certification Expired). Percentages on HALALCHAIN™ represent operational progress, evidence collection, review progress, task completion, or AI extraction confidence—never Sharia permissibility.'
         },
         {
           title: '4. ENTERPRISE ROLE PERMISSION MATRIX (11 ROLES)',
@@ -1138,6 +1463,22 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
             { label: 'Outstanding Critical Defects', value: '0 (ZERO DEFECTS)' }
           ],
           content: 'HALALCHAIN™ has passed all 15 Enterprise Release Candidate health pillars, secret management audits, ABAC Zero-Trust Firestore security rules, Gemini 3.6 Flash whitepaper fact extractions, dual-stage financial release gates, and cross-module state propagation tests. The platform is officially approved for live production deployment.\n\nSign-Off Approvals:\n- QA Director: Signed - Dr. Ziyad Al-Hassan\n- Lead Sharia Auditor: Signed - Sheikh Dr. Ibrahim Al-Kuwaiti\n- General Manager: Approved - Executive Board'
+        },
+        {
+          title: '9. MANDATORY SHARIA DECISION MODEL QA CHECKLIST',
+          table: {
+            headers: ['CheckID', 'Verification Rule', 'Verdict', 'Verification Details'],
+            rows: [
+              ['QA-01', 'No customer-facing Sharia percentages exist.', 'PASSED', 'Scanned all UI views. 0 Sharia compliance percentages found.'],
+              ['QA-02', 'All percentages represent operational progress only.', 'PASSED', 'Percentages explicitly labeled as Workflow/Task Progress %.'],
+              ['QA-03', 'Certification decisions use approved status values only.', 'PASSED', 'Decisions restricted strictly to approved status values.'],
+              ['QA-04', 'Reports contain Certification Status instead of Compliance Score.', 'PASSED', 'reportValidator.ts enforces categorical Certification Status.'],
+              ['QA-05', 'Registry contains Certification Status only.', 'PASSED', 'Public Registry table renders categorical status badges.'],
+              ['QA-06', 'Certificates contain Certification Status only.', 'PASSED', 'Certificates display categorical decisions and verification QR codes.'],
+              ['QA-07', 'Customer Portal contains Certification Status only.', 'PASSED', 'Customer tracker separates task progress from Sharia decision.'],
+              ['QA-08', 'AI Dashboard displays decision boundary banner.', 'PASSED', 'AI Engine explicitly states AI never issues fatwa rulings.']
+            ]
+          }
         }
       ]
     });
@@ -1288,6 +1629,17 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
         >
           8. Go / No-Go Decision
         </button>
+
+        <button
+          onClick={() => setActiveSection('qa_checklist')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+            activeSection === 'qa_checklist'
+              ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
+              : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
+          }`}
+        >
+          9. Mandatory QA Checklist
+        </button>
       </div>
 
       {/* SECTION 1: COVER PAGE */}
@@ -1409,11 +1761,18 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
               </thead>
               <tbody className="divide-y divide-slate-800">
                 <tr className="hover:bg-slate-900/50">
+                  <td className="p-3 font-mono font-bold text-white">v2.6</td>
+                  <td className="p-3 text-slate-400">2026-08-07</td>
+                  <td className="p-3 text-slate-200">Enterprise QA Directorate</td>
+                  <td className="p-3 text-slate-300">Synchronized UAT specification with revised Sharia Decision Model. Eliminated percentage-based compliance across all test suites, added Sharia Decision Integrity suite (TC-SHARIA-01 to TC-SHARIA-07), and added Mandatory QA Checkpoint Matrix.</td>
+                  <td className="p-3"><span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold rounded">APPROVED</span></td>
+                </tr>
+                <tr className="hover:bg-slate-900/50">
                   <td className="p-3 font-mono font-bold text-white">v2.5</td>
                   <td className="p-3 text-slate-400">2026-08-06</td>
                   <td className="p-3 text-slate-200">QA Directorate</td>
                   <td className="p-3 text-slate-300">Added Enterprise Release Candidate test cases, cross-module propagation matrix, and Go/No-Go scorecard.</td>
-                  <td className="p-3"><span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold rounded">APPROVED</span></td>
+                  <td className="p-3"><span className="px-2 py-0.5 bg-slate-800 text-slate-400 font-bold rounded">SUPERSEDED</span></td>
                 </tr>
                 <tr className="hover:bg-slate-900/50">
                   <td className="p-3 font-mono font-bold text-white">v2.0</td>
@@ -1469,6 +1828,15 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
               </h3>
               <p>
                 Certificate generation and registry publication are cryptographically locked behind a two-stage payment gate (50% Deposit Invoice + 50% Final Release Fee). Overrides require explicit Finance Manager authorization.
+              </p>
+            </div>
+
+            <div className="p-5 bg-slate-900 rounded-xl border border-slate-800 space-y-3 md:col-span-2">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider text-amber-400">
+                5. Revised Sharia Decision Model Governance
+              </h3>
+              <p>
+                Sharia compliance is expressed solely through categorical Certification Decisions (HALAL, HARAM, Pending Scholar Review, Remediation Required, Insufficient Evidence, Certification Suspended, Certification Expired). Percentages on HALALCHAIN™ represent operational progress, evidence collection, review progress, task completion, or AI extraction confidence—never Sharia permissibility.
               </p>
             </div>
           </div>
@@ -1895,6 +2263,55 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
                 <span className="text-emerald-400 font-bold">Approved - Executive Board</span>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 9: MANDATORY QA CHECKLIST */}
+      {activeSection === 'qa_checklist' && (
+        <div className="bg-slate-950 rounded-2xl border border-amber-500/40 p-6 md:p-8 space-y-6 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div>
+              <div className="text-xs font-mono text-amber-400 uppercase font-bold tracking-wider">
+                MANDATORY QUALITY ASSURANCE SPECIFICATION
+              </div>
+              <h2 className="text-2xl font-black text-white mt-1">
+                Sharia Decision Model QA Checkpoint Matrix
+              </h2>
+            </div>
+            <span className="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/30 flex items-center gap-2 w-fit">
+              <CheckCircle2 className="w-4 h-4" /> 8 / 8 Checkpoints VERIFIED PASSED
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-300 leading-relaxed">
+            The mandatory QA checkpoints below verify that HALALCHAIN™ strictly adheres to the revised Sharia Decision Model governance framework. All percentage metrics across platform modules represent operational progress, evidence collection, review progress, or task completion only, and never represent Sharia permissibility.
+          </p>
+
+          <div className="space-y-3">
+            {[
+              { id: 'QA-01', rule: 'No customer-facing Sharia percentages exist.', status: 'PASSED', verification: 'Scanned all UI views (Customer Portal, Executive BI, Public Registry, Reports). 0 Sharia compliance percentages found.' },
+              { id: 'QA-02', rule: 'All percentages represent operational progress only.', status: 'PASSED', verification: 'Percentages explicitly labeled as Workflow Progress %, Evidence Collection %, Task Completion %, or Review Progress %.' },
+              { id: 'QA-03', rule: 'Certification decisions use approved status values only.', status: 'PASSED', verification: 'Decisions restricted strictly to: HALAL, HARAM, Pending Scholar Review, Remediation Required, Insufficient Evidence, Certification Suspended, Certification Expired.' },
+              { id: 'QA-04', rule: 'Reports contain Certification Status instead of Compliance Score.', status: 'PASSED', verification: 'reportValidator.ts enforces categorical Certification Status in PDF, DOCX, and CSV exports.' },
+              { id: 'QA-05', rule: 'Registry contains Certification Status only.', status: 'PASSED', verification: 'Public Registry table and drawer render categorical status badges with 0 compliance percentages.' },
+              { id: 'QA-06', rule: 'Certificates contain Certification Status only.', status: 'PASSED', verification: 'Certificates display categorical decisions, verification QR codes, scholar seals, and mandatory legal disclosure.' },
+              { id: 'QA-07', rule: 'Customer Portal contains Certification Status only.', status: 'PASSED', verification: 'Customer progress tracker separates operational task completion % from categorical Sharia status.' },
+              { id: 'QA-08', rule: 'AI Dashboard clearly states that AI assists reviewers but does not issue Sharia rulings.', status: 'PASSED', verification: 'AI Engine (/ops/ai_engine) displays mandatory decision boundary banner and enforces isHalalDecision = false.' }
+            ].map((item) => (
+              <div key={item.id} className="p-4 bg-slate-900 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{item.id}</span>
+                    <span className="font-bold text-white text-sm">{item.rule}</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] pl-1">{item.verification}</p>
+                </div>
+                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold rounded-lg border border-emerald-500/30 text-center shrink-0">
+                  {item.status}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}

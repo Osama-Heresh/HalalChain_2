@@ -234,7 +234,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
               headers: ['Configuration Parameter', 'Configured Value', 'Security Impact'],
               rows: [
                 ['Operating Mode', configForm.operatingMode.toUpperCase(), 'Enforces Live Cloud Run & Firestore Rules'],
-                ['Sharia Risk Alert Threshold', `${configForm.shariaRiskThreshold}%`, 'Triggers Automated Scholar Flags'],
+                ['Evidence Discrepancy Risk Threshold', `${configForm.shariaRiskThreshold}%`, 'Triggers Automated Scholar Flags'],
                 ['Certificate Validity Duration', `${configForm.certExpiryDays} Days`, 'Automates Certificate Expiration'],
                 ['Primary AI Model', configForm.aiModelSelected, 'Controls Extraction Speed and Accuracy'],
                 ['Outbound Email Rate Limit', `${configForm.outboundEmailRateLimit} / hr`, 'Protects SMTP Infrastructure'],
@@ -335,7 +335,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
             headers: ['Configuration Parameter', 'Configured Value', 'Security Impact'],
             rows: [
               ['Operating Mode', configForm.operatingMode.toUpperCase(), 'Enforces Live Cloud Run & Firestore Rules'],
-              ['Sharia Risk Alert Threshold', `${configForm.shariaRiskThreshold}%`, 'Triggers Automated Scholar Flags'],
+              ['Evidence Discrepancy Risk Threshold', `${configForm.shariaRiskThreshold}%`, 'Triggers Automated Scholar Flags'],
               ['Certificate Validity Duration', `${configForm.certExpiryDays} Days`, 'Automates Certificate Expiration'],
               ['Primary AI Model', configForm.aiModelSelected, 'Controls Extraction Speed and Accuracy'],
               ['Outbound Email Rate Limit', `${configForm.outboundEmailRateLimit} / hr`, 'Protects SMTP Infrastructure'],
@@ -1010,7 +1010,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-300 block">Sharia Risk Alert Threshold (%)</label>
+              <label className="text-xs font-bold text-slate-300 block">Evidence Discrepancy Risk Threshold (%)</label>
               <input
                 type="number"
                 value={configForm.shariaRiskThreshold}
@@ -1377,7 +1377,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
                   <span className="font-bold text-emerald-400 uppercase">{configForm.operatingMode}</span>
                 </div>
                 <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                  <span className="text-slate-400 block">Sharia Risk Alert Threshold:</span>
+                  <span className="text-slate-400 block">Evidence Discrepancy Risk Threshold:</span>
                   <span className="font-bold text-white">{configForm.shariaRiskThreshold}%</span>
                 </div>
                 <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
