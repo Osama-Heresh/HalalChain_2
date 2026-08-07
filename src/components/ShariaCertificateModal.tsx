@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { PublicCertifiedProject, CertificationApplication } from '../types';
+import { STANDARDIZED_LEGAL_DISCLAIMER } from '../lib/reportValidator';
 import { ShieldCheck, X, Lock, CheckCircle2, Award, Printer, Loader2 } from 'lucide-react';
 import { IslamicPatternBg } from './IslamicPatternBg';
 import { toPng } from 'html-to-image';
@@ -466,6 +467,12 @@ export const ShariaCertificateModal: React.FC<ShariaCertificateModalProps> = ({
                 IMMUTABLE
               </span>
             </div>
+          </div>
+
+          {/* Mandatory Sharia Governance Legal Disclaimer */}
+          <div className="p-3 bg-slate-900 text-slate-300 rounded-xl text-[10px] font-sans leading-relaxed border border-slate-800">
+            <p className="font-bold text-amber-400 uppercase font-mono text-[9px] mb-1">Mandatory Sharia Assessment Disclosure</p>
+            {STANDARDIZED_LEGAL_DISCLAIMER}
           </div>
 
           </div>

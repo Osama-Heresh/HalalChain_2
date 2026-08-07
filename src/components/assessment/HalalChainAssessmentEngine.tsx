@@ -507,19 +507,19 @@ export const HalalChainAssessmentEngine: React.FC<HalalChainAssessmentEngineProp
           {/* High-Impact Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-center">
-              <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">OVERALL AUDIT SCORE</span>
-              <span className="text-2xl font-extrabold text-emerald-900 font-serif block mt-1">
-                {conclusion?.overallAssessmentScore || 96.5}%
+              <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">FINAL SHARIA CERTIFICATION</span>
+              <span className="text-xl font-extrabold text-emerald-900 font-mono block mt-1">
+                {assessment.finalCertificateDecision || conclusion?.certificateStatus || 'HALAL'}
               </span>
-              <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">High Quality Compliance</span>
+              <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">Categorical Decision</span>
             </div>
 
             <div className="p-4 bg-slate-900 text-white rounded-2xl border border-slate-800 text-center">
-              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">WORKFLOW STATE</span>
-              <span className="text-lg font-bold text-amber-300 font-mono block mt-1 truncate">
-                {assessment.workflowState || 'Certified'}
+              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">WORKFLOW PROGRESS</span>
+              <span className="text-2xl font-bold text-amber-300 font-mono block mt-1 truncate">
+                {conclusion?.workflowProgressPct || 100}%
               </span>
-              <span className="text-[10px] text-slate-400 block mt-0.5">Single Final Status</span>
+              <span className="text-[10px] text-slate-400 block mt-0.5">Task Completion</span>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center">

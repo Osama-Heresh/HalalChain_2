@@ -1784,7 +1784,7 @@ export const EnterpriseIntelligencePlatform: React.FC<EnterpriseIntelligencePlat
             </div>
 
             <div className="text-right font-mono">
-              <span className="text-xs text-slate-500 block">Overall Compliance Score</span>
+              <span className="text-xs text-slate-500 block">Assessment Workflow Completion</span>
               <span className="text-2xl font-bold font-serif text-emerald-600">97.4%</span>
             </div>
           </div>

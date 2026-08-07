@@ -770,6 +770,15 @@ export interface ExtractedWhitepaperData {
   versionHistory?: WhitepaperVersionItem[];
 }
 
+export type ShariaCertificationStatus =
+  | 'HALAL'
+  | 'HARAM'
+  | 'PENDING SCHOLAR REVIEW'
+  | 'REMEDIATION REQUIRED'
+  | 'INSUFFICIENT EVIDENCE'
+  | 'CERTIFICATION SUSPENDED'
+  | 'CERTIFICATION EXPIRED';
+
 export type ReportWorkflowState =
   | 'Draft'
   | 'Technical Review'
@@ -782,8 +791,9 @@ export type ReportWorkflowState =
 
 export interface ReportExecutiveConclusion {
   executiveSummary: string;
-  overallRiskRating: 'Low Risk' | 'Medium Risk' | 'High Risk';
-  overallAssessmentScore: number;
+  overallRiskRating: 'Low Risk' | 'Medium Risk' | 'High Risk' | 'Critical Risk';
+  workflowProgressPct?: number; // Workflow progress % only (operational work completion)
+  aiEvidenceConfidencePct?: number; // AI fact extraction confidence %
   strengths: string[];
   weaknesses: string[];
   majorFindings: string[];
@@ -792,7 +802,7 @@ export interface ReportExecutiveConclusion {
   scopeOfAssessment: string;
   assessmentLimitations: string;
   nextReviewDate: string;
-  certificateStatus: string;
+  certificateStatus: ShariaCertificationStatus | string;
   reviewerRecommendation: string;
   executiveRecommendation: string;
   qrVerificationUrl?: string;
@@ -869,7 +879,7 @@ export interface AssessmentReportData {
   workflowState?: ReportWorkflowState;
   currentStep: AssessmentStepNumber;
   draftWatermark: boolean; // True by default!
-  finalCertificateDecision?: 'APPROVED_HALAL' | 'REJECTED_HARAM' | 'CONDITIONAL_APPROVAL' | 'PENDING';
+  finalCertificateDecision?: ShariaCertificationStatus;
   certificateNumber?: string;
   issueDate?: string;
   verificationHash?: string;
@@ -1514,7 +1524,8 @@ export interface AiExecutiveSummaryReport {
   projectName: string;
   generatedAt: string;
   recommendedDecision: 'RECOMMENDED_FOR_CERTIFICATION' | 'REQUIRES_REVISION_AND_MITIGATION' | 'HIGH_SHARIA_RISK_REJECTED' | 'INCOMPLETE_EVIDENCE_HOLD';
-  overallAssessmentScore: number;
+  aiEvidenceConfidencePct: number;
+  workflowProgressPct?: number;
   majorFindings: string[];
   majorRisks: Array<{
     id: string;

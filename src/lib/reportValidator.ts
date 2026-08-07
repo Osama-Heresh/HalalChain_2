@@ -6,7 +6,7 @@ import {
 } from '../types';
 
 export const STANDARDIZED_LEGAL_DISCLAIMER =
-  'The assessment was performed using the HALALCHAIN™ methodology, informed by selected AAOIFI principles where applicable and reviewed by qualified human reviewers. HALALCHAIN™ is an independent Web3 due-diligence framework and does not claim official endorsement or direct certification by AAOIFI.';
+  'The percentages displayed within HALALCHAIN™ represent workflow completion, evidence collection progress, or task completion only. They do not represent the degree of Sharia permissibility. The final Sharia determination is expressed solely through the certification decision (HALAL, HARAM, Pending Scholar Review, Remediation Required, Insufficient Evidence, Certification Suspended, or Certification Expired) following completion of the approved assessment methodology.';
 
 /**
  * Pre-generation Quality and Consistency Validator

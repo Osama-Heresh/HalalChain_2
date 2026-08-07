@@ -81,7 +81,8 @@ export function buildProjectAssessmentReportOptions(
     subtitle: 'Consolidated Technical, Economic & Sharia Audit Verdict',
     content: conclusion?.executiveSummary || `The audit confirms that ${projectName} maintains clear evidence traceability across whitepaper documentation and smart contract bytecode. Zero fixed-yield or interest leverage risks were identified in the primary protocol mechanism.`,
     keyValuePairs: [
-      { label: 'Overall Audit Score', value: `${conclusion?.overallAssessmentScore || 96.5}%` },
+      { label: 'Sharia Certification Decision', value: assessmentData?.finalCertificateDecision || 'HALAL' },
+      { label: 'Workflow Progress', value: `${conclusion?.workflowProgressPct || 100}%` },
       { label: 'Risk Classification', value: conclusion?.overallRiskRating || 'Low Risk' },
       { label: 'Certificate Decision', value: conclusion?.certificateStatus || 'Certified Sharia & Technical Compliant' },
       { label: 'Next Re-Audit Schedule', value: conclusion?.nextReviewDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
@@ -286,7 +287,7 @@ export function buildProjectAssessmentReportOptions(
     includeCoverPage: true,
     sections: sections,
     summaryMetrics: [
-      { label: 'Audit Score', value: `${conclusion?.overallAssessmentScore || 96.5}%` },
+      { label: 'Sharia Certification', value: assessmentData?.finalCertificateDecision || 'HALAL' },
       { label: 'Workflow State', value: assessmentData?.workflowState || 'Certified' },
       { label: 'Risk Rating', value: conclusion?.overallRiskRating || 'Low Risk' },
       { label: 'Verified Evidence', value: `${dossier?.evidenceRegister?.length || assessmentData?.step2WhitepaperFacts?.length || 12} Items` }

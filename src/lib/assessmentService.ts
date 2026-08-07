@@ -8,8 +8,10 @@ import {
   RiskFindingItem,
   StandardsMappingItem,
   CertificationApplication,
-  ReviewerSignoff
+  ReviewerSignoff,
+  ShariaCertificationStatus
 } from '../types';
+import { STANDARDIZED_LEGAL_DISCLAIMER } from './reportValidator';
 
 export const ASSESSMENT_STEPS_META = [
   {
@@ -346,7 +348,7 @@ export function createDefaultAssessmentForProject(app: CertificationApplication)
     status: 'Draft Report Ready',
     currentStep: 9,
     draftWatermark: true, // Remains true until human signoff condition is tested
-    finalCertificateDecision: 'APPROVED_HALAL',
+    finalCertificateDecision: 'HALAL',
     certificateNumber: `HC-CERT-2026-${Math.floor(8000 + Math.random() * 1000)}`,
     issueDate: new Date().toISOString().split('T')[0],
     verificationHash: `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`,
@@ -373,7 +375,8 @@ export function createDefaultAssessmentForProject(app: CertificationApplication)
     executiveConclusion: {
       executiveSummary: `The HALALCHAIN™ Sharia & Technical Assessment Engine has completed an end-to-end evidence audit for ${app.companyName}. Evaluation encompassed whitepaper extraction, smart contract bytecode security scanning, tokenomics disbursal validation, and alignment with AAOIFI-informed principles.`,
       overallRiskRating: 'Low Risk',
-      overallAssessmentScore: 96.5,
+      workflowProgressPct: 100,
+      aiEvidenceConfidencePct: 96.5,
       strengths: [
         `Zero conventional interest (Riba) or debt-leveraged yield structures detected in ${app.companyName} token model.`,
         `Bytecode verification confirmed multi-signature Gnosis Safe controls with emergency pause limits.`,
@@ -399,7 +402,7 @@ export function createDefaultAssessmentForProject(app: CertificationApplication)
       scopeOfAssessment: `Detailed technical, economic, and Sharia compliance review of ${app.companyName} whitepaper v2.1, deployed smart contract bytecode, and published documentation.`,
       assessmentLimitations: 'Assessment reflects protocol code and documentation at the time of review. External market volatility and third-party oracle dependencies are outside direct contract scope.',
       nextReviewDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      certificateStatus: 'Certified Sharia & Technical Compliant',
+      certificateStatus: 'HALAL',
       reviewerRecommendation: 'Proceed with Certificate Issuance upon completion of website text updates.',
       executiveRecommendation: 'Approved for Enterprise Directory Publication & Investor Distribution.',
       qrVerificationUrl: `https://halalchain.io/verify/HC-CERT-2026-${app.id}`,
@@ -525,7 +528,7 @@ export function createDefaultAssessmentForProject(app: CertificationApplication)
       issueDate: new Date().toISOString().split('T')[0],
       revisionDate: new Date().toISOString().split('T')[0]
     },
-    legalDisclaimer: 'The assessment was performed using the HALALCHAIN™ methodology, informed by selected AAOIFI principles where applicable and reviewed by qualified human reviewers. HALALCHAIN™ is an independent Web3 due-diligence framework and does not claim official endorsement or direct certification by AAOIFI.',
+    legalDisclaimer: STANDARDIZED_LEGAL_DISCLAIMER,
     auditTrail: [
       {
         id: 'AUD-01',
@@ -589,4 +592,65 @@ export function saveLocalAssessment(data: AssessmentReportData): void {
   } catch (err) {
     console.warn('Failed saving local assessment:', err);
   }
+}
+
+/**
+ * MANDATORY SHARIA DECISION EVALUATION
+ * Enforces strict Sharia governance rule: HALALCHAIN is NOT a scoring platform.
+ * Returns solely one of the 7 official certification states.
+ */
+export function evaluateShariaCertificationStatus(data: Partial<AssessmentReportData>): ShariaCertificationStatus {
+  const certStatusStr = data.executiveConclusion?.certificateStatus?.toString().toUpperCase();
+  if (certStatusStr === 'CERTIFICATION SUSPENDED') return 'CERTIFICATION SUSPENDED';
+  if (certStatusStr === 'CERTIFICATION EXPIRED') return 'CERTIFICATION EXPIRED';
+
+  // Rule 1: Any unresolved Critical finding -> HARAM
+  const risks = data.step7Risks || [];
+  const hasCriticalFinding = risks.some(
+    r => r.severity === 'Critical' && r.reviewerStatus !== 'Overridden / Cleared'
+  );
+  if (hasCriticalFinding) {
+    return 'HARAM';
+  }
+
+  // Rule 2: Scholar rejection -> HARAM
+  const scholarSignoff = data.humanReviewSignoffs?.scholar || (data.expertReviewPanel?.scholar as any);
+  if (scholarSignoff && (scholarSignoff.status === 'Rejected' || scholarSignoff.decision === 'Rejected')) {
+    return 'HARAM';
+  }
+
+  // Rule 3: Insufficient evidence -> INSUFFICIENT EVIDENCE
+  const hasInsufficientEvidence =
+    data.step1InfoCollection?.extractedWhitepaper?.status === 'NOT_FOUND' ||
+    (data.step2WhitepaperFacts && data.step2WhitepaperFacts.length === 0);
+  if (hasInsufficientEvidence) {
+    return 'INSUFFICIENT EVIDENCE';
+  }
+
+  // Rule 4: Critical/High recommendations or unresolved High risks -> REMEDIATION REQUIRED
+  const hasUnresolvedHighRisks = risks.some(
+    r => r.severity === 'High' && r.reviewerStatus === 'Pending Review'
+  );
+  const hasCriticalRemediation = data.improvementRecommendations?.some(
+    rec => rec.priority === 'Critical' || (rec.priority === 'High' && rec.currentStatus === 'In Progress')
+  );
+  if (hasUnresolvedHighRisks || hasCriticalRemediation) {
+    return 'REMEDIATION REQUIRED';
+  }
+
+  // Rule 5: Signoffs check
+  const signoffs = data.humanReviewSignoffs;
+  const allApproved =
+    signoffs &&
+    signoffs.tech_auditor?.status === 'Approved' &&
+    signoffs.business_analyst?.status === 'Approved' &&
+    signoffs.scholar?.status === 'Approved' &&
+    signoffs.qa?.status === 'Approved' &&
+    signoffs.pm?.status === 'Approved';
+
+  if (!allApproved) {
+    return 'PENDING SCHOLAR REVIEW';
+  }
+
+  return 'HALAL';
 }

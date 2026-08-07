@@ -67,7 +67,9 @@ export const AiAssessmentIntelligenceConsole: React.FC<AiAssessmentIntelligenceC
 HALALCHAIN™ ENTERPRISE AI EXECUTIVE ASSESSMENT REPORT
 Project: ${intelligence.projectName} (${intelligence.projectId})
 Recommended Decision: ${intelligence.executiveSummary.recommendedDecision}
-Overall Assessment Score: ${intelligence.executiveSummary.overallAssessmentScore}/100
+AI Evidence Confidence: ${intelligence.executiveSummary.aiEvidenceConfidencePct}%
+Workflow Progress: ${intelligence.executiveSummary.workflowProgressPct || 100}%
+NOTICE: The AI engine does NOT determine whether a project is Halal or Haram. The AI assists human reviewers only.
 
 MAJOR FINDINGS:
 ${intelligence.executiveSummary.majorFindings.map(f => `- ${f}`).join('\n')}
@@ -705,8 +707,9 @@ Label: ${intelligence.executiveSummary.label}
                 </span>
               </div>
               <div className="text-right font-mono">
-                <span className="text-[10px] uppercase text-slate-500 block font-bold">Overall Score</span>
-                <span className="text-2xl font-black">{intelligence.executiveSummary.overallAssessmentScore}/100</span>
+                <span className="text-[10px] uppercase text-slate-500 block font-bold">AI Evidence Confidence</span>
+                <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{intelligence.executiveSummary.aiEvidenceConfidencePct}%</span>
+                <span className="text-[9px] text-slate-500 block">AI assists human reviewers only</span>
               </div>
             </div>
 

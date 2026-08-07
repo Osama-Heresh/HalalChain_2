@@ -86,9 +86,9 @@ export const Footer: React.FC<FooterProps> = ({ setPublicSubView }) => {
             <p className="text-xs text-slate-400 leading-relaxed mb-3">
               All assessments strictly adhere to AAOIFI Sharia Standards and HalalChain™ Methodology v2.1.
             </p>
-            <div className="bg-[#1C2541] p-3 rounded-lg border border-amber-500/20 text-[11px] text-slate-300">
-              <span className="text-amber-400 font-semibold block mb-1">Official Disclaimer:</span>
-              {t('sharia.disclaimer')}
+            <div className="bg-[#1C2541] p-3 rounded-lg border border-amber-500/20 text-[11px] text-slate-300 leading-relaxed">
+              <span className="text-amber-400 font-semibold block mb-1">Mandatory Sharia Assessment Disclosure:</span>
+              The percentages displayed within HALALCHAIN™ represent workflow completion, evidence collection progress, or task completion only. They do not represent the degree of Sharia permissibility. The final Sharia determination is expressed solely through the certification decision (HALAL, HARAM, Pending Scholar Review, Remediation Required, Insufficient Evidence, Certification Suspended, or Certification Expired) following completion of the approved assessment methodology.
             </div>
           </div>
         </div>

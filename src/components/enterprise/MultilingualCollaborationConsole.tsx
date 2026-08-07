@@ -584,7 +584,7 @@ export const MultilingualCollaborationConsole: React.FC = () => {
             reportSubtitleEn="Comprehensive Sharia & Smart Contract Assessment"
             reportSubtitleAr="التقييم الشامل للعقود الذكية والتوافق مع الشريعة الإسلامية"
             kpis={[
-              { labelEn: 'Sharia Score', labelAr: 'نسبة التوافق الشرعي', value: '100% Compliant' },
+              { labelEn: 'Sharia Decision', labelAr: 'القرار الشرعي', value: 'HALAL' },
               { labelEn: 'AAOIFI Standards', labelAr: 'معايير الأيوفي المستوفاة', value: '4 Standards' },
               { labelEn: 'Smart Contract Audit', labelAr: 'فحص الشفيرة البرمجية', value: 'Passed (0 High Vulnerabilities)' },
               { labelEn: 'Audit Status', labelAr: 'حالة الاعتماد', value: 'Certified' }
