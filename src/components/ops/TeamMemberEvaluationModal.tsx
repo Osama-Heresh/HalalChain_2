@@ -585,8 +585,8 @@ export const TeamMemberEvaluationModal: React.FC<TeamMemberEvaluationModalProps>
                       </div>
 
                       <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex items-center justify-between">
-                        <span className="text-slate-600">AAOIFI & Sharia Compliance</span>
-                        <span className="font-bold text-emerald-700">{evaluation.systemAutoMetrics.complianceQuality}%</span>
+                        <span className="text-slate-600">Assessment & Audit Quality</span>
+                        <span className="font-bold text-emerald-700">{evaluation.systemAutoMetrics.assessmentQuality}%</span>
                       </div>
                     </div>
                   </div>

@@ -328,7 +328,7 @@ export interface AiExtractionResult {
   businessAnalysis: {
     coreActivities: string[];
     revenueStructure: string;
-    shariaRiskScore: number;
+    businessRiskLevel: 'High' | 'Medium' | 'Low';
     transparencyLevel: 'High' | 'Medium' | 'Low';
   };
   aiDraftFindings: AiFinding[];
@@ -494,7 +494,7 @@ export interface SystemAutoMetrics {
   auditAccuracyScore: number; // 0-100
   reportCompleteness: number; // 0-100
   communicationResponsiveness: number; // 0-100
-  complianceQuality: number; // 0-100
+  assessmentQuality: number; // 0-100
   overallAutoScore: number; // 0-100
 }
 

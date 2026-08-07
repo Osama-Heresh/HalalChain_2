@@ -93,7 +93,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
   // Config States
   const [configForm, setConfigForm] = useState({
     operatingMode: 'production',
-    shariaRiskThreshold: 25,
+    evidenceDiscrepancyThreshold: 25,
     certExpiryDays: 365,
     aiModelSelected: 'gemini-3.6-flash',
     outboundEmailRateLimit: 500,
@@ -234,7 +234,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
               headers: ['Configuration Parameter', 'Configured Value', 'Security Impact'],
               rows: [
                 ['Operating Mode', configForm.operatingMode.toUpperCase(), 'Enforces Live Cloud Run & Firestore Rules'],
-                ['Evidence Discrepancy Risk Threshold', `${configForm.shariaRiskThreshold}%`, 'Triggers Automated Scholar Flags'],
+                ['Evidence Discrepancy Risk Threshold', `${configForm.evidenceDiscrepancyThreshold}%`, 'Triggers Automated Scholar Flags'],
                 ['Certificate Validity Duration', `${configForm.certExpiryDays} Days`, 'Automates Certificate Expiration'],
                 ['Primary AI Model', configForm.aiModelSelected, 'Controls Extraction Speed and Accuracy'],
                 ['Outbound Email Rate Limit', `${configForm.outboundEmailRateLimit} / hr`, 'Protects SMTP Infrastructure'],
@@ -335,7 +335,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
             headers: ['Configuration Parameter', 'Configured Value', 'Security Impact'],
             rows: [
               ['Operating Mode', configForm.operatingMode.toUpperCase(), 'Enforces Live Cloud Run & Firestore Rules'],
-              ['Evidence Discrepancy Risk Threshold', `${configForm.shariaRiskThreshold}%`, 'Triggers Automated Scholar Flags'],
+              ['Evidence Discrepancy Risk Threshold', `${configForm.evidenceDiscrepancyThreshold}%`, 'Triggers Automated Scholar Flags'],
               ['Certificate Validity Duration', `${configForm.certExpiryDays} Days`, 'Automates Certificate Expiration'],
               ['Primary AI Model', configForm.aiModelSelected, 'Controls Extraction Speed and Accuracy'],
               ['Outbound Email Rate Limit', `${configForm.outboundEmailRateLimit} / hr`, 'Protects SMTP Infrastructure'],
@@ -1013,8 +1013,8 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
               <label className="text-xs font-bold text-slate-300 block">Evidence Discrepancy Risk Threshold (%)</label>
               <input
                 type="number"
-                value={configForm.shariaRiskThreshold}
-                onChange={(e) => setConfigForm({ ...configForm, shariaRiskThreshold: Number(e.target.value) })}
+                value={configForm.evidenceDiscrepancyThreshold}
+                onChange={(e) => setConfigForm({ ...configForm, evidenceDiscrepancyThreshold: Number(e.target.value) })}
                 className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 focus:ring-1 focus:ring-amber-400"
               />
             </div>
@@ -1378,7 +1378,7 @@ export const EnterpriseReleaseCandidateConsole: React.FC<EnterpriseReleaseCandid
                 </div>
                 <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
                   <span className="text-slate-400 block">Evidence Discrepancy Risk Threshold:</span>
-                  <span className="font-bold text-white">{configForm.shariaRiskThreshold}%</span>
+                  <span className="font-bold text-white">{configForm.evidenceDiscrepancyThreshold}%</span>
                 </div>
                 <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
                   <span className="text-slate-400 block">Certificate Validity:</span>

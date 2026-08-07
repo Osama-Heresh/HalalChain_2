@@ -790,7 +790,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
                                 projectName: app.projectName,
                                 currentTask: 'Technical Bytecode Audit & Verification',
                                 assignedDate: '2026-07-15',
-                                systemAutoMetrics: { slaAdherenceScore: 98, auditAccuracyScore: 99, reportCompleteness: 97, communicationResponsiveness: 98, complianceQuality: 99, overallAutoScore: 98 },
+                                systemAutoMetrics: { slaAdherenceScore: 98, auditAccuracyScore: 99, reportCompleteness: 97, communicationResponsiveness: 98, assessmentQuality: 99, overallAutoScore: 98 },
                                 pmManualAssessment: { leadershipScore: 96, analyticalDepth: 98, teamCollaboration: 95, technicalRigour: 99, deliverablePunctuality: 97, overallPmScore: 97, evaluatorNotes: 'Outstanding technical diligence.', evaluatedDate: new Date().toISOString().split('T')[0], evaluatorName: 'Omar Khayyam (PM)' },
                                 finalCombinedScore: 98,
                                 ratingCategory: 'Exceptional (A+)'
@@ -823,7 +823,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
                                 projectName: app.projectName,
                                 currentTask: 'AAOIFI Sharia Governance Fatwa Review',
                                 assignedDate: '2026-07-15',
-                                systemAutoMetrics: { slaAdherenceScore: 96, auditAccuracyScore: 98, reportCompleteness: 98, communicationResponsiveness: 97, complianceQuality: 100, overallAutoScore: 97 },
+                                systemAutoMetrics: { slaAdherenceScore: 96, auditAccuracyScore: 98, reportCompleteness: 98, communicationResponsiveness: 97, assessmentQuality: 100, overallAutoScore: 97 },
                                 pmManualAssessment: { leadershipScore: 98, analyticalDepth: 99, teamCollaboration: 97, technicalRigour: 98, deliverablePunctuality: 96, overallPmScore: 98, evaluatorNotes: 'Deep AAOIFI expertise and clear scholarly rulings.', evaluatedDate: new Date().toISOString().split('T')[0], evaluatorName: 'Omar Khayyam (PM)' },
                                 finalCombinedScore: 98,
                                 ratingCategory: 'Exceptional (A+)'
@@ -856,7 +856,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
                                 projectName: app.projectName,
                                 currentTask: 'Financial Flow & Mudarabah Tokenomics Modeling',
                                 assignedDate: '2026-07-15',
-                                systemAutoMetrics: { slaAdherenceScore: 94, auditAccuracyScore: 95, reportCompleteness: 96, communicationResponsiveness: 95, complianceQuality: 96, overallAutoScore: 95 },
+                                systemAutoMetrics: { slaAdherenceScore: 94, auditAccuracyScore: 95, reportCompleteness: 96, communicationResponsiveness: 95, assessmentQuality: 96, overallAutoScore: 95 },
                                 pmManualAssessment: { leadershipScore: 93, analyticalDepth: 96, teamCollaboration: 95, technicalRigour: 94, deliverablePunctuality: 95, overallPmScore: 94, evaluatorNotes: 'Strong economic modeling and clear financial breakdowns.', evaluatedDate: new Date().toISOString().split('T')[0], evaluatorName: 'Omar Khayyam (PM)' },
                                 finalCombinedScore: 95,
                                 ratingCategory: 'Exceptional (A+)'
@@ -889,7 +889,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
                                 projectName: app.projectName,
                                 currentTask: 'QA Verification & Test Case Validation',
                                 assignedDate: '2026-07-15',
-                                systemAutoMetrics: { slaAdherenceScore: 97, auditAccuracyScore: 97, reportCompleteness: 98, communicationResponsiveness: 99, complianceQuality: 98, overallAutoScore: 98 },
+                                systemAutoMetrics: { slaAdherenceScore: 97, auditAccuracyScore: 97, reportCompleteness: 98, communicationResponsiveness: 99, assessmentQuality: 98, overallAutoScore: 98 },
                                 pmManualAssessment: { leadershipScore: 95, analyticalDepth: 97, teamCollaboration: 98, technicalRigour: 98, deliverablePunctuality: 98, overallPmScore: 97, evaluatorNotes: 'Rigorously validated all test cases before final signoff.', evaluatedDate: new Date().toISOString().split('T')[0], evaluatorName: 'Omar Khayyam (PM)' },
                                 finalCombinedScore: 98,
                                 ratingCategory: 'Exceptional (A+)'
@@ -1047,7 +1047,7 @@ export const PMProjectHubView: React.FC<PMProjectHubViewProps> = ({
                     auditAccuracyScore: 97,
                     reportCompleteness: 95,
                     communicationResponsiveness: 98,
-                    complianceQuality: 99,
+                    assessmentQuality: 99,
                     overallAutoScore: emp.qualityScore || 97
                   },
                   pmManualAssessment: {

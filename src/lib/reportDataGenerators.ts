@@ -170,15 +170,15 @@ export function generateDedicatedReportData(
             { header: 'Asset Type', key: 'type' },
             { header: 'Workflow Stage', key: 'stage' },
             { header: 'Revenue (USD)', key: 'revenue' },
-            { header: 'Sharia Risk Score', key: 'risk' },
+            { header: 'Evidence Findings Status', key: 'risk' },
             { header: 'Target Completion', key: 'target' }
           ],
           rows: [
-            { project: 'Islamic Coin (ISLM)', type: 'L1 Blockchain', stage: 'Certified', revenue: '$85,000', risk: 'Low Risk (98.2%)', target: 'Completed' },
-            { project: 'HAQQ Network', type: 'Proof of Stake Network', stage: 'Certified', revenue: '$120,000', risk: 'Low Risk (99.1%)', target: 'Completed' },
-            { project: 'Gold Sukuk Token', type: 'RWA Tokenized Gold', stage: 'Sharia Board Audit', revenue: '$65,000', risk: 'Moderate (89.5%)', target: '2026-08-15' },
-            { project: 'Takaful DeFi Liquidity', type: 'DeFi Insurance', stage: 'Technical Review', revenue: '$45,000', risk: 'Low Risk (94.0%)', target: '2026-08-20' },
-            { project: 'HalalPay Remittance', type: 'Stablecoin Payment', stage: 'QA Review', revenue: '$55,000', risk: 'Low Risk (97.5%)', target: '2026-08-10' }
+            { project: 'Islamic Coin (ISLM)', type: 'L1 Blockchain', stage: 'Certified', revenue: '$85,000', risk: '0 Critical Findings (Resolved)', target: 'Completed' },
+            { project: 'HAQQ Network', type: 'Proof of Stake Network', stage: 'Certified', revenue: '$120,000', risk: '0 Critical Findings (Resolved)', target: 'Completed' },
+            { project: 'Gold Sukuk Token', type: 'RWA Tokenized Gold', stage: 'Sharia Board Audit', revenue: '$65,000', risk: '1 Medium Finding (In Review)', target: '2026-08-15' },
+            { project: 'Takaful DeFi Liquidity', type: 'DeFi Insurance', stage: 'Technical Review', revenue: '$45,000', risk: '0 Critical Findings (In Review)', target: '2026-08-20' },
+            { project: 'HalalPay Remittance', type: 'Stablecoin Payment', stage: 'QA Review', revenue: '$55,000', risk: '0 Critical Findings (In Verification)', target: '2026-08-10' }
           ]
         }
       ];

@@ -727,7 +727,7 @@ export const INITIAL_MEMBER_EVALUATIONS: MemberEvaluation[] = [
       auditAccuracyScore: 100,
       reportCompleteness: 98,
       communicationResponsiveness: 97,
-      complianceQuality: 100,
+      assessmentQuality: 100,
       overallAutoScore: 99
     },
     pmManualAssessment: {
@@ -758,7 +758,7 @@ export const INITIAL_MEMBER_EVALUATIONS: MemberEvaluation[] = [
       auditAccuracyScore: 98,
       reportCompleteness: 95,
       communicationResponsiveness: 97,
-      complianceQuality: 98,
+      assessmentQuality: 98,
       overallAutoScore: 97
     },
     pmManualAssessment: {
@@ -789,7 +789,7 @@ export const INITIAL_MEMBER_EVALUATIONS: MemberEvaluation[] = [
       auditAccuracyScore: 94,
       reportCompleteness: 96,
       communicationResponsiveness: 95,
-      complianceQuality: 96,
+      assessmentQuality: 96,
       overallAutoScore: 95
     },
     pmManualAssessment: {
@@ -820,7 +820,7 @@ export const INITIAL_MEMBER_EVALUATIONS: MemberEvaluation[] = [
       auditAccuracyScore: 97,
       reportCompleteness: 98,
       communicationResponsiveness: 96,
-      complianceQuality: 97,
+      assessmentQuality: 97,
       overallAutoScore: 97
     },
     pmManualAssessment: {
