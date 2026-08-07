@@ -308,7 +308,7 @@ export const EnterpriseIntelligencePlatform: React.FC<EnterpriseIntelligencePlat
       blockchain: 'BNB Chain',
       category: 'DeFi / Takaful',
       healthCategory: 'High Risk',
-      reasons: ['Unhedged liquidity pool leverage ratio exceeds Sharia threshold (15% max vs 22% detected)'],
+      reasons: ['Potential Sharia Issue Detected — Requires Scholar Review (Detected leverage ratio: 22%)'],
       recommendedActions: ['Flag critical risk finding in report', 'Request smart contract modification from developer'],
       daysInCurrentStage: 7,
       assignedReviewers: ['Dr. Nizam Yaquby', 'Sarah Jenkins, CPA']

@@ -270,10 +270,10 @@ export const INITIAL_MULTILINGUAL_RECORDS: MultilingualTextRecord[] = [
     entityId: 'APP-2026-001',
     entityName: 'Islamic Coin (ISLM)',
     originalLanguage: 'ar',
-    originalText: 'تمنح هذه الشهادة بناءً على استيفاء معايير التوافق مع الشريعة وتأمين العقود الذكية بنسبة 100%. يخضع هذا الاعتماد للمراجعة السنوية الدورية ولأي تغييرات تطرأ على الشفيرة البرمجية.',
+    originalText: 'تمنح هذه الشهادة وفقاً لمنهجية التقييم الشرعي المعتمدة لدى HALALCHAIN™ وعمليات المراجعة والاعتماد المقررة. يخضع هذا الاعتماد للمراجعة السنوية الدورية ولأي تغييرات تطرأ على الشفيرة البرمجية.',
     translations: {
-      en: 'This Certificate is issued based on 100% fulfillment of Sharia Compliance Criteria and Smart Contract Security Audits. This accreditation is subject to mandatory annual renewal and continuous software code monitoring.',
-      ar: 'تمنح هذه الشهادة بناءً على استيفاء معايير التوافق مع الشريعة وتأمين العقود الذكية بنسبة 100%. يخضع هذا الاعتماد للمراجعة السنوية الدورية ولأي تغييرات تطرأ على الشفيرة البرمجية.'
+      en: 'This Certificate is issued following completion of the applicable HALALCHAIN™ Sharia assessment methodology and the required review and approval process. This accreditation is subject to mandatory annual renewal and continuous software code monitoring.',
+      ar: 'تمنح هذه الشهادة وفقاً لمنهجية التقييم الشرعي المعتمدة لدى HALALCHAIN™ وعمليات المراجعة والاعتماد المقررة. يخضع هذا الاعتماد للمراجعة السنوية الدورية ولأي تغييرات تطرأ على الشفيرة البرمجية.'
     },
     translationStatus: 'Verified',
     translationConfidence: 1.0,

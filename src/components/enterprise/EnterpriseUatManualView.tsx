@@ -147,7 +147,7 @@ export const EnterpriseUatManualView: React.FC<EnterpriseUatManualViewProps> = (
       feature: 'Automated Token Scraper & Lead Discovery',
       priority: 'HIGH',
       role: 'marketing / sales / exec',
-      objective: 'Verify lead discovery engine scrapes market listings and calculates Sharia lead scores.',
+      objective: 'Verify lead discovery engine scrapes market listings and calculates Commercial lead scores.',
       preconditions: ['User authenticated with "marketing" or "sales" role', 'CoinMarketCap/Gecko lead scraper enabled'],
       testData: 'Search Query: "DeFi Tokens", Minimum Volume: "$500,000/day"',
       steps: [

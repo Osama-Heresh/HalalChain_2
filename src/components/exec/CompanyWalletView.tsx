@@ -397,7 +397,7 @@ export const CompanyWalletView: React.FC = () => {
 
         <div className="p-4 bg-slate-50 border-t border-slate-200 text-xs font-mono text-slate-500 flex items-center justify-between flex-wrap gap-2">
           <span>HalalChain™ Corporate Finance & Governance Module</span>
-          <span className="text-slate-700 font-bold">100% Sharia Non-Usurious Accounting Standard</span>
+          <span className="text-slate-700 font-bold">Sharia-Aligned Non-Usurious Accounting Standard</span>
         </div>
       </div>
     </div>
